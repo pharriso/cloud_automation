@@ -8,7 +8,6 @@ googleAnalytics = ""
 preserveTaxonomyNames = true
 paginate = 5 #frontpage pagination
 hasCJKLanguage = true
-publishDir = "docs"
 
 [outputs]
 home = ["HTML", "RSS", "Algolia"]
