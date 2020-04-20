@@ -3,36 +3,26 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
-    <loc>https://cloudautomation2.pharriso.co.uk/</loc>
-    <lastmod>2020-04-20T15:11:48+01:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://pharriso.github.io/cloud_automation/post/tower-enabled-hosts/</loc>
+    <lastmod>2020-04-20T17:41:05+01:00</lastmod>
   </url>
   
   <url>
-    <loc>https://cloudautomation2.pharriso.co.uk/posts/my-first-post/</loc>
-    <lastmod>2020-04-20T15:11:48+01:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://pharriso.github.io/cloud_automation/</loc>
+    <lastmod>2020-04-20T17:41:05+01:00</lastmod>
   </url>
   
   <url>
-    <loc>https://cloudautomation2.pharriso.co.uk/posts/</loc>
-    <lastmod>2020-04-20T15:11:48+01:00</lastmod>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://pharriso.github.io/cloud_automation/post/</loc>
+    <lastmod>2020-04-20T17:41:05+01:00</lastmod>
   </url>
   
   <url>
-    <loc>https://cloudautomation2.pharriso.co.uk/categories/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://pharriso.github.io/cloud_automation/categories/</loc>
   </url>
   
   <url>
-    <loc>https://cloudautomation2.pharriso.co.uk/tags/</loc>
-    <changefreq>monthly</changefreq>
-    <priority>0.5</priority>
+    <loc>https://pharriso.github.io/cloud_automation/tags/</loc>
   </url>
   
 </urlset>

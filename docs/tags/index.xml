@@ -1,13 +1,13 @@
 <?xml version="1.0" encoding="utf-8" standalone="yes"?>
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
-    <title>Tags on Cloud and Automation</title>
-    <link>https://cloudautomation2.pharriso.co.uk/tags/</link>
-    <description>Recent content in Tags on Cloud and Automation</description>
+    <title>Tags on Cloud Automation</title>
+    <link>https://pharriso.github.io/cloud_automation/tags/</link>
+    <description>Recent content in Tags on Cloud Automation</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     
-	<atom:link href="https://cloudautomation2.pharriso.co.uk/tags/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://pharriso.github.io/cloud_automation/tags/index.xml" rel="self" type="application/rss+xml" />
     
     
   </channel>
