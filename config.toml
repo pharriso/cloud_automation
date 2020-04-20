@@ -1,5 +1,5 @@
 title = "Cloud and Automation"
-baseURL = "https://cloudautomation2.pharriso.co.uk"
+baseURL = "https://pharriso.github.io"
 languageCode = "en-us"
 theme = "ananke"
 publishDir = "docs"
