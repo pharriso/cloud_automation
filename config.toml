@@ -8,7 +8,6 @@ disqusShortname = ""
 # Enable gogle analytics by entering your tracking code
 googleAnalytics = ""
 theme = "hugo-minimalist-theme"
-publishDir = "docs"
 # Remove this line if you use this theme for a real website.
 # It allows you to preview the theme within the exampleSite folder
 # with the hugo server command
