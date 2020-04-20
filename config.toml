@@ -2,7 +2,6 @@ title = "Cloud and Automation"
 baseURL = "https://pharriso.github.io/cloud_automation"
 languageCode = "en-us"
 theme = "ananke"
-publishDir = "docs"
 
 MetaDataFormat = "yaml"
 DefaultContentLanguage = "en"
