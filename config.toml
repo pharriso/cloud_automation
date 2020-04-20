@@ -1,5 +1,5 @@
 title = "Cloud and Automation"
-baseURL = "https://cloudautomation2.pharriso.co.uk
+baseURL = "https://cloudautomation2.pharriso.co.uk"
 languageCode = "en-us"
 theme = "ananke"
 publishDir = "docs"
