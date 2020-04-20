@@ -1,0 +1,31 @@
+title = "Cloud and Automation"
+baseURL = "https://cloudautomation2.pharriso.co.uk
+languageCode = "en-us"
+theme = "ananke"
+publishDir = "docs"
+
+MetaDataFormat = "yaml"
+DefaultContentLanguage = "en"
+SectionPagesMenu = "main"
+Paginate = 3 # this is set low for demonstrating with dummy content. Set to a higher number
+googleAnalytics = ""
+enableRobotsTXT = true
+
+[sitemap]
+  changefreq = "monthly"
+  priority = 0.5
+  filename = "sitemap.xml"
+
+[params]
+  favicon = ""
+  description = "The last theme you'll ever need. Maybe."
+  facebook = ""
+  twitter = "https://twitter.com/patharrison_esq"
+  instagram = ""
+  youtube = ""
+  github = "https://github.com/pharriso"
+  gitlab = ""
+  linkedin = "https://uk.linkedin.com/in/pharriso"
+  background_color_class = "bg-black"
+  featured_image = "/images/IMG_4379.JPG"
+  recent_posts_number = 2
