@@ -2,6 +2,7 @@
 title: "Scaling Ansible Tower - Job slicing"
 date: 2019-04-17T19:16:18+01:00
 draft: false
+tags: [ansible, tower]
 ---
 
 Ansible Tower is a centralised platform for running and controlling your Ansible automation. It provides a number of key features for running Ansible in the enterprise.

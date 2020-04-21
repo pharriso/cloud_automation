@@ -41,5 +41,15 @@ Ansible is simple automation tool that allows users to achieve common use cases 
  Role-Based Access Control Inventory Management Credential Management Auditing &amp;amp; Logging Clustering &amp;amp; Scale-Out  Job slicing is a new scale-out feature that was introduced in Ansible Tower 3.4 which allows us to run jobs that are distributed across our Ansible Tower cluster. Before we look at job slicing let&amp;rsquo;s quickly look at clustering and job distribution within a cluster.</description>
     </item>
     
+    <item>
+      <title>Infrastructure Migration Solution</title>
+      <link>https://cloudautomation2.pharriso.co.uk/post/ims/</link>
+      <pubDate>Wed, 09 Jan 2019 19:47:46 +0100</pubDate>
+      
+      <guid>https://cloudautomation2.pharriso.co.uk/post/ims/</guid>
+      <description>While VMware is undoubtedly a great virtualisation offering (I spent a number of users working with VMware tech) some customers are looking beyond traditional virtualisation. The growing adoption of containerisation is a great example of this and using RHV as a stepping stone to Container Native Virtualisation (CNV) is a good example use case.
+Other customers simply want to save costs and are looking at alternative virtualisation offerings. Whatever the reason for moving from VMware, we need a method for migrating workloads to RHV.</description>
+    </item>
+    
   </channel>
 </rss>
