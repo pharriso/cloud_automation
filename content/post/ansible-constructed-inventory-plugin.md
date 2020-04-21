@@ -2,6 +2,7 @@
 title: "Ansible Constructed Inventory Plugin"
 date: 2020-01-16T09:40:51+01:00
 draft: false
+tags: [ansible, tower]
 ---
 
 In this blog post we will look at how we can easily enrich an existing dynamic inventory using the constructed inventory plugin. But, before we do that, let's take a step back.
@@ -11,8 +12,8 @@ Ansible is simple automation tool that allows users to achieve common use cases 
 In it's simplest form, an inventory is just an INI or YAML file which contains a list of our managed nodes. This is ideal when getting started with Ansible, but as you start to really use Ansible in anger and at scale you will probably face a couple of questions.
 
 
-* How do I classify my infrastructure so that I can be more selective in what devices I automate against?
-* How do I effectively and efficiently maintain a list of all of my managed nodes?
+1. How do I classify my infrastructure so that I can be more selective in what devices I automate against?
+2. How do I effectively and efficiently maintain a list of all of my managed nodes?
 
 
 
@@ -255,7 +256,7 @@ Next we need to create an inventory:
 
 Then we can add an inventory source to the inventory. Ensure to add the correct credential that we created earlier.
 
-![](/images/constructed-tower-inventory.png)
+![](/images/constructed-tower-inventory-source.png)
 
 Once the inventory source has finished syncing, we should see that the relevant hosts have been imported with the constructed groups and composed variables.
 

@@ -15,29 +15,37 @@ To see how Tower determines if a node is enabled or disabled, you can take a loo
 
 Looking at RHV (Upstream name is oVirt), we can see:
 
-    # ---------------------
-    # ----- oVirt4 -----
-    # ---------------------
-    RHV_ENABLED_VAR = 'status'
-    RHV_ENABLED_VALUE = 'up'
+```bash
+# ---------------------
+# ----- oVirt4 -----
+# ---------------------
+RHV_ENABLED_VAR = 'status'
+RHV_ENABLED_VALUE = 'up'
+```
 
 And for VMware:
 
-    # Inventory variable name/values for determining whether a host is
-    # active in vSphere.
-    VMWARE_ENABLED_VAR = 'guest.gueststate'
-    VMWARE_ENABLED_VALUE = 'running'
+```bash
+# Inventory variable name/values for determining whether a host is
+# active in vSphere.
+VMWARE_ENABLED_VAR = 'guest.gueststate'
+VMWARE_ENABLED_VALUE = 'running'
+```
 
 ## Changing the default behaviour
 
 Now that we have seen the default settings and know the variable names, we can override the default behaviour. The easiest way to do this is to create a custom configuration file in /etc/tower/conf.d and override the variable value. For example, to enable all VM's regardless of power status you could create the following file and set the RHV_ENABLED_VALUE to be empty:
 
-    # cat /etc/tower/conf.d/custom.py 
-   RHV_ENABLED_VALUE = ''
+```bash
+$ cat /etc/tower/conf.d/custom.py 
+RHV_ENABLED_VALUE = ''
+```
 
 After creating this configuration file, restart the tower services:
 
-    # ansible-tower-service
+```
+$ sudo ansible-tower-service
+```
 
 Now when we sync the inventory we can now see that all of the hosts are enabled regardless of power state:
 

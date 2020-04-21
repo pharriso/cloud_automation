@@ -71,10 +71,10 @@
 
 <p>In it&rsquo;s simplest form, an inventory is just an INI or YAML file which contains a list of our managed nodes. This is ideal when getting started with Ansible, but as you start to really use Ansible in anger and at scale you will probably face a couple of questions.</p>
 
-<ul>
+<ol>
 <li>How do I classify my infrastructure so that I can be more selective in what devices I automate against?</li>
 <li>How do I effectively and efficiently maintain a list of all of my managed nodes?</li>
-</ul>
+</ol>
 
 <p>The answer to both of these questions, can quite often be to use a <a href="https://docs.ansible.com/ansible/latest/user_guide/intro_dynamic_inventory.html">dynamic inventory</a>. A dynamic inventory is a script or plugin which will go to a source of truth and discover the nodes I need to manage. It will also automatically classify the nodes by putting them into groups which can be used to more selectively target devices when automating with Ansible. There are a number of sources that Ansible can talk to out of the box such as VMware vCenter, AWS, GCP, Azure or Red Hat Satellite (Foreman upstream). There are also community inventory scripts such this the <a href="https://github.com/ServiceNowITOM/ansible-sn-inventory">ServiceNow CMDB</a> script.  And finally, you can <a href="https://docs.ansible.com/ansible/latest/dev_guide/developing_inventory.html">develop your own</a> dynamic inventory. The benefit to me as a user of Ansible is quite clear. I now no longer need to maintain a list of managed nodes. As I add or remove managed nodes, the dynamic inventory will continue to provide me with an up to date list.</p>
 
@@ -304,7 +304,7 @@ required:
 
 <p>Then we can add an inventory source to the inventory. Ensure to add the correct credential that we created earlier.</p>
 
-<p><img src="/images/constructed-tower-inventory.png" alt="" /></p>
+<p><img src="/images/constructed-tower-inventory-source.png" alt="" /></p>
 
 <p>Once the inventory source has finished syncing, we should see that the relevant hosts have been imported with the constructed groups and composed variables.</p>
 
@@ -315,6 +315,12 @@ required:
 <p>The constructed inventory plugin can be really useful for manipulating the information returned from existing dynamic inventory plugins and scripts. This example used a plugin but the constructed inventory plugin works in the same way with inventory scripts. It is worth noting that some inventory plugins provide in-built capabilities to construct variables and generate groups. Check the <a href="https://docs.ansible.com/ansible/latest/plugins/inventory.html#plugin-list">inventory plugins</a> before deciding if you need to also use the constructed inventory plugin.</p>
 </p>
           <p>16 Jan 2020
+            
+              
+                <a href="https://cloudautomation2.pharriso.co.uk/tags/ansible/">#ansible</a>
+              
+                <a href="https://cloudautomation2.pharriso.co.uk/tags/tower/">#tower</a>
+              
             
           </p>
           
