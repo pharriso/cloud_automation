@@ -1,46 +1,13 @@
 baseurl = "https://cloudautomation2.pharriso.co.uk"
+theme="material-design"
 languageCode = "en-us"
 title = "Cloud and Automation"
-# Define how many pages appear per site
 paginate = 5
-# Enable comments powered by Disqus by entering your disqus shortname
-disqusShortname = ""
-# Enable gogle analytics by entering your tracking code
-googleAnalytics = ""
 publishDir = "docs"
-theme = "hugo-minimalist-theme"
-# Remove this line if you use this theme for a real website.
-# It allows you to preview the theme within the exampleSite folder
-# with the hugo server command
-#themesDir = "../.."
 
 [params]
-    site_author = "Pat Harrison"
-    site_description = "My description"
-    #location = "Earth"
-    # Link custom assets relative to /static
-    #avatar = "img/profile-image.png"
-    header_background = "images/background.jpg"
-    header_title = "Cloud and Automation"
-    #copyright = "Powered by [Hugo](http://gohugo.io)."
-    custom_css = []
-    custom_js  = []
-
-    # Define which content types are shown on the homepage
-    mainSections = ["post"]
-
-    # Enable gogle analytics by entering your tracking code
-    google_analytics = ""
-
-[social]
-    # Add your social network accounts to the profile section on the left
-    # by entering your username. The links to your account will be
-    # create automatically.
-    twitter   = "patharrison_esq"
-    facebook  = ""
-    linkedin  = ""
-    behance   = ""
-    dribbble  = ""
-    instagram = ""
-    github    = "pharriso"
-    gplus     = ""
+  description = "This blog focuses mainly on Red Hat products in the Cloud and Automation space. I am currently working as a Solution Architect for Red Hat in the UK."
+  twitter = "patharrison_esq" # optional
+  github = "pharriso" # optional
+  linkedin = "pharriso" # optional
+  #headerCover = "images/background.jpg"

@@ -3,26 +3,37 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://cloudautomation2.pharriso.co.uk/tags/ansible/</loc>
+    <lastmod>2020-02-10T17:41:05+01:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://cloudautomation2.pharriso.co.uk/post/tower-enabled-hosts/</loc>
-    <lastmod>2020-04-20T17:41:05+01:00</lastmod>
+    <lastmod>2020-02-10T17:41:05+01:00</lastmod>
   </url>
   
   <url>
     <loc>https://cloudautomation2.pharriso.co.uk/</loc>
-    <lastmod>2020-04-20T17:41:05+01:00</lastmod>
+    <lastmod>2020-02-10T17:41:05+01:00</lastmod>
   </url>
   
   <url>
     <loc>https://cloudautomation2.pharriso.co.uk/post/</loc>
-    <lastmod>2020-04-20T17:41:05+01:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://cloudautomation2.pharriso.co.uk/categories/</loc>
+    <lastmod>2020-02-10T17:41:05+01:00</lastmod>
   </url>
   
   <url>
     <loc>https://cloudautomation2.pharriso.co.uk/tags/</loc>
+    <lastmod>2020-02-10T17:41:05+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://cloudautomation2.pharriso.co.uk/tags/tower/</loc>
+    <lastmod>2020-02-10T17:41:05+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://cloudautomation2.pharriso.co.uk/categories/</loc>
   </url>
   
 </urlset>
