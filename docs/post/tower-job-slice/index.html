@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+  <title>Scaling Ansible Tower - Job slicing</title>
+  <link href="https://cloudautomation2.pharriso.co.uk/css/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="https://cloudautomation2.pharriso.co.uk/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/default.min.css">
+  <style type="text/css">
+  
+    footer.page-footer{background-image: url(https://cloudautomation2.pharriso.co.uk/images/default.png);}
+  
+  </style>
+</head>
+<body>
+  <ul id="slide-out" class="side-nav">
+    <li><a href="https://cloudautomation2.pharriso.co.uk"><i class="mdi-action-home left"></i>Home<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+    <li><a href="https://cloudautomation2.pharriso.co.uk/categories"><i class="mdi-action-perm-media left"></i>Categories<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+    <li><a href="https://cloudautomation2.pharriso.co.uk/tags"><i class="mdi-action-loyalty left"></i>Tags<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+  </ul>
+  <div id="index-banner" class="parallax-container">
+  <a data-activates="slide-out" class="btn-floating button-collapse" style="top: 5px; left: 5px;"><i class="mdi-navigation-menu"></i></a>
+    <div class="section no-pad-bot">
+      <div class="container">
+        
+        <h1 class="header center teal-text text-lighten-2">Cloud and Automation</h1>
+        <div class="row center">
+          <h5 class="header col s12 light">This blog focuses mainly on Red Hat products in the Cloud and Automation space. I am currently working as a Solution Architect for Red Hat in the UK.</h5>
+        </div>
+        <div class="row center">
+        
+        
+          <a href="https://github.com/pharriso"><img src="https://cloudautomation2.pharriso.co.uk/images/github2-dreamstale35.png"></a>
+        
+        
+        
+          <a href="https://twitter.com/patharrison_esq"><img src="https://cloudautomation2.pharriso.co.uk/images/twitter-dreamstale71.png"></a>
+        
+        
+        
+          <a href="https://www.linkedin.com/in/pharriso"><img src="https://cloudautomation2.pharriso.co.uk/images/linkedin-dreamstale45.png"></a>
+        
+        </div>
+      </div>
+    </div>
+    <div class="parallax">
+    
+      <img src="https://cloudautomation2.pharriso.co.uk/images/default.png">
+    
+    </div>
+  </div>
+
+
+
+<div class="container">
+  <div class="section">
+
+    <div class="row">
+      <div class="col s12">
+        <div class="card-panel">
+          <h4>Scaling Ansible Tower - Job slicing</h4>
+          <p>
+           
+          </p>
+          <p>
+
+<p>Ansible Tower is a centralised platform for running and controlling your Ansible automation. It provides a number of key features for running Ansible in the enterprise.</p>
+
+<ol>
+<li>Role-Based Access Control</li>
+<li>Inventory Management</li>
+<li>Credential Management</li>
+<li>Auditing &amp; Logging</li>
+<li>Clustering &amp; Scale-Out</li>
+</ol>
+
+<p>Job slicing is a new scale-out feature that was introduced in Ansible Tower 3.4 which allows us to run jobs that are distributed across our Ansible Tower cluster. Before we look at job slicing let&rsquo;s quickly look at  clustering and job distribution within a cluster.</p>
+
+<h4 id="ansible-tower-clustering">Ansible Tower clustering</h4>
+
+<p>Ansible Tower can be installed in a cluster to provide a highly available platform for running Ansible. A clustered install provides scale-out capabilities in that different jobs are scheduled across Tower nodes to ensure they are sharing the load. However, each individual job is run on a single Tower node only. If I run a job against 1000&rsquo;s of servers then a single Tower node runs this job and it must have enough capacity to run this job in a timely fashion. Let&rsquo;s look at how we calculate concurrency and capacity in Ansible Tower.</p>
+
+<h4 id="calculating-capacity">Calculating Capacity</h4>
+
+<p>Ansible uses forks to determine how many hosts to automate against in parallel. By default 5 forks are spawned but we can override this if we are automating against a large number of hosts. For example, I may run a configuration management playbook every 1 hour to ensure my hosts are in a desired state. If I run that playbook against 1000&rsquo;s of nodes with only 5 forks then this will take some time to complete.</p>
+
+<p>We can calculate the number of available forks based on memory capacity or cpu capacity depending on the nature of the workload.</p>
+
+<p><strong>memory capacity</strong></p>
+
+<p>Protecting memory capacity is the default configuration and allows us to overcommit cpu while ensuring we don&rsquo;t run out of memory. To calculate the number of forks we remove 2048MB memory for the running of Tower services and then divide the remaining available memory by <strong>mem_per_fork</strong> - which defaults to 100MB:</p>
+
+<p><code>(mem - 2048) / mem_per_fork</code></p>
+
+<p>For a Tower node with 4GB memory this results in a capacity of around 20 forks:</p>
+
+<p><code>(4096 - 2048) / 100 = 20</code></p>
+
+<p><strong>cpu capacity</strong></p>
+
+<p>For cpu capacity we multiply the number of cpus by <em>fork_per_cpu</em> - which defaults to 4.</p>
+
+<p><code>cpus * fork_per_cpu</code></p>
+
+<p>For a Tower node with 4 cores:</p>
+
+<p><code>4 * 4 = 16</code></p>
+
+<p>If I were to run a job with more forks than the calculated capacity, then I run the risk of performance issues or running out of resources on my Tower nodes.</p>
+
+<h4 id="job-slicing">Job Slicing</h4>
+
+<p>As previously mentioned, when a job is launched in Ansible Tower, it is executed on a single node in the cluster. So effectively, ansible-playbook is run from a single node. This means that a job is limited to the number of forks on a single Tower node. If we are executing a playbook across a large number of hosts then we are not making use of all of the available capacity in our cluster.</p>
+
+<p>Job slicing is a new feature of Ansible Tower 3.4 and helps to address this issue. Job slicing allows us to distribute a job across multiple Tower nodes. It does this by splitting the inventory into slices. A workflow is then created for us with multiple instances of our job being run on each slice of our inventory. For example, if I have 30 nodes in my inventory and I decide to create 3 slices then a workflow is created with three jobs - each being executed on 10 nodes in parallel. Obviously, I need 3 Tower nodes in this example so that my three job slices can be executed across the three hosts.</p>
+
+<h4 id="using-job-slices">Using job slices</h4>
+
+<p>To demonstrate job slicing, I have a three node Tower cluster. My inventory contains 49 hosts for me to automate against. Here is the available capacity in forks reported by my hosts.</p>
+
+<p><img src="/images/tower capacity.png" alt="" /></p>
+
+<p>My Tower hosts can each safely spawn up to 27 forks based on memory capacity. If we look at the following job template we can see that I have specified 30 forks - I run the risk of exhausting memory resources. Also note that I only have one job slice configured - this is the default when creating a new job template.</p>
+
+<p><img src="/images/job template 1 slice.png" alt="" /></p>
+
+<p>When I launch my job we can see that my playbook is being run on a single Tower node. As I have allocated more forks than I safely have capacity for I am over-allocated on capacity. My other two Tower nodes are just relaxing at this point with no work scheduled on them.</p>
+
+<p><img src="/images/1 slice capacity.png" alt="" /></p>
+
+<p>Now I&rsquo;ll re-configure my job template so that it utilises three slices.</p>
+
+<p><img src="/images/job template 3 slices.png" alt="" /></p>
+
+<p>This time when I launch my job template, a worklfow is automatically generated.</p>
+
+<p><img src="/images/job slice workflow finished.png" alt="" /></p>
+
+<p>If we look at one of the individual jobs within the workflow we can see that this is slice job 1 of 3. Also, note that this job is being run on a &ldquo;slice&rdquo; of my inventory - 16 hosts.</p>
+
+<p><img src="/images/job output.png" alt="" /></p>
+
+<p>Finally, we can see that capacity is now being utilised across all three of my Tower nodes.</p>
+
+<p><img src="/images/3 slice capacity.png" alt="" /></p>
+
+<h4 id="summary">Summary</h4>
+
+<p>Job slices provide an additional method for scaling Ansible automation with Ansible Tower. By default, jobs are distributed across Tower nodes in a cluster but each individual job is only ever run from a single Tower node. Job slicing allows us to split a single job so that it is run across multiple nodes to provide additional scale-out capacity.</p>
+</p>
+          <p>17 Apr 2019
+            
+          </p>
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s3 m1">
+      
+        <a class="btn-floating btn-large disabled"><i class="mdi-navigation-arrow-back"></i></a>
+      
+      </div>
+      <div class="col s6 m10 center">&nbsp</div>
+      <div class="col s3 m1">
+      
+        <a class="btn-floating btn-large waves-effect waves-light" href="https://cloudautomation2.pharriso.co.uk/post/ansible-constructed-inventory-plugin/"><i class="mdi-navigation-arrow-forward"></i></a>
+      
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  <footer class="page-footer">
+    <div class="footer-copyright">
+      <div class="container">
+      
+      <div class="right">Design <a class="grey-text text-lighten-4" href="http://pdevty.github.io/blog/">pdevty</a></div>
+      </div>
+    </div>
+  </footer>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://cloudautomation2.pharriso.co.uk/js/materialize.min.js"></script>
+  <script src="https://cloudautomation2.pharriso.co.uk/js/init.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+
+  </body>
+</html>
+

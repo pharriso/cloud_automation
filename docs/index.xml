@@ -31,5 +31,15 @@ Why do we get this behaviour? In the case of Red Hat Virtualisation you can prob
 Ansible is simple automation tool that allows users to achieve common use cases such as configuration management, provisioning and complex multi-tier orchestration. Part of what makes Ansible so simple, is the fact that it is agentless. One doesn&amp;rsquo;t need to deploy agents or any heavyweight control software to get up and running with Ansible automation.</description>
     </item>
     
+    <item>
+      <title>Scaling Ansible Tower - Job slicing</title>
+      <link>https://cloudautomation2.pharriso.co.uk/post/tower-job-slice/</link>
+      <pubDate>Wed, 17 Apr 2019 19:16:18 +0100</pubDate>
+      
+      <guid>https://cloudautomation2.pharriso.co.uk/post/tower-job-slice/</guid>
+      <description>Ansible Tower is a centralised platform for running and controlling your Ansible automation. It provides a number of key features for running Ansible in the enterprise.
+ Role-Based Access Control Inventory Management Credential Management Auditing &amp;amp; Logging Clustering &amp;amp; Scale-Out  Job slicing is a new scale-out feature that was introduced in Ansible Tower 3.4 which allows us to run jobs that are distributed across our Ansible Tower cluster. Before we look at job slicing let&amp;rsquo;s quickly look at clustering and job distribution within a cluster.</description>
+    </item>
+    
   </channel>
 </rss>
