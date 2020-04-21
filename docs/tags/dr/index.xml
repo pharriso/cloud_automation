@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>dr on Cloud and Automation</title>
+    <link>https://cloudautomation2.pharriso.co.uk/tags/dr/</link>
+    <description>Recent content in dr on Cloud and Automation</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 08 Jan 2019 20:56:49 +0100</lastBuildDate>
+    
+	<atom:link href="https://cloudautomation2.pharriso.co.uk/tags/dr/index.xml" rel="self" type="application/rss+xml" />
+    
+    
+    <item>
+      <title>RHV Disaster Recovery - Part I</title>
+      <link>https://cloudautomation2.pharriso.co.uk/post/rhv-dr-part1/</link>
+      <pubDate>Tue, 08 Jan 2019 20:56:49 +0100</pubDate>
+      
+      <guid>https://cloudautomation2.pharriso.co.uk/post/rhv-dr-part1/</guid>
+      <description>Since the release of Red Hat Virtualisation (RHV) 4.1 back in 2017 we have seen the inclusion of Disaster Recovery (DR) solutions. The aim of these solutions is to allow customers to deploy their RHV infrastructure to span multiple sites and allow failover of virtual machines in the event of a disaster. This post will take a look at these Disaster Recovery solutions.
+It is worth noting that these DR solutions are part of the core RHV product and are NOT part of a separate subscription offering.</description>
+    </item>
+    
+  </channel>
+</rss>

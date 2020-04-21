@@ -21,5 +21,15 @@
 Other customers simply want to save costs and are looking at alternative virtualisation offerings. Whatever the reason for moving from VMware, we need a method for migrating workloads to RHV.</description>
     </item>
     
+    <item>
+      <title>RHV Disaster Recovery - Part I</title>
+      <link>https://cloudautomation2.pharriso.co.uk/post/rhv-dr-part1/</link>
+      <pubDate>Tue, 08 Jan 2019 20:56:49 +0100</pubDate>
+      
+      <guid>https://cloudautomation2.pharriso.co.uk/post/rhv-dr-part1/</guid>
+      <description>Since the release of Red Hat Virtualisation (RHV) 4.1 back in 2017 we have seen the inclusion of Disaster Recovery (DR) solutions. The aim of these solutions is to allow customers to deploy their RHV infrastructure to span multiple sites and allow failover of virtual machines in the event of a disaster. This post will take a look at these Disaster Recovery solutions.
+It is worth noting that these DR solutions are part of the core RHV product and are NOT part of a separate subscription offering.</description>
+    </item>
+    
   </channel>
 </rss>
