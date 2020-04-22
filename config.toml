@@ -2,7 +2,7 @@ baseurl = "https://cloudautomation2.pharriso.co.uk"
 theme="material-design"
 languageCode = "en-us"
 title = "Cloud and Automation"
-paginate = 5
+paginate = 6
 publishDir = "docs"
 
 [params]
