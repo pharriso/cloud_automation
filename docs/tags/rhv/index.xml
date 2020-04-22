@@ -2,41 +2,41 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>rhv on Cloud and Automation</title>
-    <link>https://cloudautomation2.pharriso.co.uk/tags/rhv/</link>
+    <link>https://cloudautomation.pharriso.co.uk/tags/rhv/</link>
     <description>Recent content in rhv on Cloud and Automation</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Wed, 16 Jan 2019 13:10:26 +0100</lastBuildDate>
     
-	<atom:link href="https://cloudautomation2.pharriso.co.uk/tags/rhv/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://cloudautomation.pharriso.co.uk/tags/rhv/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>RHV Disaster Recovery - Part II</title>
-      <link>https://cloudautomation2.pharriso.co.uk/post/rhv-dr-part2/</link>
+      <link>https://cloudautomation.pharriso.co.uk/post/rhv-dr-part2/</link>
       <pubDate>Wed, 16 Jan 2019 13:10:26 +0100</pubDate>
       
-      <guid>https://cloudautomation2.pharriso.co.uk/post/rhv-dr-part2/</guid>
+      <guid>https://cloudautomation.pharriso.co.uk/post/rhv-dr-part2/</guid>
       <description>In part one of this blog we looked at the different Disaster Recovery Solutions for RHV. In this part, we will look at the Active/Passive implementation in more detail, including how to set it up and run it. You&amp;rsquo;ll also find a recorded demo of the failover process.
 Overview A quick recap on what was discussed in part one of this blog. The Active/Passive architecture allows us to fail Virtual Machines over to a Disaster Recovery site in the event of a failure in the Primary site.</description>
     </item>
     
     <item>
       <title>Infrastructure Migration Solution</title>
-      <link>https://cloudautomation2.pharriso.co.uk/post/ims/</link>
+      <link>https://cloudautomation.pharriso.co.uk/post/ims/</link>
       <pubDate>Wed, 09 Jan 2019 19:47:46 +0100</pubDate>
       
-      <guid>https://cloudautomation2.pharriso.co.uk/post/ims/</guid>
+      <guid>https://cloudautomation.pharriso.co.uk/post/ims/</guid>
       <description>While VMware is undoubtedly a great virtualisation offering (I spent a number of users working with VMware tech) some customers are looking beyond traditional virtualisation. The growing adoption of containerisation is a great example of this and using RHV as a stepping stone to Container Native Virtualisation (CNV) is a good example use case.
 Other customers simply want to save costs and are looking at alternative virtualisation offerings. Whatever the reason for moving from VMware, we need a method for migrating workloads to RHV.</description>
     </item>
     
     <item>
       <title>RHV Disaster Recovery - Part I</title>
-      <link>https://cloudautomation2.pharriso.co.uk/post/rhv-dr-part1/</link>
+      <link>https://cloudautomation.pharriso.co.uk/post/rhv-dr-part1/</link>
       <pubDate>Tue, 08 Jan 2019 20:56:49 +0100</pubDate>
       
-      <guid>https://cloudautomation2.pharriso.co.uk/post/rhv-dr-part1/</guid>
+      <guid>https://cloudautomation.pharriso.co.uk/post/rhv-dr-part1/</guid>
       <description>Since the release of Red Hat Virtualisation (RHV) 4.1 back in 2017 we have seen the inclusion of Disaster Recovery (DR) solutions. The aim of these solutions is to allow customers to deploy their RHV infrastructure to span multiple sites and allow failover of virtual machines in the event of a disaster. This post will take a look at these Disaster Recovery solutions.
 It is worth noting that these DR solutions are part of the core RHV product and are NOT part of a separate subscription offering.</description>
     </item>

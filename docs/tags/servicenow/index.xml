@@ -2,21 +2,21 @@
 <rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
   <channel>
     <title>servicenow on Cloud and Automation</title>
-    <link>https://cloudautomation2.pharriso.co.uk/tags/servicenow/</link>
+    <link>https://cloudautomation.pharriso.co.uk/tags/servicenow/</link>
     <description>Recent content in servicenow on Cloud and Automation</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
     <lastBuildDate>Mon, 05 Aug 2019 11:49:05 +0100</lastBuildDate>
     
-	<atom:link href="https://cloudautomation2.pharriso.co.uk/tags/servicenow/index.xml" rel="self" type="application/rss+xml" />
+	<atom:link href="https://cloudautomation.pharriso.co.uk/tags/servicenow/index.xml" rel="self" type="application/rss+xml" />
     
     
     <item>
       <title>Call Ansible Tower from ServiceNow</title>
-      <link>https://cloudautomation2.pharriso.co.uk/post/snow-call-tower/</link>
+      <link>https://cloudautomation.pharriso.co.uk/post/snow-call-tower/</link>
       <pubDate>Mon, 05 Aug 2019 11:49:05 +0100</pubDate>
       
-      <guid>https://cloudautomation2.pharriso.co.uk/post/snow-call-tower/</guid>
+      <guid>https://cloudautomation.pharriso.co.uk/post/snow-call-tower/</guid>
       <description>In this post we will look at how we can call Ansible Tower from ServiceNow as part of a ServiceNow Catalog Request. For this example, I have a playbook in Ansible Tower that will manage the membership of a node within an F5 loadbalancer pool. The playbook expects the user to input the name of the node that should be managed and the state it should be in - either enabled or forced_offline.</description>
     </item>
     
