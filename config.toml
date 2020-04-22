@@ -7,7 +7,8 @@ publishDir = "docs"
 
 [params]
   description = "This blog focuses mainly on Red Hat products in the Cloud and Automation space. I am currently working as a Solution Architect for Red Hat in the UK."
-  twitter = "patharrison_esq" # optional
-  github = "pharriso" # optional
-  linkedin = "pharriso" # optional
+  twitter = "patharrison_esq"
+  github = "pharriso"
+  linkedin = "pharriso"
+  googleAnalyticsUserID = "UA-131924821-2"
   #headerCover = "images/background.jpg"
