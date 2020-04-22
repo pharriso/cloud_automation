@@ -2,6 +2,7 @@
 title: "Call Ansible Tower from ServiceNow"
 date: 2019-08-05T11:49:05+01:00
 draft: false
+tags: [ansible,tower,servicenow]
 ---
 
 In this post we will look at how we can call Ansible Tower from ServiceNow as part of a ServiceNow Catalog Request. For this example, I have a [playbook](https://github.com/pharriso/ansible_network_demo/blob/master/bigip_pool_member_snow.yml) in Ansible Tower that will manage the membership of a node within an F5 loadbalancer pool. The playbook expects the user to input the name of the node that should be managed and the state it should be in - either enabled or forced_offline. So we need to pass these variables from ServiceNow to Ansible Tower. Note that the playbook will also close down the ServiceNow request to fully automate the process without any manual intervention.

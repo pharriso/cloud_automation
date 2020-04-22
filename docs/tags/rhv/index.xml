@@ -6,10 +6,20 @@
     <description>Recent content in rhv on Cloud and Automation</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Wed, 09 Jan 2019 19:47:46 +0100</lastBuildDate>
+    <lastBuildDate>Wed, 16 Jan 2019 13:10:26 +0100</lastBuildDate>
     
 	<atom:link href="https://cloudautomation2.pharriso.co.uk/tags/rhv/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>RHV Disaster Recovery - Part II</title>
+      <link>https://cloudautomation2.pharriso.co.uk/post/rhv-dr-part2/</link>
+      <pubDate>Wed, 16 Jan 2019 13:10:26 +0100</pubDate>
+      
+      <guid>https://cloudautomation2.pharriso.co.uk/post/rhv-dr-part2/</guid>
+      <description>In part one of this blog we looked at the different Disaster Recovery Solutions for RHV. In this part, we will look at the Active/Passive implementation in more detail, including how to set it up and run it. You&amp;rsquo;ll also find a recorded demo of the failover process.
+Overview A quick recap on what was discussed in part one of this blog. The Active/Passive architecture allows us to fail Virtual Machines over to a Disaster Recovery site in the event of a failure in the Primary site.</description>
+    </item>
     
     <item>
       <title>Infrastructure Migration Solution</title>

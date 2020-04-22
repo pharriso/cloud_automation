@@ -32,6 +32,15 @@ Ansible is simple automation tool that allows users to achieve common use cases 
     </item>
     
     <item>
+      <title>Call Ansible Tower from ServiceNow</title>
+      <link>https://cloudautomation2.pharriso.co.uk/post/snow-call-tower/</link>
+      <pubDate>Mon, 05 Aug 2019 11:49:05 +0100</pubDate>
+      
+      <guid>https://cloudautomation2.pharriso.co.uk/post/snow-call-tower/</guid>
+      <description>In this post we will look at how we can call Ansible Tower from ServiceNow as part of a ServiceNow Catalog Request. For this example, I have a playbook in Ansible Tower that will manage the membership of a node within an F5 loadbalancer pool. The playbook expects the user to input the name of the node that should be managed and the state it should be in - either enabled or forced_offline.</description>
+    </item>
+    
+    <item>
       <title>Scaling Ansible Tower - Job slicing</title>
       <link>https://cloudautomation2.pharriso.co.uk/post/tower-job-slice/</link>
       <pubDate>Wed, 17 Apr 2019 19:16:18 +0100</pubDate>

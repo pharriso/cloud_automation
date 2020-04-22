@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+  <title>RHV Disaster Recovery - Part II</title>
+  <link href="https://cloudautomation2.pharriso.co.uk/css/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="https://cloudautomation2.pharriso.co.uk/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/default.min.css">
+  <style type="text/css">
+  
+    footer.page-footer{background-image: url(https://cloudautomation2.pharriso.co.uk/images/default.png);}
+  
+  </style>
+</head>
+<body>
+  <ul id="slide-out" class="side-nav">
+    <li><a href="https://cloudautomation2.pharriso.co.uk"><i class="mdi-action-home left"></i>Home<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+    <li><a href="https://cloudautomation2.pharriso.co.uk/categories"><i class="mdi-action-perm-media left"></i>Categories<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+    <li><a href="https://cloudautomation2.pharriso.co.uk/tags"><i class="mdi-action-loyalty left"></i>Tags<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+  </ul>
+  <div id="index-banner" class="parallax-container">
+  <a data-activates="slide-out" class="btn-floating button-collapse" style="top: 5px; left: 5px;"><i class="mdi-navigation-menu"></i></a>
+    <div class="section no-pad-bot">
+      <div class="container">
+        
+        <h1 class="header center teal-text text-lighten-2">Cloud and Automation</h1>
+        <div class="row center">
+          <h5 class="header col s12 light">This blog focuses mainly on Red Hat products in the Cloud and Automation space. I am currently working as a Solution Architect for Red Hat in the UK.</h5>
+        </div>
+        <div class="row center">
+        
+        
+          <a href="https://github.com/pharriso"><img src="https://cloudautomation2.pharriso.co.uk/images/github2-dreamstale35.png"></a>
+        
+        
+        
+          <a href="https://twitter.com/patharrison_esq"><img src="https://cloudautomation2.pharriso.co.uk/images/twitter-dreamstale71.png"></a>
+        
+        
+        
+          <a href="https://www.linkedin.com/in/pharriso"><img src="https://cloudautomation2.pharriso.co.uk/images/linkedin-dreamstale45.png"></a>
+        
+        </div>
+      </div>
+    </div>
+    <div class="parallax">
+    
+      <img src="https://cloudautomation2.pharriso.co.uk/images/default.png">
+    
+    </div>
+  </div>
+
+
+
+<div class="container">
+  <div class="section">
+
+    <div class="row">
+      <div class="col s12">
+        <div class="card-panel">
+          <h4>RHV Disaster Recovery - Part II</h4>
+          <p>
+           
+          </p>
+          <p>
+
+<p>In <a href="https://cloudautomation2.pharriso.co.uk/post/rhv-dr-part1/">part one</a> of this blog we looked at the different Disaster Recovery Solutions for RHV. In this part, we will look at the Active/Passive implementation in more detail, including how to set it up and run it. You&rsquo;ll also find a recorded demo of the failover process.</p>
+
+<h4 id="overview">Overview</h4>
+
+<p>A quick recap on what was discussed in part one of this blog. The Active/Passive architecture allows us to fail Virtual Machines over to a Disaster Recovery site in the event of a failure in the Primary site. The solution also provides the necessary orchestration to failback to the Primary site when appropriate. We leverage the power of Ansible to orchestrate the failover. The necessary Ansible roles are provided in a rpm called ovirt-ansible-disaster-recovery which is shipped as part of the RHV product.</p>
+
+<p>From an underlying infrastructure perspective, we obviously need some hypervisors in our DR site to fail the workloads onto. The DR site also needs it&rsquo;s own RHV Manager. We also rely on replicated storage between sites. The orchestration of the storage replication is not covered by the Ansible roles that are shipped with RHV. A storage administrator needs to setup the replication beforehand. They will also need to make the storage read/write in the secondary site at the point that DR is invoked.</p>
+
+<p>Let&rsquo;s take a high-level view of the DR process. In advance of the disaster, one must generate the mapping file which maps entities from the Primary site to the DR site. For example, workloads in &ldquo;Cluster1&rdquo; in the Primary site should be failed over to &ldquo;Cluster2&rdquo; in my DR site. This mapping file is used during the failover and failback process.</p>
+
+<p>In the event of a disaster, the storage must be made read/write in the DR site. The process for this will vary depending on the nature of the disaster and the type of storage. The &ldquo;failover&rdquo; Ansible playbook can then be run. This will mount the storage domains at the DR site. Virtual Machines are then registered and started. Any VM&rsquo;s marked as Highly Available are started first.</p>
+
+<p>Once the Primary site is brought back online, it must be prepared. This is part of the &ldquo;clean&rdquo; Ansible playbook. Any replicated storage domains need to be removed from the RHV Manager. A storage administrator will need to ensure replication is now taking place from the DR site to the Primary site.</p>
+
+<p>When ready, the failback playbook can be run. This stops the VM&rsquo;s in the DR site and removes the storage domains from the RHV Manager. The playbook then pauses and waits for the administrator to confirm that replication has been stopped and the storage is now read/write in the Primary site. Once confirmed, the playbook will import the storage domains at the Primary site, register the VM&rsquo;s and start them up. The final step is to ensure the storage replication is switched so that the Primary site is once again replicating to the DR site.</p>
+
+<h4 id="demo-environment">Demo Environment</h4>
+
+<p>I am using nested virtualisation for my lab. For the storage replication, I am using GlusterFS and geo-replication. This is asynchronous replication which is <strong>not</strong> recommended but it serves the purpose for this demo. Synchronous replication is recommended for replication between sites.</p>
+
+<p>Each &ldquo;site&rdquo; has a RHV Manager. The RHV Manager is configured with a single cluster containing a singe RHV Host. I&rsquo;ve got two small cirros VM&rsquo;s which I will failover in this demo. One is marked as Highly Available to demonstrate the fact that HA VM&rsquo;s are started before standard VM&rsquo;s.</p>
+
+<p><img src="/images/RHV DR Active Passive Lab.png" alt="" /></p>
+
+<h4 id="setup">Setup</h4>
+
+<p><strong>All of the files mentioned in this setup section are available in my github repo <a href="https://github.com/pharriso/rhv-dr">here</a></strong></p>
+
+<p><strong>Don&rsquo;t worry. All of the below playbooks are fully documented in the Red Hat documentation for RHV DR.</strong></p>
+
+<h4 id="generate-mapping">Generate Mapping</h4>
+
+<p>First create a variable file containing the passwords for the RHV manager. I&rsquo;m creating a file called <strong>passwords.yml</strong> here with these contents:</p>
+
+<pre><code class="language-bash">---
+dr_sites_primary_password: Redhat123
+dr_sites_secondary_password: Redhat123
+</code></pre>
+
+<p>Encrypt the file with ansible-vault to avoid leaving passwords in plaintext.</p>
+
+<pre><code class="language-bash">$ ansible-vault encrypt password.yml
+</code></pre>
+
+<p>Now we can create the playbook that will generate the mapping file for us called <strong>generate_mappings.yml</strong></p>
+
+<pre><code class="language-bash">---
+- name: Generate mapping
+  hosts: localhost
+  connection: local
+
+  vars:
+    site: https://rhvm-primary.example.com/ovirt-engine/api
+    username: admin@internal
+    password: &quot;{{ dr_sites_primary_password }}&quot;
+    ca: /root/DR/primary_ca.pem
+    var_file: disaster_recovery_vars.yml
+
+  vars_files:
+    - passwords.yml
+
+  roles:
+    - oVirt.disaster-recovery
+</code></pre>
+
+<p>Now run the playbook to generate the mapping variable file. This will log into the RHV Manager at the Primary site and retrieve details on components such as storage, networking and clusters.</p>
+
+<pre><code class="language-bash">$ ansible-playbook generate_mappings.yml --tags generate_mapping --ask-vault-pass
+</code></pre>
+
+<p>A file called <strong>disaster_recovery_vars.yml</strong> is generated. This needs to be edited to allow you to map components from the Primary site to the Disaster site. For example, the login details for the Disaster site:</p>
+
+<pre><code class="language-bash">dr_sites_primary_url: https://rhvm-primary.example.com/ovirt-engine/api
+dr_sites_primary_username: admin@internal
+dr_sites_primary_ca_file: /root/DR/primary_ca.pem
+
+# Please fill in the following properties for the secondary site:
+dr_sites_secondary_url:  https://rhvm-secondary.example.com/ovirt-engine/api
+dr_sites_secondary_username:  admin@internal
+dr_sites_secondary_ca_file: /etc/pki/ovirt-engine/ca.pem
+</code></pre>
+
+<p>And also the cluster mappings:</p>
+
+<pre><code class="language-bash"># Mapping for cluster
+dr_cluster_mappings:
+- primary_name: Primary
+  # Fill the correlated cluster name in the secondary site for cluster 'Primary'
+  secondary_name: Disaster
+</code></pre>
+
+<h4 id="create-failover-failback-playbooks">Create Failover/Failback Playbooks</h4>
+
+<p>Now we can create the playbook that we will use to initiate the failover from our Primary site to our DR site. In this example the playbook is <strong>failover.yml</strong></p>
+
+<pre><code class="language-bash">---
+- name: Failover RHV
+  hosts: localhost
+  connection: local
+  vars:
+    dr_target_host: secondary
+    dr_source_map: primary
+  vars_files:
+    - disaster_recovery_vars.yml
+    - passwords.yml
+  roles:
+    - oVirt.disaster-recovery
+</code></pre>
+
+<p>And the failback playbook to allow us to failback to our Primary site once it has been restored (The same playbook but with the source and target reversed). The playbook here is called <strong>failback.yml</strong></p>
+
+<pre><code class="language-bash">---
+- name: Failback RHV
+  hosts: localhost
+  connection: local
+  vars:
+    dr_target_host: primary
+    dr_source_map: secondary
+  vars_files:
+    - disaster_recovery_vars.yml
+    - passwords.yml
+  roles:
+    - oVirt.disaster-recovery
+</code></pre>
+
+<p>Finally, the cleanup playbook. This is used to clean the Primary site ready for failback - <strong>clean_primary.yml</strong></p>
+
+<pre><code class="language-bash">---
+- name: clean RHV
+  hosts: localhost
+  connection: local
+  vars:
+    dr_source_map: primary
+  vars_files:
+    - disaster_recovery_vars.yml
+  roles:
+    - oVirt.disaster-recovery
+</code></pre>
+
+<h4 id="failover">Failover</h4>
+
+<p>To failover we need to ensure that the storage replication is stopped and is made read/write in the DR site. Once this is confirmed, we can run the Ansible playbook to failover.</p>
+
+<pre><code class="language-bash">$ ansible-playbook failover.yaml --tags fail_over --ask-vault-pass
+</code></pre>
+
+<h4 id="cleanup-and-failback">Cleanup and Failback</h4>
+
+<p>Once the Primary site is brought back online we can begin the failback process. Storage now needs to be replicated from DR site back to Primary site. The primary site also needs to be cleaned to ensure storage domains are not imported.</p>
+
+<pre><code class="language-bash">$ ansible-playbook clean_primary.yml --tags clean_engine --ask-vault-pass
+</code></pre>
+
+<p>When ready, initiate the failback. The playbook will pause and wait for you to confirm that the storage replication has been stopped and that storage domains are now read/write in the Primary site.</p>
+
+<pre><code class="language-bash">$ ansible-playbook failback.yml --tags fail_back --ask-vault-pass
+</code></pre>
+
+<h4 id="demo">Demo</h4>
+
+<p>The following video demonstrates the failover process.</p>
+
+<p><a href="http://www.youtube.com/watch?v=OC66G7_y8Vo"><img src="/images/rhv-dr-video.png" alt="rhv-dr" /></a></p>
+</p>
+          <p>16 Jan 2019
+            
+              
+                <a href="https://cloudautomation2.pharriso.co.uk/tags/rhv/">#rhv</a>
+              
+                <a href="https://cloudautomation2.pharriso.co.uk/tags/dr/">#dr</a>
+              
+            
+          </p>
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s3 m1">
+      
+        <a class="btn-floating btn-large waves-effect waves-light" href="https://cloudautomation2.pharriso.co.uk/post/ims/"><i class="mdi-navigation-arrow-back"></i></a>
+      
+      </div>
+      <div class="col s6 m10 center">&nbsp</div>
+      <div class="col s3 m1">
+      
+        <a class="btn-floating btn-large waves-effect waves-light" href="https://cloudautomation2.pharriso.co.uk/post/tower-job-slice/"><i class="mdi-navigation-arrow-forward"></i></a>
+      
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  <footer class="page-footer">
+    <div class="footer-copyright">
+      <div class="container">
+      
+      <div class="right">Design <a class="grey-text text-lighten-4" href="http://pdevty.github.io/blog/">pdevty</a></div>
+      </div>
+    </div>
+  </footer>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://cloudautomation2.pharriso.co.uk/js/materialize.min.js"></script>
+  <script src="https://cloudautomation2.pharriso.co.uk/js/init.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+
+  </body>
+</html>
+
