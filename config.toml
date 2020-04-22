@@ -6,7 +6,7 @@ paginate = 9
 publishDir = "docs"
 
 [params]
-  description = "This blog focuses mainly on Red Hat products in the Cloud and Automation space. I am currently working as a Solution Architect for Red Hat in the UK."
+  description = "This blog focuses mainly on Red Hat products in the Cloud and Automation space. I work as a Solution Architect for Red Hat in the UK."
   twitter = "patharrison_esq"
   github = "pharriso"
   linkedin = "pharriso"
