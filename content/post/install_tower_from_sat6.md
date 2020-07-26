@@ -1,7 +1,7 @@
 ---
 title: "Install Ansible Tower from Satellite 6"
 date: 2020-07-26T19:22:35+01:00
-draft: true
+draft: false
 tags: [ansible, tower, satellite6]
 ---
 
