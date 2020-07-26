@@ -63,52 +63,30 @@
           <p>
            
           </p>
-          <p>
-
-<p>If you have used <a href="https://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html#smart-inventories">dynamic inventories in Ansible Tower</a> before, you may have noticed that it adds some logic to determine whether a host should be enabled for job execution or not. For example, when syncing with our Red Hat Virtualisation environment, it has set some of our hosts to disabled.</p>
-
-<p><img src="/images/tower_inventory_disabled.png" alt="tower_disabled_hosts" /></p>
-
+          <p><p>If you have used <a href="https://docs.ansible.com/ansible-tower/latest/html/userguide/inventories.html#smart-inventories">dynamic inventories in Ansible Tower</a> before, you may have noticed that it adds some logic to determine whether a host should be enabled for job execution or not. For example, when syncing with our Red Hat Virtualisation environment, it has set some of our hosts to disabled.</p>
+<p><img src="/images/tower_inventory_disabled.png" alt="tower_disabled_hosts"></p>
 <p>Why do we get this behaviour? In the case of Red Hat Virtualisation you can probably tell from the screen shot - Tower will disable any VM&rsquo;s which are powered off and we can see the VM&rsquo;s which are disabled show a state of &ldquo;status_down&rdquo;. For VMware, it will disable any VM&rsquo;s where VMware tools isn&rsquo;t reporting a guest state. A lot of the time this is really useful and can reduce job failures - why try to connect to a VM which is powered off? But, there may be times when you want to override this behaviour. For example, you might want to deploy VMware Tools to some guests, but they are being excluded from job execution. Another example we had recently was that we wanted to delete a bunch of VM&rsquo;s in our Red Hat Virtualisation platform which were powered off, but they were being excluded - because they were powered off. Rather than powering on the VM&rsquo;s so that we could delete them, we just amended the behaviour in Tower so that these VM&rsquo;s weren&rsquo;t marked as disabled.</p>
-
 <p>To see how Tower determines if a node is enabled or disabled, you can take a look in <strong>/var/lib/awx/venv/awx/lib/python3.6/site-packages/awx/settings/defaults.py</strong></p>
-
 <p>Looking at RHV (Upstream name is oVirt), we can see:</p>
-
-<pre><code class="language-bash"># ---------------------
-# ----- oVirt4 -----
-# ---------------------
-RHV_ENABLED_VAR = 'status'
-RHV_ENABLED_VALUE = 'up'
-</code></pre>
-
-<p>And for VMware:</p>
-
-<pre><code class="language-bash"># Inventory variable name/values for determining whether a host is
-# active in vSphere.
-VMWARE_ENABLED_VAR = 'guest.gueststate'
-VMWARE_ENABLED_VALUE = 'running'
-</code></pre>
-
-<h2 id="changing-the-default-behaviour">Changing the default behaviour</h2>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># ---------------------</span>
+<span style="color:#75715e"># ----- oVirt4 -----</span>
+<span style="color:#75715e"># ---------------------</span>
+RHV_ENABLED_VAR <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;status&#39;</span>
+RHV_ENABLED_VALUE <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;up&#39;</span>
+</code></pre></div><p>And for VMware:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># Inventory variable name/values for determining whether a host is</span>
+<span style="color:#75715e"># active in vSphere.</span>
+VMWARE_ENABLED_VAR <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;guest.gueststate&#39;</span>
+VMWARE_ENABLED_VALUE <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;running&#39;</span>
+</code></pre></div><h2 id="changing-the-default-behaviour">Changing the default behaviour</h2>
 <p>Now that we have seen the default settings and know the variable names, we can override the default behaviour. The easiest way to do this is to create a custom configuration file in /etc/tower/conf.d and override the variable value. For example, to enable all VM&rsquo;s regardless of power status you could create the following file and set the RHV_ENABLED_VALUE to be empty:</p>
-
-<pre><code class="language-bash">$ cat /etc/tower/conf.d/custom.py 
-RHV_ENABLED_VALUE = ''
-</code></pre>
-
-<p>After creating this configuration file, restart the tower services:</p>
-
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat /etc/tower/conf.d/custom.py 
+RHV_ENABLED_VALUE <span style="color:#f92672">=</span> <span style="color:#e6db74">&#39;&#39;</span>
+</code></pre></div><p>After creating this configuration file, restart the tower services:</p>
 <pre><code>$ sudo ansible-tower-service
-</code></pre>
-
-<p>Now when we sync the inventory we can now see that all of the hosts are enabled regardless of power state:</p>
-
-<p><img src="/images/tower_inventory_enabled.png" alt="tower_enabled_hosts" /></p>
-
+</code></pre><p>Now when we sync the inventory we can now see that all of the hosts are enabled regardless of power state:</p>
+<p><img src="/images/tower_inventory_enabled.png" alt="tower_enabled_hosts"></p>
 <h2 id="summary">Summary</h2>
-
 <p>Ansible Tower tries to be helpful in the way it disables hosts that have been imported from dynamic inventories to try to avoid unnecessary job failures. If you need to configure this behaviour then you can follow the steps outlined above. These steps should not be confused with dynamic inventory filters, which will completely exclude a host from being imported into Ansible Tower.</p>
 </p>
           <p>10 Feb 2020
@@ -134,7 +112,7 @@ RHV_ENABLED_VALUE = ''
       <div class="col s6 m10 center">&nbsp</div>
       <div class="col s3 m1">
       
-        <a class="btn-floating btn-large disabled"><i class="mdi-navigation-arrow-forward"></i></a>
+        <a class="btn-floating btn-large waves-effect waves-light" href="https://cloudautomation.pharriso.co.uk/post/install_tower_from_sat6/"><i class="mdi-navigation-arrow-forward"></i></a>
       
       </div>
     </div>

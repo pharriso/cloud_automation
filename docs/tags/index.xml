@@ -6,7 +6,7 @@
     <description>Recent content in Tags on Cloud and Automation</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 10 Feb 2020 17:41:05 +0100</lastBuildDate>
+    <lastBuildDate>Sun, 26 Jul 2020 19:22:35 +0100</lastBuildDate>
     
 	<atom:link href="https://cloudautomation.pharriso.co.uk/tags/index.xml" rel="self" type="application/rss+xml" />
     
@@ -14,16 +14,25 @@
     <item>
       <title>ansible</title>
       <link>https://cloudautomation.pharriso.co.uk/tags/ansible/</link>
-      <pubDate>Mon, 10 Feb 2020 17:41:05 +0100</pubDate>
+      <pubDate>Sun, 26 Jul 2020 19:22:35 +0100</pubDate>
       
       <guid>https://cloudautomation.pharriso.co.uk/tags/ansible/</guid>
       <description></description>
     </item>
     
     <item>
+      <title>satellite6</title>
+      <link>https://cloudautomation.pharriso.co.uk/tags/satellite6/</link>
+      <pubDate>Sun, 26 Jul 2020 19:22:35 +0100</pubDate>
+      
+      <guid>https://cloudautomation.pharriso.co.uk/tags/satellite6/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>tower</title>
       <link>https://cloudautomation.pharriso.co.uk/tags/tower/</link>
-      <pubDate>Mon, 10 Feb 2020 17:41:05 +0100</pubDate>
+      <pubDate>Sun, 26 Jul 2020 19:22:35 +0100</pubDate>
       
       <guid>https://cloudautomation.pharriso.co.uk/tags/tower/</guid>
       <description></description>

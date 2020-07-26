@@ -6,10 +6,20 @@
     <description>Recent content in Posts on Cloud and Automation</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 10 Feb 2020 17:41:05 +0100</lastBuildDate>
+    <lastBuildDate>Sun, 26 Jul 2020 19:22:35 +0100</lastBuildDate>
     
 	<atom:link href="https://cloudautomation.pharriso.co.uk/post/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Install Ansible Tower from Satellite 6</title>
+      <link>https://cloudautomation.pharriso.co.uk/post/install_tower_from_sat6/</link>
+      <pubDate>Sun, 26 Jul 2020 19:22:35 +0100</pubDate>
+      
+      <guid>https://cloudautomation.pharriso.co.uk/post/install_tower_from_sat6/</guid>
+      <description>In this post, we will look at how you can use Red Hat Satellite as a content source for installing Ansible Tower. You may be wondering why we even need to write this process up? Well the simple answer is that the Ansible Tower installation doesn’t follow the “usual” pattern. What is the “usual” pattern?
+Many of the Red Hat products are made available via Red Hat’s Content Delivery Network (CDN) in the form of RPM repositories.</description>
+    </item>
     
     <item>
       <title>Ansible Tower Dynamic Inventories - Manage Enabled Hosts</title>
