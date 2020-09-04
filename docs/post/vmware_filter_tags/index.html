@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+  <title>Ansible VMware Dynamic Inventory - Filter on tags</title>
+  <link href="https://cloudautomation.pharriso.co.uk/css/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="https://cloudautomation.pharriso.co.uk/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/default.min.css">
+  <style type="text/css">
+  
+    footer.page-footer{background-image: url(https://cloudautomation.pharriso.co.uk/images/default.png);}
+  
+  </style>
+</head>
+<body>
+  <ul id="slide-out" class="side-nav">
+    <li><a href="https://cloudautomation.pharriso.co.uk"><i class="mdi-action-home left"></i>Home<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+    <li><a href="https://cloudautomation.pharriso.co.uk/categories"><i class="mdi-action-perm-media left"></i>Categories<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+    <li><a href="https://cloudautomation.pharriso.co.uk/tags"><i class="mdi-action-loyalty left"></i>Tags<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+  </ul>
+  <div id="index-banner" class="parallax-container">
+  <a data-activates="slide-out" class="btn-floating button-collapse" style="top: 5px; left: 5px;"><i class="mdi-navigation-menu"></i></a>
+    <div class="section no-pad-bot">
+      <div class="container">
+        
+        <h1 class="header center teal-text text-lighten-2">Cloud and Automation</h1>
+        <div class="row center">
+          <h5 class="header col s12 light">This blog focuses mainly on Red Hat products in the Cloud and Automation space. I work as a Solution Architect for Red Hat in the UK.</h5>
+        </div>
+        <div class="row center">
+        
+        
+          <a href="https://github.com/pharriso"><img src="https://cloudautomation.pharriso.co.uk/images/github2-dreamstale35.png"></a>
+        
+        
+        
+          <a href="https://twitter.com/patharrison_esq"><img src="https://cloudautomation.pharriso.co.uk/images/twitter-dreamstale71.png"></a>
+        
+        
+        
+          <a href="https://www.linkedin.com/in/pharriso"><img src="https://cloudautomation.pharriso.co.uk/images/linkedin-dreamstale45.png"></a>
+        
+        </div>
+      </div>
+    </div>
+    <div class="parallax">
+    
+      <img src="https://cloudautomation.pharriso.co.uk/images/default.png">
+    
+    </div>
+  </div>
+
+
+
+<div class="container">
+  <div class="section">
+
+    <div class="row">
+      <div class="col s12">
+        <div class="card-panel">
+          <h4>Ansible VMware Dynamic Inventory - Filter on tags</h4>
+          <p>
+           
+          </p>
+          <p><p>I&rsquo;ve written about dynamic inventories before and why they are useful both around <a href="https://cloudautomation.pharriso.co.uk/post/ansible-constructed-inventory-plugin/">constructed inventory plugins</a> and on ansible.com/blog around the <a href="https://www.ansible.com/blog/using-an-inventory-plugin-from-a-collection-in-ansible-tower">servicenow plugin</a> - so I won&rsquo;t repeat it all again here. Dynamic inventories are great for allowing Ansible to use other platforms to provide a list of endpoints to manage and also to help to classify those endpoints. If we take the VMware inventory plugin as an example, I might not want to import every VMware VM into Ansible as a managed endpoint. This is increasingly important if you are an Ansible Tower customer where you have to pay for the number of endpoints you manage. Fortunately, the majority of inventory plugins allow you to filter based on various attributes so that you only import the endpoints that you need.</p>
+<h3 id="there-was-a-problem-with-the-vmware-inventory-plugin">There was a problem with the VMware inventory plugin!</h3>
+<p>A lot of customers like to use tags to classify nodes - it follows the model you would likely use with a public cloud provider like AWS. Ansible dynamic inventories were historically shipped as scripts but they started to move to plugins within Ansible - this followed the model of other plugins like connection plugins, lookup plugins etc. This meant that there was a period where you had the deprecated script alongside the new plugin. In the case of VMware, the &ldquo;old&rdquo; VMware Inventory script could do certain things that the &ldquo;new&rdquo; VMware Inventory plugin couldn&rsquo;t do and vice versa. A good example of this is that the VMware inventory script allowed you to filter your inventory but couldn&rsquo;t handle tags. The inventory plugin could handle tags but couldn&rsquo;t filter. So if you wanted to filter based on tags you were a bit stuck.</p>
+<p>With the <a href="https://www.ansible.com/blog/getting-started-with-ansible-collections">move to collections</a> there have been some enhancements to the plugin which now lives in the <a href="https://galaxy.ansible.com/community/vmware">community.vmware collection</a>. This can handle both tags and filtering. Hooray!</p>
+<h3 id="tags-in-vmware">Tags in VMware</h3>
+<p>I&rsquo;m not going to show how to add tags in VMware in this post. But I am going to show that I have a tag called &ldquo;ansible_managed&rdquo; and I have associated it to three of my VM&rsquo;s.</p>
+<p><img src="/images/vcenter-tags.png" alt=""></p>
+<h3 id="setting-up-a-python-virtualenv">Setting up a Python virtualenv</h3>
+<p>Our end goal here is to use this inventory plugin from Ansible Tower. In order to collect information on tags from vCenter we need to install an additional python module. We don&rsquo;t want to start installing 3rd party python modules in our core Ansible Tower python virtualenv, so we are going to do this in a <a href="https://docs.ansible.com/ansible-tower/latest/html/upgrade-migration-guide/virtualenv.html">separate virtual environment</a>.</p>
+<p>To show the steps I took to create the virtualenv:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo python3 -m venv /opt/my-envs/vmware_filter_inventory
+$ sudo /opt/my-envs/vmware_filter_inventory/bin/pip install psutil
+$ sudo /opt/my-envs/vmware_filter_inventory/bin/pip install -U <span style="color:#e6db74">&#34;ansible == 2.9.11&#34;</span>
+$ sudo /opt/my-envs/vmware_filter_inventory/bin/pip install PyVmomi
+$ sudo /opt/my-envs/vmware_filter_inventory/bin/pip install --upgrade setuptools pip
+$ sudo /opt/my-envs/vmware_filter_inventory/bin/pip install --upgrade git+https://github.com/vmware/vsphere-automation-sdk-python.git
+</code></pre></div><h3 id="using-the-inventory-from-the-cli">Using the inventory from the CLI</h3>
+<p>To test the plugin from the command line we can create a file called vmware.yml with the following contents. I know the credentials are in plaintext here - we are going to fix that when we run it from Ansible Tower.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">plugin: community.vmware.vmware_vm_inventory
+strict: False
+hostname: vcenter.demolab.local
+username: administrator@vsphere.local
+password: Password123
+validate_certs: False
+with_tags: true
+properties:
+  - runtime.powerState
+  - config.name
+  - config.guestId
+filters:
+  - <span style="color:#e6db74">&#34;&#39;ansible_managed&#39; in tags&#34;</span>
+hostnames:
+  - config.name
+keyed_groups:
+  - key: config.guestId
+    separator: <span style="color:#e6db74">&#39;&#39;</span>
+</code></pre></div><p>Note how we are asking for the tags to be returned and then filtering any hosts which only have a tag that matches &ldquo;ansible_managed&rdquo;. To run this from the CLI we first need to source the virtualenv:</p>
+<pre><code>$ source /opt/my-envs/vmware_filter_inventory/bin/activate
+</code></pre><p>Let&rsquo;s run it and see what we get.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ansible-inventory -i vmware.yml --list
+<span style="color:#f92672">{</span>
+    <span style="color:#e6db74">&#34;_meta&#34;</span>: <span style="color:#f92672">{</span>
+        <span style="color:#e6db74">&#34;hostvars&#34;</span>: <span style="color:#f92672">{</span>
+            <span style="color:#e6db74">&#34;idmv.demolab.local&#34;</span>: <span style="color:#f92672">{</span>
+                <span style="color:#e6db74">&#34;config.guestId&#34;</span>: <span style="color:#e6db74">&#34;rhel8_64Guest&#34;</span>,
+                <span style="color:#e6db74">&#34;config.name&#34;</span>: <span style="color:#e6db74">&#34;idmv.demolab.local&#34;</span>,
+                <span style="color:#e6db74">&#34;runtime.powerState&#34;</span>: <span style="color:#e6db74">&#34;poweredOn&#34;</span>,
+                <span style="color:#e6db74">&#34;tags&#34;</span>: <span style="color:#f92672">[</span>
+                    <span style="color:#e6db74">&#34;ansible_managed&#34;</span>
+                <span style="color:#f92672">]</span>
+            <span style="color:#f92672">}</span>,
+            <span style="color:#e6db74">&#34;prod-web10.demolab.local&#34;</span>: <span style="color:#f92672">{</span>
+                <span style="color:#e6db74">&#34;config.guestId&#34;</span>: <span style="color:#e6db74">&#34;rhel8_64Guest&#34;</span>,
+                <span style="color:#e6db74">&#34;config.name&#34;</span>: <span style="color:#e6db74">&#34;prod-web10.demolab.local&#34;</span>,
+                <span style="color:#e6db74">&#34;runtime.powerState&#34;</span>: <span style="color:#e6db74">&#34;poweredOn&#34;</span>,
+                <span style="color:#e6db74">&#34;tags&#34;</span>: <span style="color:#f92672">[</span>
+                    <span style="color:#e6db74">&#34;ansible_managed&#34;</span>
+                <span style="color:#f92672">]</span>
+            <span style="color:#f92672">}</span>,
+            <span style="color:#e6db74">&#34;rhv-m.demolab.local&#34;</span>: <span style="color:#f92672">{</span>
+                <span style="color:#e6db74">&#34;config.guestId&#34;</span>: <span style="color:#e6db74">&#34;rhel8_64Guest&#34;</span>,
+                <span style="color:#e6db74">&#34;config.name&#34;</span>: <span style="color:#e6db74">&#34;rhv-m.demolab.local&#34;</span>,
+                <span style="color:#e6db74">&#34;runtime.powerState&#34;</span>: <span style="color:#e6db74">&#34;poweredOn&#34;</span>,
+                <span style="color:#e6db74">&#34;tags&#34;</span>: <span style="color:#f92672">[</span>
+                    <span style="color:#e6db74">&#34;ansible_managed&#34;</span>
+                <span style="color:#f92672">]</span>
+            <span style="color:#f92672">}</span>
+        <span style="color:#f92672">}</span>
+    <span style="color:#f92672">}</span>,
+    <span style="color:#e6db74">&#34;all&#34;</span>: <span style="color:#f92672">{</span>
+        <span style="color:#e6db74">&#34;children&#34;</span>: <span style="color:#f92672">[</span>
+            <span style="color:#e6db74">&#34;rhel8_64Guest&#34;</span>,
+            <span style="color:#e6db74">&#34;ungrouped&#34;</span>
+        <span style="color:#f92672">]</span>
+    <span style="color:#f92672">}</span>,
+    <span style="color:#e6db74">&#34;rhel8_64Guest&#34;</span>: <span style="color:#f92672">{</span>
+        <span style="color:#e6db74">&#34;hosts&#34;</span>: <span style="color:#f92672">[</span>
+            <span style="color:#e6db74">&#34;idmv.demolab.local&#34;</span>,
+            <span style="color:#e6db74">&#34;prod-web10.demolab.local&#34;</span>,
+            <span style="color:#e6db74">&#34;rhv-m.demolab.local&#34;</span>
+        <span style="color:#f92672">]</span>
+    <span style="color:#f92672">}</span>
+<span style="color:#f92672">}</span>
+</code></pre></div><p>Great! We only see the hosts which have the <strong>ansible_managed</strong> tag.</p>
+<h3 id="using-the-inventory-in-tower">Using the inventory in Tower</h3>
+<p>I already wrote a blog post on ansible.com/blog on how you can <a href="https://www.ansible.com/blog/using-an-inventory-plugin-from-a-collection-in-ansible-tower">use inventory plugins from collections in Ansible Tower</a> so I&rsquo;m not going to explain it all again here. All of the steps you need to set this up are below but if you want more details on the process then please read the blog post.</p>
+<p>In our git repo we need to add the vmware.yml inventory plugin configuration and also a collections/requirements.yml file that allows Tower to pull in the inventory plugin from the <strong>community.vmware</strong> collection.</p>
+<p>The <strong>vmware.yml</strong> file - NOTE how the credentials have been removed here. We don&rsquo;t want credentials in plaintext!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">plugin: community.vmware.vmware_vm_inventory
+strict: False
+validate_certs: False
+with_tags: true
+properties:
+  - runtime.powerState
+  - config.name
+  - config.guestId
+filters:
+  - <span style="color:#e6db74">&#34;&#39;ansible_managed&#39; in tags&#34;</span>
+hostnames:
+  - config.name
+keyed_groups:
+  - key: config.guestId
+    separator: <span style="color:#e6db74">&#39;&#39;</span>
+</code></pre></div><p>And the <strong>collections/requirements.yml</strong> file - this simply allows Tower to automatically download the collection for us so we can use the inventory plugin:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">---
+collections:
+
+- name: community.vmware
+  source: https://galaxy.ansible.com
+</code></pre></div><p>Now create a project in Tower that maps to this git repo. In my case:</p>
+<p><img src="/images/vmware_inventory_project.png" alt=""></p>
+<p>Create a VMware credential in Tower. We removed the VMware credentials from the yaml file because we didn&rsquo;t want them in plaintext. Tower will automatically inject the VMware credentials when we sync the inventory as long as we map a valid VMware credential to it. The VMware credential type is shipped with Tower so we just need to fill in the vCenter hostname, username and password:</p>
+<p><img src="/images/vmware_credential.png" alt=""></p>
+<p>Next create an inventory in Tower. Here it is simply called <strong>vmware filter</strong>:</p>
+<p><img src="/images/vmware_inventory.png" alt=""></p>
+<p>Finally add a source to the inventory - this is how we will call the inventory plugin.</p>
+<p><img src="/images/vmware_inventory_source.png" alt=""></p>
+<p><strong>IMPORTANT</strong> We need to select our custom python virtualenv here so that it includes the python module we installed. If we don&rsquo;t do this then the inventory sync will fail! Also note that the VMware credential that we created earlier is mapped here.</p>
+<h3 id="test-the-inventory-filter">Test the inventory filter</h3>
+<p>We can test the inventory filter by hitting the <strong>sync all</strong> button. The result should be that you only see the hosts with the relevant tag:</p>
+<p><img src="/images/tower_vmware_inventory.png" alt=""></p>
+</p>
+          <p>4 Sep 2020
+            
+              
+                <a href="https://cloudautomation.pharriso.co.uk/tags/ansible/">#ansible</a>
+              
+                <a href="https://cloudautomation.pharriso.co.uk/tags/tower/">#tower</a>
+              
+            
+          </p>
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s3 m1">
+      
+        <a class="btn-floating btn-large waves-effect waves-light" href="https://cloudautomation.pharriso.co.uk/post/install_tower_from_sat6/"><i class="mdi-navigation-arrow-back"></i></a>
+      
+      </div>
+      <div class="col s6 m10 center">&nbsp</div>
+      <div class="col s3 m1">
+      
+        <a class="btn-floating btn-large disabled"><i class="mdi-navigation-arrow-forward"></i></a>
+      
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  <footer class="page-footer">
+    <div class="footer-copyright">
+      <div class="container">
+      
+      <div class="right">Design <a class="grey-text text-lighten-4" href="http://pdevty.github.io/blog/">pdevty</a></div>
+      </div>
+    </div>
+  </footer>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://cloudautomation.pharriso.co.uk/js/materialize.min.js"></script>
+  <script src="https://cloudautomation.pharriso.co.uk/js/init.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-131924821-2', 'auto');
+    ga('send', 'pageview');
+  </script>
+  
+
+  </body>
+</html>
+
