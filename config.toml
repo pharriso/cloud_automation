@@ -4,6 +4,7 @@ languageCode = "en-us"
 title = "Cloud and Automation"
 paginate = 9
 publishDir = "docs"
+disqusShortname = "cloudautomation"
 
 [params]
   description = "This blog focuses mainly on Red Hat products in the Cloud and Automation space. I work as a Solution Architect for Red Hat in the UK."
