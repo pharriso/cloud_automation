@@ -27,11 +27,11 @@ The nice thing about the Active/Active setup is that we just rely on native RHV 
 
 Here is what an Active/Active configuration looks like. This diagram depicts a the RHV manager as a self-hosted engine which is failed over along with the VM workloads.
 
-![](/images/RHV-DR-Active-Active 1.png)
+![](/images/RHV-DR-Active-Active-1.png)
 
 In the event of a failure at the Primary site, any VM's marked as highly available will automatically restart on RHV hosts in the DR site. Also, as the RHV Manager is self-hosted it is also restarted at the DR site.
 
-![](/images/RHV-DR-Active-Active 2.png)
+![](/images/RHV-DR-Active-Active-2.png)
 
 #### Active/Passive
 
