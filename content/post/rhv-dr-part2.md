@@ -27,7 +27,7 @@ I am using nested virtualisation for my lab. For the storage replication, I am u
 
 Each "site" has a RHV Manager. The RHV Manager is configured with a single cluster containing a singe RHV Host. I've got two small cirros VM's which I will failover in this demo. One is marked as Highly Available to demonstrate the fact that HA VM's are started before standard VM's.
 
-![](/images/RHV DR Active Passive Lab.png)
+![](/images/RHV-DR-Active-Passive-Lab.png)
 
 
 #### Setup

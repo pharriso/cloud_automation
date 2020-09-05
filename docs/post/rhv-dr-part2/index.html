@@ -74,7 +74,7 @@
 <h4 id="demo-environment">Demo Environment</h4>
 <p>I am using nested virtualisation for my lab. For the storage replication, I am using GlusterFS and geo-replication. This is asynchronous replication which is <strong>not</strong> recommended but it serves the purpose for this demo. Synchronous replication is recommended for replication between sites.</p>
 <p>Each &ldquo;site&rdquo; has a RHV Manager. The RHV Manager is configured with a single cluster containing a singe RHV Host. I&rsquo;ve got two small cirros VM&rsquo;s which I will failover in this demo. One is marked as Highly Available to demonstrate the fact that HA VM&rsquo;s are started before standard VM&rsquo;s.</p>
-<p>![](/images/RHV DR Active Passive Lab.png)</p>
+<p><img src="/images/RHV-DR-Active-Passive-Lab.png" alt=""></p>
 <h4 id="setup">Setup</h4>
 <p><strong>All of the files mentioned in this setup section are available in my github repo <a href="https://github.com/pharriso/rhv-dr">here</a></strong></p>
 <p><strong>Don&rsquo;t worry. All of the below playbooks are fully documented in the Red Hat documentation for RHV DR.</strong></p>
