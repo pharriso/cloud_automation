@@ -176,3 +176,11 @@ Finally add a source to the inventory - this is how we will call the inventory p
 We can test the inventory filter by hitting the **sync all** button. The result should be that you only see the hosts with the relevant tag:
 
 ![](/images/tower_vmware_inventory.png)
+
+### Next Steps
+
+There is a lot more you can do with the VMware inventory plugin. You can take a look at the [github site](https://github.com/ansible-collections/vmware) for more information.
+
+There are also a lot more inventory plugins available in Ansible. Head over to the Ansible docs to find a [list of plugins](https://docs.ansible.com/ansible/latest/plugins/inventory.html#plugin-list) available in Ansible 2.9.
+
+Finally, with the move to collections, you will find more inventory plugins shipped with their respective collection. For community collections have a look at [galaxy.ansible.com](galaxy.ansible.com). If you are a Red Hat Ansible Automation Platform customer then have a look in the [Automation Hub](cloud.redhat.com) for a list of certified and supported collections.
