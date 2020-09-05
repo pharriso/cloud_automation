@@ -57,31 +57,31 @@ Job slicing is a new feature of Ansible Tower 3.4 and helps to address this issu
 
 To demonstrate job slicing, I have a three node Tower cluster. My inventory contains 49 hosts for me to automate against. Here is the available capacity in forks reported by my hosts. 
 
-![](/images/tower capacity.png)
+![](/images/tower-capacity.png)
 
 My Tower hosts can each safely spawn up to 27 forks based on memory capacity. If we look at the following job template we can see that I have specified 30 forks - I run the risk of exhausting memory resources. Also note that I only have one job slice configured - this is the default when creating a new job template. 
 
-![](/images/job template 1 slice.png)
+![](/images/job-template-1-slice.png)
 
 When I launch my job we can see that my playbook is being run on a single Tower node. As I have allocated more forks than I safely have capacity for I am over-allocated on capacity. My other two Tower nodes are just relaxing at this point with no work scheduled on them.
 
-![](/images/1 slice capacity.png)
+![](/images/1-slice-capacity.png)
 
 Now I'll re-configure my job template so that it utilises three slices.
 
-![](/images/job template 3 slices.png)
+![](/images/job-template-3-slices.png)
 
 This time when I launch my job template, a worklfow is automatically generated. 
 
-![](/images/job slice workflow finished.png)
+![](/images/job-slice-workflow-finished.png)
 
 If we look at one of the individual jobs within the workflow we can see that this is slice job 1 of 3. Also, note that this job is being run on a "slice" of my inventory - 16 hosts.
 
-![](/images/job output.png)
+![](/images/job-output.png)
 
 Finally, we can see that capacity is now being utilised across all three of my Tower nodes.
 
-![](/images/3 slice capacity.png)
+![](/images/3-slice-capacity.png)
 
 #### Summary
 
