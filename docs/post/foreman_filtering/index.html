@@ -1,0 +1,309 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+  <title>Filtering hosts with the Satellite inventory plugin for Ansible</title>
+  <link href="https://cloudautomation.pharriso.co.uk/css/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="https://cloudautomation.pharriso.co.uk/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/default.min.css">
+  <style type="text/css">
+  
+    footer.page-footer{background-image: url(https://cloudautomation.pharriso.co.uk/images/default.png);}
+  
+  </style>
+</head>
+<body>
+  <ul id="slide-out" class="side-nav">
+    <li><a href="https://cloudautomation.pharriso.co.uk"><i class="mdi-action-home left"></i>Home<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+    <li><a href="https://cloudautomation.pharriso.co.uk/categories"><i class="mdi-action-perm-media left"></i>Categories<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+    <li><a href="https://cloudautomation.pharriso.co.uk/tags"><i class="mdi-action-loyalty left"></i>Tags<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+  </ul>
+  <div id="index-banner" class="parallax-container">
+  <a data-activates="slide-out" class="btn-floating button-collapse" style="top: 5px; left: 5px;"><i class="mdi-navigation-menu"></i></a>
+    <div class="section no-pad-bot">
+      <div class="container">
+        
+        <h1 class="header center teal-text text-lighten-2">Cloud and Automation</h1>
+        <div class="row center">
+          <h5 class="header col s12 light">This blog focuses mainly on Red Hat products in the Cloud and Automation space. I work as a Solution Architect for Red Hat in the UK.</h5>
+        </div>
+        <div class="row center">
+        
+        
+          <a href="https://github.com/pharriso"><img src="https://cloudautomation.pharriso.co.uk/images/github2-dreamstale35.png"></a>
+        
+        
+        
+          <a href="https://twitter.com/patharrison_esq"><img src="https://cloudautomation.pharriso.co.uk/images/twitter-dreamstale71.png"></a>
+        
+        
+        
+          <a href="https://www.linkedin.com/in/pharriso"><img src="https://cloudautomation.pharriso.co.uk/images/linkedin-dreamstale45.png"></a>
+        
+        </div>
+      </div>
+    </div>
+    <div class="parallax">
+    
+      <img src="https://cloudautomation.pharriso.co.uk/images/default.png">
+    
+    </div>
+  </div>
+
+
+
+<div class="container">
+  <div class="section">
+
+    <div class="row">
+      <div class="col s12">
+        <div class="card-panel">
+          <h4>Filtering hosts with the Satellite inventory plugin for Ansible</h4>
+          <p>
+           
+          </p>
+          <p><p>Another post on inventory filtering in Ansible - this time for Red Hat Satellite. I&rsquo;ve written about inventories and filtering in a few places so for some background information you can read these posts on <a href="https://cloudautomation.pharriso.co.uk/post/ansible-constructed-inventory-plugin/">constructed inventory plugins</a>, <a href="https://cloudautomation.pharriso.co.uk/post/vmware_filter_tags/">VMware filtering</a>  and on ansible.com/blog around the <a href="https://www.ansible.com/blog/using-an-inventory-plugin-from-a-collection-in-ansible-tower">servicenow plugin</a>. Put simply, Ansible inventory plugins allow you to query a &ldquo;Source of Truth&rdquo; so that you can:</p>
+<ol>
+<li>Effectively and efficiently maintain a list of all of your managed nodes for Ansible.</li>
+<li>Classify and group your infrastructure so that you can be more selective in what devices you automate against?</li>
+</ol>
+<p>There are a bunch of inventory plugins shipped with Ansible including AWS EC2, Microsoft Azure, VMware vCenter and Red Hat Satellite. Again, see the posts I linked earlier to learn more about inventory plugins.</p>
+<p>I was helping a colleague out with how to filter Satellite hosts with the Ansible inventory plugin and he commented that there weren&rsquo;t any real examples out there. It then struck me that I couldn&rsquo;t remember much on the subject myself! So it was worth just writing this up quickly as a reminder for me if for no-one else. <a href="https://www.redhat.com/en/technologies/management/satellite">Red Hat Satellite</a> is a tool that customers use to manage RHEL content and patching of RHEL servers. RHEL servers are registered to Satellite and so it is often a very useful &ldquo;Source of Truth&rdquo;.</p>
+<h3 id="getting-started-with-the-plugin">Getting started with the plugin</h3>
+<p>Let&rsquo;s take a look at the inventory plugin for Red Hat Satellite. We ship the plugin with Ansible 2.9 but it is also a supported plugin from the redhat.satellite collection on <a href="cloud.redhat.com">cloud.redhat.com</a>. So how do we use the inventory plugin and what parameters can we set? <strong>ansible-doc</strong> is our friend here. <strong>Note</strong> that the plugin is called <strong>foreman</strong> because this is the name of one of the upstream projects for Red Hat Satellite. To query the inventory plugin docs run:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-doc -t inventory foreman
+</code></pre></div><p>If you intend to run the plugin from the Red Hat Satellite collection then you need the fully qualified collection name. For the officially supported Red Hat Satellite collection this would be:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-doc -t inventory redhat.satellite.foreman
+</code></pre></div><p>Let&rsquo;s just get the plugin working and verify the information it returns. Create the <strong>foreman.yml</strong> file with the following contents - don&rsquo;t worry about the credentials being in plaintext yet. We can fix that later in Tower. I&rsquo;m going to use the certified and supported Red Hat Satellite foreman plugin here - again note the fully qualified collection name:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cat foreman.yml
+<span style="color:#75715e"># foreman.yml</span>
+plugin: redhat.satellite.foreman
+validate_certs: False
+url: https://sat6.example.com
+user: ansible
+password: Redhat123
+</code></pre></div><p>Now run the plugin. First, let&rsquo;s see the groups that are returned:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-inventory -i foreman.yml --graph
+@all:
+  |--@foreman_dev_web:
+  |  |--dev-web1.example.com
+  |--@foreman_prod_haproxy:
+  |  |--lb.example.com
+  |--@foreman_prod_web:
+  |  |--prod-web1.example.com
+  |  |--prod-web2.example.com
+  |--@ungrouped:
+</code></pre></div><p>Next let&rsquo;s look at the variables that are being returned for one of these servers. In this instance prod-web2.example.com:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-inventory -i foreman.yml --host prod-web2.example.com
+
+<span style="color:#e6db74">&#34;foreman_architecture_name&#34;</span>: <span style="color:#e6db74">&#34;x86_64&#34;</span>,
+    <span style="color:#e6db74">&#34;foreman_build&#34;</span>: false,
+    <span style="color:#e6db74">&#34;foreman_capabilities&#34;</span>: <span style="color:#f92672">[</span>
+        <span style="color:#e6db74">&#34;build&#34;</span>
+    <span style="color:#f92672">]</span>,
+    <span style="color:#e6db74">&#34;foreman_certname&#34;</span>: <span style="color:#e6db74">&#34;prod-web2.example.com&#34;</span>,
+    <span style="color:#e6db74">&#34;foreman_comment&#34;</span>: null,
+    <span style="color:#e6db74">&#34;foreman_compliance_status&#34;</span>: 0,
+    <span style="color:#e6db74">&#34;foreman_compliance_status_label&#34;</span>: <span style="color:#e6db74">&#34;Compliant&#34;</span>,
+    <span style="color:#e6db74">&#34;foreman_compute_profile_id&#34;</span>: null,
+    <span style="color:#e6db74">&#34;foreman_compute_profile_name&#34;</span>: null,
+    <span style="color:#e6db74">&#34;foreman_compute_resource_id&#34;</span>: null,
+    <span style="color:#e6db74">&#34;foreman_compute_resource_name&#34;</span>: null,
+    <span style="color:#e6db74">&#34;foreman_content_facet_attributes&#34;</span>: <span style="color:#f92672">{</span>
+        <span style="color:#e6db74">&#34;applicable_module_stream_count&#34;</span>: 0,
+        <span style="color:#e6db74">&#34;applicable_package_count&#34;</span>: 0,
+        <span style="color:#e6db74">&#34;content_source&#34;</span>: <span style="color:#f92672">{</span>
+            <span style="color:#e6db74">&#34;id&#34;</span>: 1,
+            <span style="color:#e6db74">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;sat6.example.com&#34;</span>,
+            <span style="color:#e6db74">&#34;url&#34;</span>: <span style="color:#e6db74">&#34;https://sat6.example.com:9090&#34;</span>
+        <span style="color:#f92672">}</span>,
+        <span style="color:#e6db74">&#34;content_source_id&#34;</span>: 1,
+        <span style="color:#e6db74">&#34;content_source_name&#34;</span>: <span style="color:#e6db74">&#34;sat6.example.com&#34;</span>,
+        <span style="color:#e6db74">&#34;content_view&#34;</span>: <span style="color:#f92672">{</span>
+            <span style="color:#e6db74">&#34;id&#34;</span>: 7,
+            <span style="color:#e6db74">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;rhel8&#34;</span>
+        <span style="color:#f92672">}</span>,
+        <span style="color:#e6db74">&#34;content_view_id&#34;</span>: 7,
+        <span style="color:#e6db74">&#34;content_view_name&#34;</span>: <span style="color:#e6db74">&#34;rhel8&#34;</span>,
+        <span style="color:#e6db74">&#34;errata_counts&#34;</span>: <span style="color:#f92672">{</span>
+            <span style="color:#e6db74">&#34;bugfix&#34;</span>: 0,
+            <span style="color:#e6db74">&#34;enhancement&#34;</span>: 0,
+            <span style="color:#e6db74">&#34;security&#34;</span>: 0,
+            <span style="color:#e6db74">&#34;total&#34;</span>: <span style="color:#ae81ff">0</span>
+        <span style="color:#f92672">}</span>,
+        <span style="color:#e6db74">&#34;lifecycle_environment_name&#34;</span>: <span style="color:#e6db74">&#34;Prod&#34;</span>
+
+....
+</code></pre></div><p>The above output is truncated, but you can see the type of data that Satellite returns. It is possible to modify the behaviour of the plugin, for example to filter certain hosts that we might not need to automate against. We also might want to create additional groups based on the information that is returned from Satellite. As per the ansible-doc output, we can use the following parameters to do this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">- host_filters
+        This can be used to restrict the list of returned host
+        <span style="color:#f92672">[</span>Default: <span style="color:#f92672">(</span>null<span style="color:#f92672">)]</span>
+        type: string
+
+- keyed_groups
+        Add hosts to group based on the values of a variable.
+        <span style="color:#f92672">[</span>Default: <span style="color:#f92672">[]]</span>
+        type: list
+</code></pre></div><h3 id="adding-groups">Adding Groups</h3>
+<p>First, we are going to add some more groups based on data we are receiving from Satellite. We got lots of data back from Satellite so let&rsquo;s use that to construct some additional groups. In this example, we will build groups based on operating system and lifecycle environment. The updated <strong>foreman.yml</strong> file now looks like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cat foreman.yml
+<span style="color:#75715e"># foreman.yml</span>
+plugin: foreman
+validate_certs: False
+url: https://sat6.example.com
+user: ansible
+password: Redhat123
+keyed_groups:
+-  key: foreman_operatingsystem_name | lower | regex_replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#39; &#39;</span>, <span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">)</span> | regex_replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;[^A-Za-z0-9_]&#39;</span>, <span style="color:#e6db74">&#39;_&#39;</span><span style="color:#f92672">)</span>
+   separator: <span style="color:#e6db74">&#39;&#39;</span>
+   prefix: <span style="color:#e6db74">&#39;&#39;</span>
+-  key: foreman_content_facet_attributes.lifecycle_environment_name | lower
+   prefix: <span style="color:#e6db74">&#39;lifecycle_env_&#39;</span>
+   separator: <span style="color:#e6db74">&#39;&#39;</span>
+
+</code></pre></div><p>Note how we have used some regex to ensure the operating system name is converted into a valid group name by removing spaces and other invalid characters. If we re-run the plugin we should now see some additional groups:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-inventory -i foreman.yml --graph
+@all:
+  |--@foreman_dev_web:
+  |  |--dev-web1.example.com
+  |--@foreman_prod_haproxy:
+  |  |--lb.example.com
+  |--@foreman_prod_web:
+  |  |--prod-web1.example.com
+  |  |--prod-web2.example.com
+  |--@lifecycle_env_dev:
+  |  |--dev-web1.example.com
+  |--@lifecycle_env_prod:
+  |  |--lb.example.com
+  |  |--prod-web1.example.com
+  |  |--prod-web2.example.com
+  |--@redhat8_2:
+  |  |--dev-web1.example.com
+  |  |--lb.example.com
+  |  |--prod-web1.example.com
+  |  |--prod-web2.example.com
+  |--@ungrouped:
+</code></pre></div><h3 id="filtering-hosts">Filtering hosts</h3>
+<p>As well as adding groups, we can also filter hosts so that they aren&rsquo;t added into the Ansible inventory. To do this we need to understand what we can filter on. The host_filter performs searches against the Satellite API. To see the fields we can search on we can look at the Satellite API documentation which is hosted on the Satellite server itself. For my Satellite server the apidoc for <strong>hosts</strong> is - <a href="https://sat6.example.com/apidoc/v2/hosts/index.html">https://sat6.example.com/apidoc/v2/hosts/index.html</a>. Here we can see a list of possible searches and this screenshot shows a few examples:</p>
+<p><img src="/images/sat6_filter.png" alt=""></p>
+<p>We want to filter on lifecycle environment so we need to do this either by name or ID as per the API docs for Satellite:</p>
+<p><img src="/images/foreman_filter_lifecycle.png" alt=""></p>
+<p>Here is the updated <strong>foreman.yml</strong> file including a filter so that we only get servers in the &ldquo;Dev&rdquo; lifecycle environment:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># foreman.yml</span>
+plugin: redhat.satellite.foreman
+validate_certs: False
+url: https://sat6.example.com
+user: ansible
+password: Redhat123
+keyed_groups:
+-  key: foreman_operatingsystem_name | lower | regex_replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#39; &#39;</span>, <span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">)</span> | regex_replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;[^A-Za-z0-9_]&#39;</span>, <span style="color:#e6db74">&#39;_&#39;</span><span style="color:#f92672">)</span>
+   separator: <span style="color:#e6db74">&#39;&#39;</span>
+   prefix: <span style="color:#e6db74">&#39;&#39;</span>
+-  key: foreman_content_facet_attributes.lifecycle_environment_name | lower
+   prefix: <span style="color:#e6db74">&#39;lifecycle_env_&#39;</span>
+   separator: <span style="color:#e6db74">&#39;&#39;</span>
+host_filters: <span style="color:#e6db74">&#39;lifecycle_environment=&#34;Dev&#34;&#39;</span>
+</code></pre></div><p>Running this now only returns a single host in our Dev lifecycle environment:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-inventory -i foreman.yml --graph
+@all:
+  |--@foreman_dev_web:
+  |  |--dev-web1.demolab.local
+  |--@lifecycle_env_dev:
+  |  |--dev-web1.demolab.local
+  |--@redhat8_2:
+  |  |--dev-web1.demolab.local
+  |--@ungrouped:
+</code></pre></div><h3 id="running-the-inventory-plugin-in-tower">Running the inventory plugin in Tower</h3>
+<p>I&rsquo;ve been using Ansible Engine and the command line so far. Running the plugin from <a href="https://www.ansible.com/products/tower">Ansible Tower</a> is straightforward and gives us the added bonus of encrypting the credentials that we previously had in plaintext. Tower ships with the foreman inventory plugin ready to run and is configured to correct some common groups out of the box. Let&rsquo;s walk through a basic setup in Tower:</p>
+<ol>
+<li>Create a credential for Red Hat Satellite. As mentioned, Tower can securely store our credential for us so we don&rsquo;t need to worry about it. In the Tower UI create a credential of type &ldquo;Red Hat Satellite 6&rdquo;. Enter the username, password and Satellite URL.</li>
+</ol>
+<p><img src="/images/sat6_inventory_credential.png" alt=""></p>
+<ol start="2">
+<li>Create an Inventory. I&rsquo;ll simply call mine &ldquo;Satellite inventory&rdquo;.</li>
+</ol>
+<p><img src="/images/satellite_inventory.png" alt=""></p>
+<ol start="3">
+<li>Add an inventory source to the inventory with the custom filter. The source should be set to &ldquo;Red Hat Satellite 6&rdquo; and select the credential we created earlier. We need to include the filter in the &ldquo;SOURCE VARIABLES&rdquo; section.</li>
+</ol>
+<p><img src="/images/satellite_inventory_source.png" alt=""></p>
+<p>Hitting the &ldquo;Sync All&rdquo; button will test the configuration and import out hosts from Satellite. We should only see our single Dev server again.</p>
+<p><img src="/images/satellite_imported_host.png" alt=""></p>
+<h3 id="next-steps">Next Steps</h3>
+<p>If you find that you want to further customise the inventory plugin then take a look at my other post on <a href="https://www.ansible.com/blog/using-an-inventory-plugin-from-a-collection-in-ansible-tower">sourcing inventories from collections in Tower</a> as this includes details on sourcing the inventory configuration from source control where you can have full control of the inventory sync.</p>
+<p>There are also a lot more inventory plugins available in Ansible. Head over to the Ansible docs to find a <a href="https://docs.ansible.com/ansible/2.9/plugins/inventory.html#plugin-list">list of plugins</a> available in Ansible 2.9.</p>
+<p>Finally, with the move to collections, you will find more inventory plugins shipped with their respective collection. For community collections have a look at <a href="galaxy.ansible.com">galaxy.ansible.com</a>. If you are a Red Hat Ansible Automation Platform customer then have a look in the <a href="cloud.redhat.com">Automation Hub</a> for a list of certified and supported collections.</p>
+</p>
+          <p>2 Nov 2020
+            
+              
+                <a href="https://cloudautomation.pharriso.co.uk/tags/ansible/">#ansible</a>
+              
+                <a href="https://cloudautomation.pharriso.co.uk/tags/tower/">#tower</a>
+              
+            
+          </p>
+          
+            <div id="disqus_thread"></div>
+<script type="text/javascript">
+     
+    var disqus_shortname = 'cloudautomation';
+    
+     
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s3 m1">
+      
+        <a class="btn-floating btn-large waves-effect waves-light" href="https://cloudautomation.pharriso.co.uk/post/vmware_filter_tags/"><i class="mdi-navigation-arrow-back"></i></a>
+      
+      </div>
+      <div class="col s6 m10 center">&nbsp</div>
+      <div class="col s3 m1">
+      
+        <a class="btn-floating btn-large disabled"><i class="mdi-navigation-arrow-forward"></i></a>
+      
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  <footer class="page-footer">
+    <div class="footer-copyright">
+      <div class="container">
+      
+      <div class="right">Design <a class="grey-text text-lighten-4" href="http://pdevty.github.io/blog/">pdevty</a></div>
+      </div>
+    </div>
+  </footer>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://cloudautomation.pharriso.co.uk/js/materialize.min.js"></script>
+  <script src="https://cloudautomation.pharriso.co.uk/js/init.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-131924821-2', 'auto');
+    ga('send', 'pageview');
+  </script>
+  
+
+  </body>
+</html>
+

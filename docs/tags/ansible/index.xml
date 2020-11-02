@@ -6,10 +6,20 @@
     <description>Recent content in ansible on Cloud and Automation</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Fri, 04 Sep 2020 16:31:06 +0100</lastBuildDate>
+    <lastBuildDate>Mon, 02 Nov 2020 16:36:26 +0000</lastBuildDate>
     
 	<atom:link href="https://cloudautomation.pharriso.co.uk/tags/ansible/index.xml" rel="self" type="application/rss+xml" />
     
+    
+    <item>
+      <title>Filtering hosts with the Satellite inventory plugin for Ansible</title>
+      <link>https://cloudautomation.pharriso.co.uk/post/foreman_filtering/</link>
+      <pubDate>Mon, 02 Nov 2020 16:36:26 +0000</pubDate>
+      
+      <guid>https://cloudautomation.pharriso.co.uk/post/foreman_filtering/</guid>
+      <description>Another post on inventory filtering in Ansible - this time for Red Hat Satellite. I&amp;rsquo;ve written about inventories and filtering in a few places so for some background information you can read these posts on constructed inventory plugins, VMware filtering and on ansible.com/blog around the servicenow plugin. Put simply, Ansible inventory plugins allow you to query a &amp;ldquo;Source of Truth&amp;rdquo; so that you can:
+ Effectively and efficiently maintain a list of all of your managed nodes for Ansible.</description>
+    </item>
     
     <item>
       <title>Ansible VMware Dynamic Inventory - Filter on tags</title>
