@@ -185,7 +185,7 @@ keyed_groups:
   |  |--prod-web2.example.com
   |--@ungrouped:
 </code></pre></div><h3 id="filtering-hosts">Filtering hosts</h3>
-<p>As well as adding groups, we can also filter hosts so that they aren&rsquo;t added into the Ansible inventory. To do this we need to understand what we can filter on. The host_filter performs searches against the Satellite API. To see the fields we can search on we can look at the Satellite API documentation which is hosted on the Satellite server itself. For my Satellite server the apidoc for <strong>hosts</strong> is - <a href="https://sat6.example.com/apidoc/v2/hosts/index.html">https://sat6.example.com/apidoc/v2/hosts/index.html</a>. Here we can see a list of possible searches and this screenshot shows a few examples:</p>
+<p>As well as adding groups, we can also filter hosts so that they aren&rsquo;t added into the Ansible inventory. To do this we need to understand what we can filter on. We can&rsquo;t just use the variables that were returned from the inventory plugin because the host_filter performs searches against the Satellite API. To see the fields we can search on we can look at the Satellite API documentation which is hosted on the Satellite server itself. For my Satellite server the apidoc for <strong>hosts</strong> is - <a href="https://sat6.example.com/apidoc/v2/hosts/index.html">https://sat6.example.com/apidoc/v2/hosts/index.html</a>. Here we can see a list of possible searches and this screenshot shows a few examples:</p>
 <p><img src="/images/sat6_filter.png" alt=""></p>
 <p>We want to filter on lifecycle environment so we need to do this either by name or ID as per the API docs for Satellite:</p>
 <p><img src="/images/foreman_filter_lifecycle.png" alt=""></p>

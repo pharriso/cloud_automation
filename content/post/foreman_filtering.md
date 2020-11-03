@@ -164,7 +164,7 @@ ansible-inventory -i foreman.yml --graph
 
 ### Filtering hosts
 
-As well as adding groups, we can also filter hosts so that they aren't added into the Ansible inventory. To do this we need to understand what we can filter on. The host_filter performs searches against the Satellite API. To see the fields we can search on we can look at the Satellite API documentation which is hosted on the Satellite server itself. For my Satellite server the apidoc for **hosts** is - https://sat6.example.com/apidoc/v2/hosts/index.html. Here we can see a list of possible searches and this screenshot shows a few examples:
+As well as adding groups, we can also filter hosts so that they aren't added into the Ansible inventory. To do this we need to understand what we can filter on. We can't just use the variables that were returned from the inventory plugin because the host_filter performs searches against the Satellite API. To see the fields we can search on we can look at the Satellite API documentation which is hosted on the Satellite server itself. For my Satellite server the apidoc for **hosts** is - https://sat6.example.com/apidoc/v2/hosts/index.html. Here we can see a list of possible searches and this screenshot shows a few examples:
 
 ![](/images/sat6_filter.png)
 
