@@ -217,7 +217,7 @@ I've been using Ansible Engine and the command line so far. Running the plugin f
 
 ![](/images/satellite_inventory.png)
 
-3) Add an inventory source to the inventory with the custom filter. The source should be set to "Red Hat Satellite 6" and select the credential we created earlier. We need to include the filter in the "SOURCE VARIABLES" section.
+3) Add an inventory source to the inventory with the custom filter. The source should be set to "Red Hat Satellite 6" and select the credential we created earlier. We need to include the filter in the "SOURCE VARIABLES" section. A reminder that the available filters can be found at  https://sat6.example.com/apidoc/v2/hosts/index.html as explained earlier in the "Filtering Hosts" section.
 
 ![](/images/satellite_inventory_source.png)
 

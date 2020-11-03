@@ -225,7 +225,7 @@ host_filters: <span style="color:#e6db74">&#39;lifecycle_environment=&#34;Dev&#3
 </ol>
 <p><img src="/images/satellite_inventory.png" alt=""></p>
 <ol start="3">
-<li>Add an inventory source to the inventory with the custom filter. The source should be set to &ldquo;Red Hat Satellite 6&rdquo; and select the credential we created earlier. We need to include the filter in the &ldquo;SOURCE VARIABLES&rdquo; section.</li>
+<li>Add an inventory source to the inventory with the custom filter. The source should be set to &ldquo;Red Hat Satellite 6&rdquo; and select the credential we created earlier. We need to include the filter in the &ldquo;SOURCE VARIABLES&rdquo; section. A reminder that the available filters can be found at  <a href="https://sat6.example.com/apidoc/v2/hosts/index.html">https://sat6.example.com/apidoc/v2/hosts/index.html</a> as explained earlier in the &ldquo;Filtering Hosts&rdquo; section.</li>
 </ol>
 <p><img src="/images/satellite_inventory_source.png" alt=""></p>
 <p>Hitting the &ldquo;Sync All&rdquo; button will test the configuration and import out hosts from Satellite. We should only see our single Dev server again.</p>
