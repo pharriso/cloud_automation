@@ -99,6 +99,8 @@ hostnames:
 keyed_groups:
   - key: config.guestId
     separator: <span style="color:#e6db74">&#39;&#39;</span>
+  - key: tags
+    separator: <span style="color:#e6db74">&#39;&#39;</span>
 </code></pre></div><p>Note how we are asking for the tags to be returned and then filtering any hosts which only have a tag that matches &ldquo;ansible_managed&rdquo;. To run this from the CLI we first need to source the virtualenv:</p>
 <pre><code>$ source /opt/my-envs/vmware_filter_inventory/bin/activate
 </code></pre><p>Let&rsquo;s run it and see what we get.</p>
@@ -166,6 +168,8 @@ hostnames:
 keyed_groups:
   - key: config.guestId
     separator: <span style="color:#e6db74">&#39;&#39;</span>
+  - key: tags
+    separator: <span style="color:#e6db74">&#39;&#39;</span>
 </code></pre></div><p>And the <strong>collections/requirements.yml</strong> file - this simply allows Tower to automatically download the collection for us so we can use the inventory plugin:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">---
 collections:
@@ -195,6 +199,8 @@ collections:
                 <a href="https://cloudautomation.pharriso.co.uk/tags/ansible/">#ansible</a>
               
                 <a href="https://cloudautomation.pharriso.co.uk/tags/tower/">#tower</a>
+              
+                <a href="https://cloudautomation.pharriso.co.uk/tags/vmware/">#vmware</a>
               
             
           </p>

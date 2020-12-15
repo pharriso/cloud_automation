@@ -6,26 +6,40 @@
     <description>Recent content in Tags on Cloud and Automation</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Mon, 02 Nov 2020 16:36:26 +0000</lastBuildDate>
-    
-	<atom:link href="https://cloudautomation.pharriso.co.uk/tags/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Tue, 08 Dec 2020 20:29:31 +0000</lastBuildDate><atom:link href="https://cloudautomation.pharriso.co.uk/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>ansible</title>
       <link>https://cloudautomation.pharriso.co.uk/tags/ansible/</link>
-      <pubDate>Mon, 02 Nov 2020 16:36:26 +0000</pubDate>
+      <pubDate>Tue, 08 Dec 2020 20:29:31 +0000</pubDate>
       
       <guid>https://cloudautomation.pharriso.co.uk/tags/ansible/</guid>
       <description></description>
     </item>
     
     <item>
+      <title>molecule</title>
+      <link>https://cloudautomation.pharriso.co.uk/tags/molecule/</link>
+      <pubDate>Tue, 08 Dec 2020 20:29:31 +0000</pubDate>
+      
+      <guid>https://cloudautomation.pharriso.co.uk/tags/molecule/</guid>
+      <description></description>
+    </item>
+    
+    <item>
       <title>tower</title>
       <link>https://cloudautomation.pharriso.co.uk/tags/tower/</link>
-      <pubDate>Mon, 02 Nov 2020 16:36:26 +0000</pubDate>
+      <pubDate>Tue, 08 Dec 2020 20:29:31 +0000</pubDate>
       
       <guid>https://cloudautomation.pharriso.co.uk/tags/tower/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>vmware</title>
+      <link>https://cloudautomation.pharriso.co.uk/tags/vmware/</link>
+      <pubDate>Tue, 08 Dec 2020 20:29:31 +0000</pubDate>
+      
+      <guid>https://cloudautomation.pharriso.co.uk/tags/vmware/</guid>
       <description></description>
     </item>
     

@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>vmware on Cloud and Automation</title>
+    <link>https://cloudautomation.pharriso.co.uk/tags/vmware/</link>
+    <description>Recent content in vmware on Cloud and Automation</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 08 Dec 2020 20:29:31 +0000</lastBuildDate><atom:link href="https://cloudautomation.pharriso.co.uk/tags/vmware/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Testing Ansible roles with Molecule and VMware</title>
+      <link>https://cloudautomation.pharriso.co.uk/post/vmware-molecule/</link>
+      <pubDate>Tue, 08 Dec 2020 20:29:31 +0000</pubDate>
+      
+      <guid>https://cloudautomation.pharriso.co.uk/post/vmware-molecule/</guid>
+      <description>Molecule is a tool to aid with the testing and development of Ansible roles. It allows users to spin up test infrastructure to provide a quick and easy means with which to test Ansible roles. Typically the test instances are containers as they are lightweight and typically very fast to create and destroy. There are a number of posts out there that describe the process of using molecule with containers but I didn&amp;rsquo;t find many that describe the process for testing molecule with Virtual Machines.</description>
+    </item>
+    
+    <item>
+      <title>Ansible VMware Dynamic Inventory - Filter on tags</title>
+      <link>https://cloudautomation.pharriso.co.uk/post/vmware_filter_tags/</link>
+      <pubDate>Fri, 04 Sep 2020 16:31:06 +0100</pubDate>
+      
+      <guid>https://cloudautomation.pharriso.co.uk/post/vmware_filter_tags/</guid>
+      <description>I&amp;rsquo;ve written about dynamic inventories before and why they are useful both around constructed inventory plugins and on ansible.com/blog around the servicenow plugin - so I won&amp;rsquo;t repeat it all again here. Dynamic inventories are great for allowing Ansible to use other platforms to provide a list of endpoints to manage and also to help to classify those endpoints. If we take the VMware inventory plugin as an example, I might not want to import every VMware VM into Ansible as a managed endpoint.</description>
+    </item>
+    
+  </channel>
+</rss>

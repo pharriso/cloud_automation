@@ -1,7 +1,7 @@
 ---
 title: "Ansible VMware Dynamic Inventory - Filter on tags"
 draft: false
-tags: [ansible, tower]
+tags: [ansible, tower, vmware]
 date: 2020-09-04T16:31:06+01:00
 ---
 
@@ -56,6 +56,8 @@ hostnames:
   - config.name
 keyed_groups:
   - key: config.guestId
+    separator: ''
+  - key: tags
     separator: ''
 ```
 
@@ -139,6 +141,8 @@ hostnames:
   - config.name
 keyed_groups:
   - key: config.guestId
+    separator: ''
+  - key: tags
     separator: ''
 ```
 

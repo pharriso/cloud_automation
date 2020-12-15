@@ -6,11 +6,7 @@
     <description>Recent content in satellite6 on Cloud and Automation</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Sun, 26 Jul 2020 19:22:35 +0100</lastBuildDate>
-    
-	<atom:link href="https://cloudautomation.pharriso.co.uk/tags/satellite6/index.xml" rel="self" type="application/rss+xml" />
-    
-    
+    <lastBuildDate>Sun, 26 Jul 2020 19:22:35 +0100</lastBuildDate><atom:link href="https://cloudautomation.pharriso.co.uk/tags/satellite6/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>Install Ansible Tower from Satellite 6</title>
       <link>https://cloudautomation.pharriso.co.uk/post/install_tower_from_sat6/</link>

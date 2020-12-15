@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>molecule on Cloud and Automation</title>
+    <link>https://cloudautomation.pharriso.co.uk/tags/molecule/</link>
+    <description>Recent content in molecule on Cloud and Automation</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <language>en-us</language>
+    <lastBuildDate>Tue, 08 Dec 2020 20:29:31 +0000</lastBuildDate><atom:link href="https://cloudautomation.pharriso.co.uk/tags/molecule/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Testing Ansible roles with Molecule and VMware</title>
+      <link>https://cloudautomation.pharriso.co.uk/post/vmware-molecule/</link>
+      <pubDate>Tue, 08 Dec 2020 20:29:31 +0000</pubDate>
+      
+      <guid>https://cloudautomation.pharriso.co.uk/post/vmware-molecule/</guid>
+      <description>Molecule is a tool to aid with the testing and development of Ansible roles. It allows users to spin up test infrastructure to provide a quick and easy means with which to test Ansible roles. Typically the test instances are containers as they are lightweight and typically very fast to create and destroy. There are a number of posts out there that describe the process of using molecule with containers but I didn&amp;rsquo;t find many that describe the process for testing molecule with Virtual Machines.</description>
+    </item>
+    
+  </channel>
+</rss>

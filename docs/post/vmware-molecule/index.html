@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+  <title>Testing Ansible roles with Molecule and VMware</title>
+  <link href="https://cloudautomation.pharriso.co.uk/css/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="https://cloudautomation.pharriso.co.uk/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/default.min.css">
+  <style type="text/css">
+  
+    footer.page-footer{background-image: url(https://cloudautomation.pharriso.co.uk/images/default.png);}
+  
+  </style>
+</head>
+<body>
+  <ul id="slide-out" class="side-nav">
+    <li><a href="https://cloudautomation.pharriso.co.uk"><i class="mdi-action-home left"></i>Home<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+    <li><a href="https://cloudautomation.pharriso.co.uk/categories"><i class="mdi-action-perm-media left"></i>Categories<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+    <li><a href="https://cloudautomation.pharriso.co.uk/tags"><i class="mdi-action-loyalty left"></i>Tags<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+  </ul>
+  <div id="index-banner" class="parallax-container">
+  <a data-activates="slide-out" class="btn-floating button-collapse" style="top: 5px; left: 5px;"><i class="mdi-navigation-menu"></i></a>
+    <div class="section no-pad-bot">
+      <div class="container">
+        
+        <h1 class="header center teal-text text-lighten-2">Cloud and Automation</h1>
+        <div class="row center">
+          <h5 class="header col s12 light">This blog focuses mainly on Red Hat products in the Cloud and Automation space. I work as a Solution Architect for Red Hat in the UK.</h5>
+        </div>
+        <div class="row center">
+        
+        
+          <a href="https://github.com/pharriso"><img src="https://cloudautomation.pharriso.co.uk/images/github2-dreamstale35.png"></a>
+        
+        
+        
+          <a href="https://twitter.com/patharrison_esq"><img src="https://cloudautomation.pharriso.co.uk/images/twitter-dreamstale71.png"></a>
+        
+        
+        
+          <a href="https://www.linkedin.com/in/pharriso"><img src="https://cloudautomation.pharriso.co.uk/images/linkedin-dreamstale45.png"></a>
+        
+        </div>
+      </div>
+    </div>
+    <div class="parallax">
+    
+      <img src="https://cloudautomation.pharriso.co.uk/images/default.png">
+    
+    </div>
+  </div>
+
+
+
+<div class="container">
+  <div class="section">
+
+    <div class="row">
+      <div class="col s12">
+        <div class="card-panel">
+          <h4>Testing Ansible roles with Molecule and VMware</h4>
+          <p>
+           
+          </p>
+          <p><p>Molecule is a tool to aid with the testing and development of <a href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html">Ansible roles</a>. It allows users to spin up test infrastructure to provide a quick and easy means with which to test Ansible roles. Typically the test instances are containers as they are lightweight and typically very fast to create and destroy. There are a number of posts out there that describe the process of using <a href="https://www.ansible.com/blog/developing-and-testing-ansible-roles-with-molecule-and-podman-part-1">molecule with containers</a> but I didn&rsquo;t find many that describe the process for testing molecule with Virtual Machines.</p>
+<p>There may be valid reasons for wanting to test Ansible roles on a VM rather than in a container. In this example, I want to test an Ansible role that is used to register VM&rsquo;s to Red Hat Satellite. Containers typically adopt the subscriptions and repositories of the host system so it felt like a good use-case for deploying a VM to test my role. I&rsquo;m going to use VMware vSphere as the target platform for my test VM&rsquo;s as this is the most common on-prem virtualisation platform that I come across with customers.</p>
+<p>Molecule provides a delegated driver which gives users the flexibility of Ansible to write their own playbooks to provision test infrastructure - &ldquo;Under this driver, it is the developers responsibility to implement the create and destroy playbooks&rdquo;</p>
+<p>All of the configuration from this blog post are in my <a href="https://github.com/pharriso/ansible_molecule_vmware">github repo</a>.</p>
+<h3 id="overview-of-the-steps">Overview of the steps</h3>
+<p>Let&rsquo;s take a look at the high-level steps we are going to go through.</p>
+<ol>
+<li>Install molecule</li>
+<li>Initialise our first role with molecule</li>
+<li>Configure molecule</li>
+<li>Write playbooks to create and destroy test VM&rsquo;s.</li>
+<li>Secure any secrets with Ansible Vault</li>
+<li>Write our role</li>
+<li>Test!</li>
+</ol>
+<h3 id="installing-molecule">Installing molecule</h3>
+<p>Molecule requires Ansible - in my case I installed ansible from an RPM. Molecule itself is installed with pip. I could install molecule in a python virtualenv but I won&rsquo;t cover that in this example. To install molecule run the following:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo yum install ansible -y
+$ sudo pip3 install molecule
+</code></pre></div><p>I want to do lint tests against my role as well to test for best practices so I will install ansible-lint as well:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo pip3 install ansible-lint
+</code></pre></div><h3 id="creating-the-directory-structure-for-molecule">Creating the directory structure for molecule</h3>
+<p>molecule can help us get started by creating the directory structure it expects to see as well as some of the initial configuration files. To create the scaffolding for a role called <strong>register_vm</strong> run the following:</p>
+<p><strong>NOTE the use of the delegated driver here</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ molecule init role register_vm --driver-name delegated
+</code></pre></div><p>Let&rsquo;s take a look at what this created for us. We should see the standard role structure with an additional <strong>molecule</strong> directory. This includes the molecule.yml configuration file as well as the playbooks for creating, deleting and testing our role. More on these later.</p>
+<pre><code>$ tree
+.
+├── defaults
+│   └── main.yml
+├── files
+├── handlers
+│   └── main.yml
+├── meta
+│   └── main.yml
+├── molecule
+│   └── default
+│       ├── converge.yml
+│       ├── create.yml
+│       ├── destroy.yml
+│       ├── INSTALL.rst
+│       ├── molecule.yml
+│       ├── vault.yml
+│       └── verify.yml
+├── README.md
+├── tasks
+│   └── main.yml
+├── templates
+├── tests
+│   ├── inventory
+│   └── test.yml
+└── vars
+    └── main.yml
+</code></pre><h3 id="configuring-molecule">Configuring Molecule</h3>
+<p>The main molecule configuration file is <strong>molecule/default/molecule.yml</strong> - this file describes things like the virtual instances that are provisioned, the test sequence that should be run and whether I want to do any linting. The file starts off looking like this:</p>
+<pre><code>---
+dependency:
+  name: galaxy
+driver:
+  name: delegated
+platforms:
+  - name: instance
+provisioner:
+  name: ansible
+verifier:
+  name: ansible
+</code></pre><h5 id="configuring-the-driver">Configuring the driver</h5>
+<p>With the delegated driver it is my responsibility to create the playbooks to create and destroy test instances. Within the driver section I am just adding some platform specific variables that I will use later when I start to create instances. These are variables that apply to the vSphere platform itself rather than instance specific variables.</p>
+<pre><code>driver:
+  name: delegated
+  vcenter_datacenter: demolab
+  vcenter_cluster: rhnode2
+  vcenter_folder: /demolab/vm
+</code></pre><h5 id="defining-the-test-instances">Defining the test instances</h5>
+<p>The platforms section defines the test instances that I want to create. This section is just defining the list of VM&rsquo;s that I want to test against. These aren&rsquo;t generic molecule variables - they are specific to the playbook that I will write later on to create and delete test VM&rsquo;s. While the driver section had platform wide variables, these variables are specific to the instance. I could have multiple instances below with different configurations.</p>
+<pre><code>platforms:
+  - name: molecule.demolab.local
+    vm_rhel_version: rhel8
+    vm_memory: 2048
+    vm_cpu_cores: 2
+    vm_network: infra
+    vm_domain: demolab.local
+    vm_user: root
+    vm_port: 22    
+    ssh_key_file: /root/.ssh/demolab-root
+</code></pre><h5 id="configure-the-way-molecule-calls-ansible">Configure the way molecule calls Ansible</h5>
+<p>The provisioner section specifies how Ansible should run when I create, destroy and converge (actually deploy my Ansible role to the VM). This includes options that I might want to pass to Ansible, and variables that my role might require. In my case, I want to pass encrypted VMware credentials so I need to pass in a file to decrypt my vault file. I also need to pass some variables into my role. I can do this by defining <strong>group_vars</strong> and <strong>host_vars</strong> as I would normally with Ansible.</p>
+<p><strong>NOTE: These are the variables that our actual role needs - not what molecule needs to create and destroy our test instances.</strong></p>
+<pre><code>provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      vault_password_file: ~/vault_password.txt
+  inventory:
+    group_vars:
+      all:
+        tower_user_name: pharriso
+</code></pre><h5 id="add-our-linting-optional">Add our linting (Optional)</h5>
+<p>ansible-lint is a useful tool for verifying the content of our Ansible playbooks and roles and validating against best practices.</p>
+<ul>
+<li>Have I named every task?</li>
+<li>Do I have white spaces?</li>
+<li>Am I using the shell module?</li>
+</ul>
+<p>I can add a linting section to the <strong>molecule.yml</strong> file.</p>
+<p><strong>NOTE: I am excluding the molecule directory itself. I only want to lint my Ansible role and not the playbooks that I am using to create and destroy instances. Also note that ansible-lint can ignore certain rules. Here I am excluding rule 305 which is the use of the shell module</strong></p>
+<pre><code>lint: |
+  /usr/local/bin/ansible-lint -x 305 --exclude molecule/default/
+</code></pre><h5 id="the-finished-moleculeyml-file">The finished molecule.yml file</h5>
+<p>Here is the finished file:</p>
+<pre><code>---
+dependency:
+  name: galaxy
+driver:
+  name: delegated
+  vcenter_datacenter: demolab
+  vcenter_cluster: rhnode2
+  vcenter_folder: /demolab/vm
+platforms:
+  - name: molecule.demolab.local
+    vm_rhel_version: rhel8
+    vm_memory: 2048
+    vm_cpu_cores: 2
+    vm_network: infra
+    vm_domain: demolab.local
+    vm_user: root
+    vm_port: 22
+    ssh_key_file: ~/.ssh/demolab-root
+provisioner:
+  name: ansible
+  config_options:
+    defaults:
+      vault_password_file: ~/vault_password.txt
+  inventory:
+    group_vars:
+      all:
+        tower_user_name: pharriso
+verifier:
+  name: ansible
+lint: |
+  /usr/local/bin/ansible-lint -x 305 --exclude molecule/default/
+</code></pre><h3 id="encrypting-secrets-with-ansible-vault-optional">Encrypting secrets with Ansible Vault (Optional)</h3>
+<p>In my <strong>molecule.yml</strong> file I have defined a password file to decrypt an ansible vault file. This vault file will contain the credentials for my VMware environment as well as any other secrets I might need to protect. Let&rsquo;s create those files now.</p>
+<p>First let&rsquo;s create the Ansible vault file that will be used to encrypt our secrets. When prompted I need to enter a password to decrypt the file. I will use <strong>Redhat123</strong> to encrypt my file here:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ansible-vault create molecule/default/vault.yml
+New Vault password: 
+Confirm New Vault password:
+</code></pre></div><p>Here are the contents of the vault file - just a standard ansible-vault file with a bunch of variables:</p>
+<pre><code>vcenter_username: administrator@vsphere.local
+vcenter_password: Redhat123
+vcenter_hostname: vcenter.demolab.local
+vcenter_validate_certs: no
+sat_reg_user: admin
+sat_reg_passwd: Redhat123
+sat_server: sat6.demolab.local
+</code></pre><p>Finally I can create a password file that molecule will read to decrypt the Ansible vault file. This is the file that I defined in my molecule.yml file as <strong>vault_password_file</strong> and the file should contain the plaintext password that I used earlier to encrypt my vault file - in my case <strong>Redhat123</strong>:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ echo Redhat123 &gt; ~/vault_password.txt
+</code></pre></div><h3 id="create-destroy-and-verify-playbooks">Create, destroy and verify playbooks</h3>
+<h5 id="creating-instances">Creating instances</h5>
+<p>Now that I have configured molecule, I can write the playbooks that will create and destroy my test instance as well as validate the role is achieving the desired end result. The create playbook is located at <strong>molecule/default/create.yml</strong> - when I created the molecule scaffolding at the start, it created these playbooks for me. I need to add two things to this file:</p>
+<ol>
+<li>the specific tasks for my environment to allow me to create a VM. In the <strong>create.yml</strong> playbook there is a <strong>TODO</strong> section where these tasks will need to go.</li>
+<li>as an output of the VM creation, I need to pass variables to molecule so that it can then connect to my test VM - things like IP address, username etc. Some of these things I might not know until my VM launches and I query the IP address. Others might be more predictable such as the port to connect on (22/tcp SSH for Linux).</li>
+</ol>
+<p>I don&rsquo;t want to show the whole file here because we can look at that in my <a href="(https://github.com/pharriso/ansible_molecule_vmware)">git repo</a>. Instead I want to call out specific sections that I needed to update from the default example. I have updated the default playbook to include my Ansible vault file in the <strong>vars_file</strong> section. I&rsquo;ve also added a task to create a VMware VM from a template. This is where the variables from my <strong>molecule.yml</strong> file come in to play. Things like the VMware template, memory and cpu count all come from that file. Remember, my secret vCenter credentials are all being passed in from my Ansible vault file.</p>
+<pre><code>---
+- name: Create
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  vars_files:
+  - vault.yml
+  no_log: &quot;{{ molecule_no_log }}&quot;
+  tasks:
+
+    - name: create vm from template
+      vmware_guest:
+        hostname: &quot;{{ vcenter_hostname }}&quot;
+        username: &quot;{{ vcenter_username }}&quot;
+        password: &quot;{{ vcenter_password }}&quot;
+        validate_certs: &quot;{{ vcenter_validate_certs }}&quot;
+        datacenter: &quot;{{ molecule_yml.driver.vcenter_datacenter }}&quot;
+        name: &quot;{{ item.name }}&quot;
+        cluster: &quot;{{ molecule_yml.driver.vcenter_cluster }}&quot;
+        folder: &quot;{{ molecule_yml.driver.vcenter_folder }}&quot;
+        template: &quot;{{ item.vm_rhel_version }}_template&quot;
+        state: poweredon
+        hardware:
+          memory_mb: &quot;{{ item.vm_memory }}&quot;
+          num_cpus: &quot;{{ item.vm_cpu_cores }}&quot;
+          scsi: paravirtual
+        networks:
+        - name: &quot;{{ item.vm_network }}&quot;
+          type: dhcp
+        customization:
+          hostname: &quot;{{ item.name.split('.')[0] }}&quot;
+          domain: &quot;{{ item.vm_domain }}&quot;
+        wait_for_ip_address: yes
+        wait_for_customization: yes
+      register: server
+      delegate_to: localhost
+      loop: &quot;{{ molecule_yml.platforms }}&quot;
+</code></pre><p>Below this section we need to populate the variables that will be used to build the instance configuration file. As mentioned before, the instance configuration file is used by molecule to actually connect into my test instance so that it can run my role against it.</p>
+<p>Here I am taking variables from my <strong>molecule.yml</strong> file and also variables that came back from the VM creation task (ipv4) to build the instance configuration file. These variables will vary depending on target platform and the way in which you provision VM&rsquo;s.</p>
+<pre><code>    - when: server.changed | default(false) | bool
+      block:
+        - name: Populate instance config dict
+          set_fact:
+            instance_conf_dict: {
+              'instance': &quot;{{ item.item.name }}&quot;,
+              'address': &quot;{{ item.instance.ipv4 }}&quot;,
+              'user': &quot;{{ item.item.vm_user }}&quot;,
+              'port': &quot;{{ item.item.vm_port }}&quot;,
+              'identity_file': &quot;{{ item.item.ssh_key_file }}&quot;, }
+          with_items: &quot;{{ server.results }}&quot;
+          register: instance_config_dict
+</code></pre><h5 id="destroying-instances">Destroying instances</h5>
+<p>I need to follow the same process for destroying test instances. The only difference is that I don&rsquo;t need to worry about instance configuration data on delete. The default playbook is called <strong>molecule/default/destroy.yml</strong></p>
+<p>Let&rsquo;s just focus on the changes again - I need to include tasks for deleting a VM. Again, notice how I am relying on variables from <strong>molecule.yml</strong> and my Ansible vault file as I delete my VM. I&rsquo;m also adding a second task to clear down the VM from Red Hat Satellite.</p>
+<pre><code>    - name: remove vm from vmware
+      vmware_guest:
+        hostname: &quot;{{ vcenter_hostname }}&quot;
+        username: &quot;{{ vcenter_username }}&quot;
+        password: &quot;{{ vcenter_password }}&quot;
+        validate_certs: &quot;{{ vcenter_validate_certs }}&quot;
+        name: &quot;{{ item.name }}&quot;
+        state: absent
+        force: yes
+      delegate_to: localhost
+      loop: &quot;{{ molecule_yml.platforms }}&quot;
+
+    - name: delete host in satellite
+      redhat.satellite.host:
+        username: &quot;{{ sat_reg_user }}&quot;
+        password: &quot;{{ sat_reg_passwd }}&quot;
+        server_url: &quot;https://{{ sat_server }}&quot;
+        validate_certs: no
+        name: &quot;{{ item.name }}&quot;
+        state: absent
+      delegate_to: localhost
+      register: satremoved
+      retries: 1
+      delay: 3
+      until: satremoved is success
+      loop: &quot;{{ molecule_yml.platforms }}&quot;
+</code></pre><h5 id="verifying-the-result-of-my-role">Verifying the result of my role</h5>
+<p>The final playbook that I need to create is a one that will verify if my role is actually achieving the desired results. The <strong>molecule/default/verify.yml</strong> playbook can be adapted to perform this validation. In my case I am just going to confirm that the output of subscription-manager returns an exit code of 0.</p>
+<pre><code>---
+# This is an example playbook to execute Ansible tests.
+
+- name: Verify
+  hosts: all
+  gather_facts: false
+  tasks:
+  - name: run subscription-manager status
+    shell: subscription-manager status
+    register: subscription_status
+
+  - name: check if subscription manager status returned exit code 0
+    assert:
+      that: subscription_status.rc == 0
+</code></pre><h3 id="now-to-do-some-real-work---developing-your-role">Now to do some real work - developing your role</h3>
+<p>To create and test my role I am going to run through the following molecule stages:</p>
+<ol>
+<li><strong>create</strong> - launch my test instance.</li>
+<li><strong>lint</strong> - lint my role to check for best practices.</li>
+<li><strong>converge</strong> - run my role against the test instance.</li>
+<li><strong>idempotence</strong> - check if my role is idempotent.</li>
+<li><strong>verify</strong> - check the end result of my role.</li>
+<li><strong>test</strong> - run a full test suite by destroying the test instance, re-create it and run my tests again.</li>
+</ol>
+<h5 id="create---launch-a-test-instance"><strong>create</strong> - Launch a test instance</h5>
+<p>So far I have just been preparing my molecule environment. I haven&rsquo;t actually started doing the thing that started this whole process - writing an Ansible role! I can use molecule to start a test instance so that I can begin developing my role. From the root of my role directory I can use <strong>molecule create</strong> to launch a test instance:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ molecule create
+</code></pre></div><p>If the playbook succeeded then I should have a test instance running in VMware. I can confirm this with <strong>molecule list</strong> and also try to connect into the instance with <strong>molecule login</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ molecule list
+DEBUG    Validating schema /home/pharriso/register_vm/molecule/default/molecule.yml.
+INFO     Running default &gt; list
+                         ╷             ╷                  ╷               ╷         ╷            
+  Instance Name          │ Driver Name │ Provisioner Name │ Scenario Name │ Created │ Converged  
+╶────────────────────────┼─────────────┼──────────────────┼───────────────┼─────────┼───────────╴
+  molecule.demolab.local │ delegated   │ ansible          │ default       │ true    │ false      
+                         ╵             ╵                  ╵               ╵         ╵     
+</code></pre></div><div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ molecule login
+DEBUG    Validating schema /home/pharriso/register_vm/molecule/default/molecule.yml.
+INFO     Running default &gt; login
+Last login: Mon Dec <span style="color:#ae81ff">14</span> 12:26:23 <span style="color:#ae81ff">2020</span> from 10.50.2.254
+<span style="color:#f92672">[</span>root@molecule ~<span style="color:#f92672">]</span><span style="color:#75715e"># </span>
+</code></pre></div><h5 id="explore-some-of-the-molecule-configuration-data">Explore some of the molecule configuration data</h5>
+<p>If you remember our <strong>create.yml</strong> playbook, I had to define variables so that molecule could build instance configuration data - the means with which to actually connect into to my test instance to run my Ansible role. I can look at that instance configuration:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat .cache/molecule/register_vm/default/instance_config.yml 
+<span style="color:#75715e"># Molecule managed</span>
+
+- <span style="color:#f92672">{</span>address: 10.50.2.73, identity_file: ~/.ssh/demolab-root, instance: molecule.demolab.local,
+  port: <span style="color:#e6db74">&#39;22&#39;</span>, user: root<span style="color:#f92672">}</span>
+</code></pre></div><p>I can also look at the inventory file that molecule has generated for me based on this data:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat ~/.cache/molecule/register_vm/default/inventory/ansible_inventory.yml 
+<span style="color:#75715e"># Molecule managed</span>
+
+---
+all:
+  hosts:
+    molecule.demolab.local: &amp;id001
+      ansible_host: 10.50.2.73
+      ansible_port: <span style="color:#e6db74">&#39;22&#39;</span>
+      ansible_private_key_file: ~/.ssh/demolab-root
+      ansible_ssh_common_args: -o UserKnownHostsFile<span style="color:#f92672">=</span>/dev/null -o ControlMaster<span style="color:#f92672">=</span>auto
+        -o ControlPersist<span style="color:#f92672">=</span>60s -o ForwardX11<span style="color:#f92672">=</span>no -o LogLevel<span style="color:#f92672">=</span>ERROR -o IdentitiesOnly<span style="color:#f92672">=</span>yes
+        -o StrictHostKeyChecking<span style="color:#f92672">=</span>no
+      ansible_user: root
+</code></pre></div><h5 id="write-our-role">Write our role</h5>
+<p>This part doesn&rsquo;t really require any explaining. Write your Ansible role as you would normally. Again, <a href="https://github.com/pharriso/ansible_molecule_vmware">this git repo</a> is available to view.</p>
+<h5 id="lint---check-for-best-practices"><strong>lint</strong> - check for best practices</h5>
+<p>Now I am ready to test my role. Firstly, I can run lint against it to check for best practices. Any errors will be reported to the terminal. e.g.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ molecule lint
+
+DEBUG    Using selector: EpollSelector
+WARNING  Listing <span style="color:#ae81ff">1</span> violation<span style="color:#f92672">(</span>s<span style="color:#f92672">)</span> that are fatal
+You can skip specific rules or tags by adding them to your configuration file:
+
+┌──────────────────────────────────────────────────────────────────────────────┐
+│ <span style="color:#75715e"># .ansible-lint                                                              │</span>
+│ warn_list:  <span style="color:#75715e"># or &#39;skip_list&#39; to silence them completely                      │</span>
+│   - <span style="color:#e6db74">&#39;201&#39;</span>  <span style="color:#75715e"># Trailing whitespace                                             │</span>
+└──────────────────────────────────────────────────────────────────────────────┘
+<span style="color:#ae81ff">201</span> Trailing whitespace
+tasks/main.yml:4
+  include_vars:
+
+
+</code></pre></div><h5 id="converge---run-our-role"><strong>converge</strong> - run our role</h5>
+<p>Next I can run converge - this actually runs my role within my test instance. You&rsquo;ll see the familiar ansible-playbook output here where you can validate that your role executes without errors.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ molecule converge
+
+PLAY <span style="color:#f92672">[</span>Converge<span style="color:#f92672">]</span> ******************************************************************************************************************************************************************************
+
+TASK <span style="color:#f92672">[</span>Gathering Facts<span style="color:#f92672">]</span> ***********************************************************************************************************************************************************************
+ok: <span style="color:#f92672">[</span>molecule.demolab.local<span style="color:#f92672">]</span>
+
+TASK <span style="color:#f92672">[</span>Include register_vm<span style="color:#f92672">]</span> *******************************************************************************************************************************************************************
+
+TASK <span style="color:#f92672">[</span>register_vm : load vars <span style="color:#66d9ef">for</span> os type<span style="color:#f92672">]</span> ***************************************************************************************************************************************************
+ok: <span style="color:#f92672">[</span>molecule.demolab.local<span style="color:#f92672">]</span>
+
+TASK <span style="color:#f92672">[</span>register_vm : install satellite katello certificate<span style="color:#f92672">]</span> ***********************************************************************************************************************************
+changed: <span style="color:#f92672">[</span>molecule.demolab.local<span style="color:#f92672">]</span>
+
+TASK <span style="color:#f92672">[</span>register_vm : register to satellite<span style="color:#f92672">]</span> ***************************************************************************************************************************************************
+changed: <span style="color:#f92672">[</span>molecule.demolab.local<span style="color:#f92672">]</span>
+
+TASK <span style="color:#f92672">[</span>register_vm : enable required repos<span style="color:#f92672">]</span> ***************************************************************************************************************************************************
+changed: <span style="color:#f92672">[</span>molecule.demolab.local<span style="color:#f92672">]</span>
+
+TASK <span style="color:#f92672">[</span>register_vm : install katello host tools<span style="color:#f92672">]</span> **********************************************************************************************************************************************
+changed: <span style="color:#f92672">[</span>molecule.demolab.local<span style="color:#f92672">]</span>
+
+PLAY RECAP ***********************************************************************************************************************************************************************************
+molecule.demolab.local     : ok<span style="color:#f92672">=</span><span style="color:#ae81ff">6</span>    changed<span style="color:#f92672">=</span><span style="color:#ae81ff">4</span>    unreachable<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    failed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    skipped<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    rescued<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    ignored<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+</code></pre></div><h5 id="idempotence---is-our-role-idempotent"><strong>idempotence</strong> - is our role idempotent?</h5>
+<p>The idempotence molecule test will validate whether my role can be re-applied without making changes. Let&rsquo;s skip the majority of the output below and just look at the summary:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ molecule idempotence
+
+PLAY RECAP ***********************************************************************************************************************************************************************************
+molecule.demolab.local     : ok<span style="color:#f92672">=</span><span style="color:#ae81ff">6</span>    changed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    unreachable<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    failed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    skipped<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    rescued<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    ignored<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+
+INFO     Idempotence completed successfully.
+</code></pre></div><h5 id="verify---did-my-role-do-what-it-should"><strong>verify</strong> - did my role do what it should?</h5>
+<p>The verify stage will run my <strong>verify.yml</strong> playbook to ensure that my role achieved he desired result by running the tests that I defined.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ molecule verify
+
+PLAY <span style="color:#f92672">[</span>Verify<span style="color:#f92672">]</span> ********************************************************************************************************************************************************************************
+
+TASK <span style="color:#f92672">[</span>run subscription-manager status<span style="color:#f92672">]</span> *******************************************************************************************************************************************************
+changed: <span style="color:#f92672">[</span>molecule.demolab.local<span style="color:#f92672">]</span>
+
+TASK <span style="color:#f92672">[</span>check <span style="color:#66d9ef">if</span> subscription manager status returned exit code 0<span style="color:#f92672">]</span> *****************************************************************************************************************************
+ok: <span style="color:#f92672">[</span>molecule.demolab.local<span style="color:#f92672">]</span> <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span>
+    <span style="color:#e6db74">&#34;changed&#34;</span>: false,
+    <span style="color:#e6db74">&#34;msg&#34;</span>: <span style="color:#e6db74">&#34;All assertions passed&#34;</span>
+<span style="color:#f92672">}</span>
+
+PLAY RECAP ***********************************************************************************************************************************************************************************
+molecule.demolab.local     : ok<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>    changed<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>    unreachable<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    failed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    skipped<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    rescued<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    ignored<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+</code></pre></div><h3 id="running-a-full-test">Running a full test</h3>
+<p>So far I have been running individual tests as I develop my role. Once I am happy with my role I can initiate a full molecule test. As mentioned above, this will destroy any existing test instances, re-create them, run lint checks, run my Ansible role, check they are idempotent and then destroy the test VM&rsquo;s.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ molecule test
+</code></pre></div><h3 id="next-steps">Next Steps</h3>
+<p>Molecule provides a really powerful and flexible way of developing and testing Ansible roles. This helps me to ensure that my Ansible roles are suitably tested before I start to commit them to git. I will still want to run CI tests as well as running molecule - my CI test could end up just running molecule again but it means that when my colleagues peer reviews my work and look at my merge request they can look at the CI test results.</p>
+<p>Molecule is a community project and isn&rsquo;t supported by Red Hat at the time of writing.</p>
+<ul>
+<li>Learn more by reading the <a href="https://molecule.readthedocs.io/en/latest/">official documentation for molecule</a>.</li>
+<li>You can take a look at all of the configuration files used in this post in my <a href="https://github.com/pharriso/ansible_molecule_vmware">github repo</a>.</li>
+</ul>
+</p>
+          <p>8 Dec 2020
+            
+              
+                <a href="https://cloudautomation.pharriso.co.uk/tags/ansible/">#ansible</a>
+              
+                <a href="https://cloudautomation.pharriso.co.uk/tags/tower/">#tower</a>
+              
+                <a href="https://cloudautomation.pharriso.co.uk/tags/molecule/">#molecule</a>
+              
+                <a href="https://cloudautomation.pharriso.co.uk/tags/vmware/">#vmware</a>
+              
+            
+          </p>
+          
+            <div id="disqus_thread"></div>
+<script type="text/javascript">
+     
+    var disqus_shortname = 'cloudautomation';
+    
+     
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s3 m1">
+      
+        <a class="btn-floating btn-large waves-effect waves-light" href="https://cloudautomation.pharriso.co.uk/post/foreman_filtering/"><i class="mdi-navigation-arrow-back"></i></a>
+      
+      </div>
+      <div class="col s6 m10 center">&nbsp</div>
+      <div class="col s3 m1">
+      
+        <a class="btn-floating btn-large disabled"><i class="mdi-navigation-arrow-forward"></i></a>
+      
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  <footer class="page-footer">
+    <div class="footer-copyright">
+      <div class="container">
+      
+      <div class="right">Design <a class="grey-text text-lighten-4" href="http://pdevty.github.io/blog/">pdevty</a></div>
+      </div>
+    </div>
+  </footer>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://cloudautomation.pharriso.co.uk/js/materialize.min.js"></script>
+  <script src="https://cloudautomation.pharriso.co.uk/js/init.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-131924821-2', 'auto');
+    ga('send', 'pageview');
+  </script>
+  
+
+  </body>
+</html>
+
