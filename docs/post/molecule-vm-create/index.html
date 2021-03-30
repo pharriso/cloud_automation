@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en-us">
+<head>
+  <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1.0, user-scalable=no"/>
+  <title>Using Molecule for VM provisioning roles</title>
+  <link href="https://cloudautomation.pharriso.co.uk/css/materialize.min.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link href="https://cloudautomation.pharriso.co.uk/css/style.css" type="text/css" rel="stylesheet" media="screen,projection"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/styles/default.min.css">
+  <style type="text/css">
+  
+    footer.page-footer{background-image: url(https://cloudautomation.pharriso.co.uk/images/default.png);}
+  
+  </style>
+</head>
+<body>
+  <ul id="slide-out" class="side-nav">
+    <li><a href="https://cloudautomation.pharriso.co.uk"><i class="mdi-action-home left"></i>Home<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+    <li><a href="https://cloudautomation.pharriso.co.uk/categories"><i class="mdi-action-perm-media left"></i>Categories<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+    <li><a href="https://cloudautomation.pharriso.co.uk/tags"><i class="mdi-action-loyalty left"></i>Tags<i class="mdi-hardware-keyboard-arrow-right right"></i></a></li>
+  </ul>
+  <div id="index-banner" class="parallax-container">
+  <a data-activates="slide-out" class="btn-floating button-collapse" style="top: 5px; left: 5px;"><i class="mdi-navigation-menu"></i></a>
+    <div class="section no-pad-bot">
+      <div class="container">
+        
+        <h1 class="header center teal-text text-lighten-2">Cloud and Automation</h1>
+        <div class="row center">
+          <h5 class="header col s12 light">This blog focuses mainly on Red Hat products in the Cloud and Automation space. I work as a Solution Architect for Red Hat in the UK.</h5>
+        </div>
+        <div class="row center">
+        
+        
+          <a href="https://github.com/pharriso"><img src="https://cloudautomation.pharriso.co.uk/images/github2-dreamstale35.png"></a>
+        
+        
+        
+          <a href="https://twitter.com/patharrison_esq"><img src="https://cloudautomation.pharriso.co.uk/images/twitter-dreamstale71.png"></a>
+        
+        
+        
+          <a href="https://www.linkedin.com/in/pharriso"><img src="https://cloudautomation.pharriso.co.uk/images/linkedin-dreamstale45.png"></a>
+        
+        </div>
+      </div>
+    </div>
+    <div class="parallax">
+    
+      <img src="https://cloudautomation.pharriso.co.uk/images/default.png">
+    
+    </div>
+  </div>
+
+
+
+<div class="container">
+  <div class="section">
+
+    <div class="row">
+      <div class="col s12">
+        <div class="card-panel">
+          <h4>Using Molecule for VM provisioning roles</h4>
+          <p>
+           
+          </p>
+          <p><p>I help to run a demo/lab environment for Red Hat Pre-Sales in the UK. We heavily use Ansible to automate as much as possible in the lab and we offer push-button Automation to end users via <a href="https://www.ansible.com/products/tower">Ansible Tower</a>. I&rsquo;ve been using Molecule more and more to improve our ability to test and promote changes to Ansible code. I wanted to write up a few different scenarios I have come across for using Molecule. I have previously written about Molecule for <a href="https://cloudautomation.pharriso.co.uk/post/vmware-molecule/">testing roles against VMware VM&rsquo;s</a>. Before we look at a new scenario, a quick recap - <a href="https://molecule.readthedocs.io/en/latest/index.html">Molecule</a> is a tool to aid with the testing and development of <a href="https://docs.ansible.com/ansible/latest/user_guide/playbooks_reuse_roles.html">Ansible roles</a>. It allows users to spin up test infrastructure to provide a quick and easy means with which to test Ansible roles.</p>
+<p>One of the key &ldquo;services&rdquo; we provide within our lab is the ability for users to provision VM&rsquo;s at the click of a button from Ansible Tower. We have Ansible roles that provision Virtual Machines against different platforms (VMware and OpenShift Virtualisation) and we wanted to use Molecule to test these roles like everything else. This flips the standard use of Molecule on it&rsquo;s head slightly as Molecule is typically used to provide the temporary infrastructure needed develop and test Ansible roles. In our case, the Ansible role is a provisioning role so there is no need for molecule to provide any temporary infrastructure.</p>
+<h3 id="why-bother">Why Bother?</h3>
+<p>I did wonder this myself at first but actually there are a number of reasons. Firstly, we wanted consistency in the way that we develop Ansible roles. In addition to this, molecule provides a really nice way to develop Ansible roles with immediate feedback. It also provides the means with which to validate roles against best practices with Ansible lint, checking if roles are idempotent and verifying if our roles do what we expect. Finally, as part of our CI process we invoke a full molecule test sequence against our roles to confirm that the Ansible roles we are committing are of a decent standard and also making it easier for reviewers to check the results of our CI pipelines.</p>
+<h3 id="getting-started-with-molecule">Getting started with Molecule</h3>
+<p>My previous post explains the <a href="https://cloudautomation.pharriso.co.uk/post/vmware-molecule/">steps for installing molecule</a> and getting started with it. Head there if you are new to molecule or over to the <a href="https://molecule.readthedocs.io/en/latest/index.html">docs site</a>.</p>
+<h3 id="typical-molecule-usage">Typical Molecule usage</h3>
+<p>Normally, the <strong>create</strong> stage of Molecule is responsible for creating the temporary infrastructure for developing and testing roles. This would typically be a container (podman or docker) or as per my previous post, a <a href="https://cloudautomation.pharriso.co.uk/post/vmware-molecule/">VM on a platform like VMware</a> or AWS. The <strong>converge</strong> stage would then run the Ansible role against the test infrastructure. In this scenario we basically want to skip the create stage - we don&rsquo;t need molecule to provide us with any test infrastructure. All we need Molecule to provide us with is an inventory with the relevant variables so that we can run our provisioning role. The <strong>converge</strong> stage in this instance is what Molecule would typically consider the <strong>create</strong> stage.</p>
+<h3 id="molecule-configuration">Molecule Configuration</h3>
+<p>Our VM provisioning job relies on a number of user inputs - name of the VM, amount of RAM, number of cpus and RHEL version (RHEL7 or RHEL8). We normally prompt users for these values in Ansible Tower using a <a href="https://docs.ansible.com/ansible-tower/latest/html/userguide/job_templates.html#surveys">survey</a>. To test our VM provisioning role with Molecule, we need to provide these same inputs.</p>
+<p>Here are the contents of the main Molecule configuration file <strong>molecule.yml</strong>.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">---
+dependency:
+  name: galaxy
+driver:
+  name: delegated
+platforms:
+  - name: molecule-rhel8.demolab.local
+  - name: molecule-rhel7.demolab.local
+provisioner:
+  name: ansible
+  inventory:
+    group_vars:
+      all:
+        cluster: rhnode2
+        memory: <span style="color:#ae81ff">2048</span>
+        cpu_cores: <span style="color:#ae81ff">2</span>
+        demolab_domain: demolab.local
+        datastore: datastore1
+        template_version: <span style="color:#ae81ff">50</span>
+    host_vars:
+      molecule-rhel8.demolab.local:
+        rhel_version: rhel8
+        vm_ip: 10.50.0.200
+      molecule-rhel7.demolab.local:
+        rhel_version: rhel7
+        vm_ip: 10.50.0.201
+verifier:
+  name: ansible
+lint: |
+  ansible-lint --exclude molecule/default/
+</code></pre></div><p>Let&rsquo;s break this configuration file into sections:</p>
+<ol>
+<li><strong>Driver</strong> - note the use of the delegated driver. This gives us the flexibility to write our own playbook to create test infrastructure for Molecule. In this instance we don&rsquo;t need Molecule to create anything but we&rsquo;ll come on to that.</li>
+<li><strong>Platforms</strong> - this is the list of VM&rsquo;s we want Molecule to create for us. Again, in this instance we just want Molecule to create the inventory for us - not the VM&rsquo;s!</li>
+<li><strong>group_vars</strong> - here we are defining the global variables for the VM creation role. Things like the VMFS datastore, cpu core count etc</li>
+<li><strong>host_vars</strong> - here we are setting host specific variables. We want to test both RHEL7 and RHEL8 instances so we are setting the rhel_version variable here. We are also providing an IP address to statically configure the test instances.</li>
+<li><strong>lint</strong> - the final section just configures ansible-lint as the linting tool. We are excluding the molecule directory from any lint tests.</li>
+</ol>
+<h3 id="the-createyml-playbook">The create.yml playbook</h3>
+<p>Looking at the create.yml playbook (usually responsible for creating temporary infrastructure) we can see that we are basically skipping this step and just using it to populate molecule with instance data so that we can use it&rsquo;s inventory in the converge phase. The only thing we have changed here from the default <strong>create.yml</strong> is adding a debug task to indicate that we are skipping provisioning. We&rsquo;ve also reduced the amount of data we are passing to Molecule as instance data. We don&rsquo;t need to connect into the VM in this scenario so we don&rsquo;t need to pass things like usernames, passwords or SSH keys.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">---
+- name: Create
+  hosts: localhost
+  connection: local
+  gather_facts: false
+  no_log: <span style="color:#e6db74">&#34;{{ molecule_no_log }}&#34;</span>
+  tasks:
+
+    - name: create molecule inventory
+      debug:
+        msg: skipping provisioning
+
+    - block:
+        - name: Populate instance config dict
+          set_fact:
+            instance_conf_dict: <span style="color:#f92672">{</span>
+              <span style="color:#e6db74">&#39;instance&#39;</span>: <span style="color:#e6db74">&#34;{{ item.name }}&#34;</span>, <span style="color:#f92672">}</span>
+          with_items: <span style="color:#e6db74">&#34;{{ molecule_yml.platforms }}&#34;</span>
+          register: instance_config_dict
+</code></pre></div><h3 id="validate-the-configuration">Validate the configuration</h3>
+<p>Running <strong>molecule create</strong> should now create the inventory for the test instances. Let&rsquo;s check it:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ molecule create
+$ molecule list
+INFO     Running default &gt; list
+                               ╷             ╷                  ╷               ╷         ╷            
+  Instance Name                │ Driver Name │ Provisioner Name │ Scenario Name │ Created │ Converged  
+╶──────────────────────────────┼─────────────┼──────────────────┼───────────────┼─────────┼───────────╴
+  molecule-rhel8.demolab.local │ delegated   │ ansible          │ default       │ true    │ false      
+  molecule-rhel7.demolab.local │ delegated   │ ansible          │ default       │ true    │ false      
+                               ╵             ╵                  ╵               ╵         ╵            
+</code></pre></div><p>If we want to, we can check the inventory we have created:</p>
+<pre><code>$ ansible-inventory -i ~/.cache/molecule/ansible_molecule_create_vm/default/inventory/ansible_inventory.yml  --graph
+@all:
+  |--@ungrouped:
+  |  |--molecule-rhel7.demolab.local
+  |  |--molecule-rhel8.demolab.local
+</code></pre><p>And look at the variables for a specific host:</p>
+<pre><code>$ ansible-inventory -i ~/.cache/molecule/ansible_molecule_create_vm/default/inventory/ansible_inventory.yml --host molecule-rhel7.demolab.local
+{
+    &quot;ansible_host&quot;: null,
+    &quot;ansible_port&quot;: null,
+    &quot;ansible_user&quot;: null,
+    &quot;cluster&quot;: &quot;rhnode2&quot;,
+    &quot;cpu_cores&quot;: 2,
+    &quot;datastore&quot;: &quot;datastore1&quot;,
+    &quot;demolab_domain&quot;: &quot;demolab.local&quot;,
+    &quot;memory&quot;: 2048,
+    &quot;molecule_ephemeral_directory&quot;: &quot;{{ lookup('env', 'MOLECULE_EPHEMERAL_DIRECTORY') }}&quot;,
+    &quot;molecule_file&quot;: &quot;{{ lookup('env', 'MOLECULE_FILE') }}&quot;,
+    &quot;molecule_instance_config&quot;: &quot;{{ lookup('env', 'MOLECULE_INSTANCE_CONFIG') }}&quot;,
+    &quot;molecule_no_log&quot;: &quot;{{ lookup('env', 'MOLECULE_NO_LOG') or not molecule_yml.provisioner.log|default(False) | bool }}&quot;,
+    &quot;molecule_scenario_directory&quot;: &quot;{{ lookup('env', 'MOLECULE_SCENARIO_DIRECTORY') }}&quot;,
+    &quot;molecule_yml&quot;: &quot;{{ lookup('file', molecule_file) | from_yaml }}&quot;,
+    &quot;rhel_version&quot;: &quot;rhel7&quot;,
+    &quot;template_version&quot;: 50,
+    &quot;vm_ip&quot;: &quot;10.50.0.201&quot;
+}
+</code></pre><p>There are a bunch of molecule specific variables in the output but the main thing we want to check here are the host specific variables. For example, we can see the <strong>rhel_version</strong> variable is set to <strong>rhel7</strong> as expected.</p>
+<h3 id="a-note-on-credentials">A note on credentials</h3>
+<p>As mentioned at the start of this post, the end goal for this role is via self-service in Ansible Tower. Ansible Tower provides <a href="https://docs.ansible.com/ansible-tower/latest/html/userguide/credentials.html">credential management capabilities</a> so we don&rsquo;t need to specify any credentials in our role. For Molecule testing from the CLI we can set environment variables - for example <strong>VMWARE_PASSWORD</strong>. We can also set these environment variables in our CI pipeline.</p>
+<h3 id="writing-the-actual-role-and-testing">Writing the actual role and testing!</h3>
+<p>We can now write our VM creation role as usual. The full example is in my <a href="https://github.com/pharriso/ansible_molecule_create_vm">github repo</a>. With the role written we can begin to test and continue to develop as necessary. The <strong>converge</strong> phase will create the different variations of VM&rsquo;s in our target virtualisation platform - in this case a RHEL7 and RHEL8 VM in VMware.</p>
+<pre><code>PLAY [Converge] *************************************************************************************************************
+
+TASK [Include ansible_molecule_create_vm] ***********************************************************************************
+
+TASK [ansible_molecule_create_vm : create vm from template] *****************************************************************
+changed: [molecule-rhel8.demolab.local]
+changed: [molecule-rhel7.demolab.local]
+
+PLAY RECAP ******************************************************************************************************************
+molecule-rhel7.demolab.local : ok=1    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+molecule-rhel8.demolab.local : ok=1    changed=1    unreachable=0    failed=0    skipped=0    rescued=0    ignored=0
+</code></pre><p>And checking in VMware we can see the VM&rsquo;s as requested:</p>
+<p><img src="/images/molecule_vms.png" alt=""></p>
+<h3 id="destroying-the-vms">Destroying the VM&rsquo;s</h3>
+<p>This step is nice and easy. Just take the standard destroy.yml playbook that molecule creates for us and add the necessary tasks to destroy the VM&rsquo;s in the target virtualisation platform e.g.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">- name: Remove VM from VMware
+      vmware_guest:
+        validate_certs: no
+        name: <span style="color:#e6db74">&#34;{{ inventory_hostname }}&#34;</span>
+        state: absent
+        datacenter: demolab
+        force: yes
+      delegate_to: localhost
+</code></pre></div><p>Now simply run the following to destroy the VM&rsquo;s:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ molecule destroy
+</code></pre></div><h3 id="running-a-full-test">Running a full test</h3>
+<p>To execute a full test sequence including linting, testing the role, and checking role is idempotent run the following.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ molecule test
+</code></pre></div><p>This can easily be incorporated into existing toolchains such as CI pipelines.</p>
+<h3 id="git-repository">Git repository</h3>
+<p>The example used in this post is available on github - <a href="https://github.com/pharriso/ansible_molecule_create_vm">https://github.com/pharriso/ansible_molecule_create_vm</a>.</p>
+<h3 id="next-steps">Next Steps</h3>
+<p>Molecule is really flexible tool for testing and developing Ansible roles - mainly because you have the full capabilities of Ansible to configure the development environment and any testing you want to perform. This makes it really simple to consume as well. I don&rsquo;t need to learn another tool or language - I am just writing Ansible.</p>
+<p>As I mentioned at the start, this scenario gives me a consistent way of developing and testing Ansible roles and the ability to run a full test sequence with Molecule as part of my CI pipeline. This then makes it easier for my peers to review my code changes and the output of them.</p>
+<p>Molecule is a community project and isn&rsquo;t supported by Red Hat at the time of writing.</p>
+<p>Learn more by reading the <a href="https://molecule.readthedocs.io/en/latest/">official documentation for molecule</a>.</p>
+</p>
+          <p>26 Mar 2021
+            
+              
+                <a href="https://cloudautomation.pharriso.co.uk/tags/ansible/">#ansible</a>
+              
+                <a href="https://cloudautomation.pharriso.co.uk/tags/tower/">#tower</a>
+              
+                <a href="https://cloudautomation.pharriso.co.uk/tags/molecule/">#molecule</a>
+              
+                <a href="https://cloudautomation.pharriso.co.uk/tags/vmware/">#vmware</a>
+              
+            
+          </p>
+          
+            <div id="disqus_thread"></div>
+<script type="text/javascript">
+     
+    var disqus_shortname = 'cloudautomation';
+    
+     
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+</script>
+<noscript>Please enable JavaScript to view the <a href="https://disqus.com/?ref_noscript" rel="nofollow">comments powered by Disqus.</a></noscript>
+          
+        </div>
+      </div>
+    </div>
+
+    <div class="row">
+      <div class="col s3 m1">
+      
+        <a class="btn-floating btn-large waves-effect waves-light" href="https://cloudautomation.pharriso.co.uk/post/vmware-molecule/"><i class="mdi-navigation-arrow-back"></i></a>
+      
+      </div>
+      <div class="col s6 m10 center">&nbsp</div>
+      <div class="col s3 m1">
+      
+        <a class="btn-floating btn-large disabled"><i class="mdi-navigation-arrow-forward"></i></a>
+      
+      </div>
+    </div>
+
+  </div>
+</div>
+
+  <footer class="page-footer">
+    <div class="footer-copyright">
+      <div class="container">
+      
+      <div class="right">Design <a class="grey-text text-lighten-4" href="http://pdevty.github.io/blog/">pdevty</a></div>
+      </div>
+    </div>
+  </footer>
+  <script src="https://code.jquery.com/jquery-2.1.4.min.js"></script>
+  <script src="https://cloudautomation.pharriso.co.uk/js/materialize.min.js"></script>
+  <script src="https://cloudautomation.pharriso.co.uk/js/init.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/8.6/highlight.min.js"></script>
+  <script>hljs.initHighlightingOnLoad();</script>
+  
+  <script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+    ga('create', 'UA-131924821-2', 'auto');
+    ga('send', 'pageview');
+  </script>
+  
+
+  </body>
+</html>
+

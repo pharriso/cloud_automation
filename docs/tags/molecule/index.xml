@@ -6,7 +6,16 @@
     <description>Recent content in molecule on Cloud and Automation</description>
     <generator>Hugo -- gohugo.io</generator>
     <language>en-us</language>
-    <lastBuildDate>Tue, 08 Dec 2020 20:29:31 +0000</lastBuildDate><atom:link href="https://cloudautomation.pharriso.co.uk/tags/molecule/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 26 Mar 2021 14:24:54 +0000</lastBuildDate><atom:link href="https://cloudautomation.pharriso.co.uk/tags/molecule/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Using Molecule for VM provisioning roles</title>
+      <link>https://cloudautomation.pharriso.co.uk/post/molecule-vm-create/</link>
+      <pubDate>Fri, 26 Mar 2021 14:24:54 +0000</pubDate>
+      
+      <guid>https://cloudautomation.pharriso.co.uk/post/molecule-vm-create/</guid>
+      <description>I help to run a demo/lab environment for Red Hat Pre-Sales in the UK. We heavily use Ansible to automate as much as possible in the lab and we offer push-button Automation to end users via Ansible Tower. I&amp;rsquo;ve been using Molecule more and more to improve our ability to test and promote changes to Ansible code. I wanted to write up a few different scenarios I have come across for using Molecule.</description>
+    </item>
+    
     <item>
       <title>Testing Ansible roles with Molecule and VMware</title>
       <link>https://cloudautomation.pharriso.co.uk/post/vmware-molecule/</link>
