@@ -1,15 +1,54 @@
 baseurl = "https://cloudautomation.pharriso.co.uk"
-theme="material-design"
-languageCode = "en-us"
+theme="beautifulhugo"
+DefaultContentLanguage = "en"
 title = "Cloud and Automation"
 paginate = 9
 publishDir = "docs"
 disqusShortname = "cloudautomation"
+googleAnalytics = "UA-131924821-2"
 
-[params]
-  description = "This blog focuses mainly on Red Hat products in the Cloud and Automation space. I work as a Solution Architect for Red Hat in the UK."
-  twitter = "patharrison_esq"
+
+[Params]
+#  homeTitle = "Beautiful Hugo Theme" # Set a different text for the header on the home page
+  subtitle = "This blog focuses mainly on Red Hat products in the Cloud and Automation space. I work as a Solution Architect for Red Hat in the UK."
+  mainSections = ["post","posts"]
+  #logo = "images/avatar-icon.png" # Expecting square dimensions
+  favicon = "img/favicon.ico"
+  dateFormat = "January 2, 2006"
+  commit = false
+  comments = true
+  readingTime = true
+  useHLJS = true
+  delayDisqus = true
+  showRelatedPosts = true
+#  hideAuthor = true
+#  gcse = "012345678901234567890:abcdefghijk" # Get your code from google.com/cse. Make sure to go to "Look and Feel" and change Layout to "Full Width" and Theme to "Classic"
+
+#[[Params.bigimg]]
+#  src = "img/triangle.jpg"
+#  desc = "Triangle"
+#[[Params.bigimg]]
+#  src = "img/sphere.jpg"
+#  desc = "Sphere"
+#  # position: see values of CSS background-position.
+#  position = "center top"
+#[[Params.bigimg]]
+#  src = "img/hexagon.jpg"
+#  desc = "Hexagon"
+
+[Author]
+  name = "Pat Harrison"
   github = "pharriso"
+  gitlab = "pharriso"
   linkedin = "pharriso"
-  googleAnalyticsUserID = "UA-131924821-2"
-  #headerCover = "images/background.jpg"
+  twitter = "patharrison_esq"
+
+[[menu.main]]
+    name = "Blog"
+    url = ""
+    weight = 1
+
+[[menu.main]]
+    name = "Tags"
+    url = "tags"
+    weight = 3
