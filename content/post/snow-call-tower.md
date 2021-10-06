@@ -21,7 +21,7 @@ To allow extra variables to be passed into the Ansible job execution, I need to 
 
 #### Tower with self-signed certs
 
-As I am using a self-signed certificate in my instance, I need to configure ServiceNow to not verify the hostname in the certificate. To do this, search for **sys_properties.list** in the filter navigator. Then search for **com.glide.communications.httpclient.verify_hostname** and set it to false.
+As I am using a self-signed certificate in my instance, I need to configure ServiceNow to not verify the hostname in the certificate. To do this, search for **sys_properties.list** in the filter navigator. Then search for **com.glide.communications.trustmanager_trust_all** and set it to **true**.
 
 #### ServiceNow Outbound REST Message
 
