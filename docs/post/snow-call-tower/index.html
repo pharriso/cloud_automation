@@ -267,7 +267,7 @@ if (!doNotTrack) {
 <p>To allow extra variables to be passed into the Ansible job execution, I need to enable <strong>Prompt on launch</strong> for <strong>extra variables</strong> as per the screenshot below.</p>
 <p><img src="/images/snow_tower_job_template.png" alt=""></p>
 <h4 id="tower-with-self-signed-certs">Tower with self-signed certs</h4>
-<p>As I am using a self-signed certificate in my instance, I need to configure ServiceNow to not verify the hostname in the certificate. To do this, search for <strong>sys_properties.list</strong> in the filter navigator. Then search for <strong>com.glide.communications.httpclient.verify_hostname</strong> and set it to false.</p>
+<p>As I am using a self-signed certificate in my instance, I need to configure ServiceNow to not verify the hostname in the certificate. To do this, search for <strong>sys_properties.list</strong> in the filter navigator. Then search for <strong>com.glide.communications.trustmanager_trust_all</strong> and set it to <strong>true</strong>.</p>
 <h4 id="servicenow-outbound-rest-message">ServiceNow Outbound REST Message</h4>
 <p>The first thing we need to configure in ServiceNow, is an Outbound REST message. This defines how it will connect to the Ansible Tower API to launch a job. This includes the API call, credentials and any extra variables we might want to pass from ServiceNow to Ansible Tower.</p>
 <p>In ServiceNow, navigate to <strong>System Web Services -&gt; Outbound -&gt; REST Message</strong> and click <strong>New</strong>.</p>
