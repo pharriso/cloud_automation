@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Ansible Builder in a disconnected environment - Cloud and Automation</title>
+  <meta name="description" content="Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute an Ansible playbook:
+ A version of ansible-core A version of Python Python modules/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or automation controller.">
+  <meta name="author" content="Pat Harrison"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "Cloud and Automation",
+    
+    "url": "https:\/\/cloudautomation.pharriso.co.uk"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/cloudautomation.pharriso.co.uk"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/cloudautomation.pharriso.co.uk",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/cloudautomation.pharriso.co.uk\/post\/ansible-builder-disconnected\/",
+          "name": "Ansible builder in a disconnected environment"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "Pat Harrison"
+  },
+  "headline": "Ansible Builder in a disconnected environment",
+  "description" : "Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute an Ansible playbook:\n A version of ansible-core A version of Python Python modules\/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or automation controller.",
+  "inLanguage" : "en",
+  "wordCount":  1657 ,
+  "datePublished" : "2022-04-01T21:07:28",
+  "dateModified" : "2022-04-01T21:07:28",
+  "image" : "https:\/\/cloudautomation.pharriso.co.uk",
+  "keywords" : [ "ansible, ansible-builder, execution environments" ],
+  "mainEntityOfPage" : "https:\/\/cloudautomation.pharriso.co.uk\/post\/ansible-builder-disconnected\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/cloudautomation.pharriso.co.uk",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/cloudautomation.pharriso.co.uk",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="Ansible Builder in a disconnected environment" />
+<meta property="og:description" content="Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute an Ansible playbook:
+ A version of ansible-core A version of Python Python modules/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or automation controller.">
+<meta property="og:url" content="https://cloudautomation.pharriso.co.uk/post/ansible-builder-disconnected/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Cloud and Automation" />
+
+  <meta name="twitter:title" content="Ansible Builder in a disconnected environment" />
+  <meta name="twitter:description" content="Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute …">
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@patharrison_esq" />
+  <meta name="twitter:creator" content="@patharrison_esq" />
+  <link href='https://cloudautomation.pharriso.co.uk/img/favicon.ico' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.80.0" />
+  <link rel="alternate" href="https://cloudautomation.pharriso.co.uk/index.xml" type="application/rss+xml" title="Cloud and Automation"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"><link rel="stylesheet" href="https://cloudautomation.pharriso.co.uk/css/main.css" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://cloudautomation.pharriso.co.uk/css/highlight.min.css" /><link rel="stylesheet" href="https://cloudautomation.pharriso.co.uk/css/codeblock.css" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-131924821-2', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://cloudautomation.pharriso.co.uk">Cloud and Automation</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a title="Blog" href="/">Blog</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    
+
+  </div>
+</nav>
+
+
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>Ansible Builder in a disconnected environment</h1>
+              
+              
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;Posted on April 1, 2022
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;8&nbsp;minutes
+  
+  
+  
+    
+      &nbsp;|&nbsp;<i class="fas fa-user"></i>&nbsp;Pat Harrison
+    
+  
+  
+</span>
+
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p><a href="https://www.ansible.com/blog/introducing-ansible-automation-platform-2">Ansible Automation Platform 2</a> introduced execution environments as a replacement for python virtual environments. <a href="https://docs.ansible.com/automation-controller/latest/html/userguide/execution_environments.html">Execution environments</a> are container images which contain everything needed to execute an Ansible playbook:</p>
+<ul>
+<li>A version of ansible-core</li>
+<li>A version of Python</li>
+<li>Python modules/dependencies</li>
+<li>Ansible collections (optional)</li>
+</ul>
+<p>The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or <a href="https://docs.ansible.com/automation-controller/latest/html/userguide/overview.html">automation controller</a>.</p>
+<p>Red Hat provide a number of pre-built execution environments to make it easier for users to get started. Often the pre-built images work great and they include a number of sensible python dependencies for typical automation use-cases. However, there will be times when we will need to customise execution environments. This is typically when using additional Ansible modules which have additional python dependencies.</p>
+<p><a href="https://www.ansible.com/blog/introduction-to-ansible-builder">ansible-builder</a> was created to aid with the customisation and creation of execution environments. The idea of ansible-builder is to provide a layer of abstraction between the Ansible user and the build of an execution environment container - removing the need to get our hands too dirty with docker/podman commands.</p>
+<p>In true Ansible fashion, the definition of an execution environment is described simply in YAML. The ansible-builder command line tool then takes that simple definition and creates an execution environment. As with most things, in a connected environment the process works pretty seamlessly. If working in a disconnected environment it does require some additional configuration.</p>
+<p>Let&rsquo;s walk through an example!</p>
+<h3 id="execution-environmnent-definition">Execution environmnent definition</h3>
+<p><strong>NOTE</strong> This post doesn&rsquo;t cover the synchronisation of container images into a disconnected network. In my case I have already synced the necessary images and uploaded them into my private automation hub instance.</p>
+<p>Here is a pretty simplistic execution environment definition which is going to install the dnspython dependency. The contents of execution-environment.yml:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># cat execution-environment.yml </span>
+---
+version: <span style="color:#ae81ff">1</span>
+build_arg_defaults:
+  EE_BASE_IMAGE: <span style="color:#e6db74">&#39;automation-hub.demolab.local/ansible-automation-platform-21/ee-supported-rhel8:latest&#39;</span>
+  EE_BUILDER_IMAGE: <span style="color:#e6db74">&#39;automation-hub.demolab.local/ansible-automation-platform-21/ansible-builder-rhel8:latest&#39;</span>
+
+dependencies:
+  python: requirements.txt
+</code></pre></div><p>And the contents of the requirements.txt file:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># cat requirements.txt </span>
+dnspython<span style="color:#f92672">==</span>1.15.0
+</code></pre></div><h3 id="problem-1---external-yum-repositories">Problem #1 - external yum repositories</h3>
+<p>Before looking at yum dependencies, a quick note on how yum repositores are handled in the context of execution environments. Firstly, Red Hat provide execution environments which are based on a <a href="https://www.redhat.com/en/blog/introducing-red-hat-universal-base-image">RHEL 8 universal base image</a>. The ubi8 (universal base image RHEL8) container is configured to use a special yum repository which allows rpms to be installed without needing to attach subscriptions.</p>
+<p>If you don&rsquo;t have internet access and are building containers on a RHEL system which has been registered to Red Hat&rsquo;s content delivery network or Red Hat Satellite using subscription-manager, then the ubi8 container will inherit the subscription status of the host and get access to the same repositories as the underlying host.</p>
+<p>If you are building containers on a RHEL system which isn&rsquo;t using subscription-manager (e.g. using a local repository or something like Artifactory) then the ubi8 conatiner doesn&rsquo;t inherit the repositories from the underlying host. This is important to understand when considering container builds in a disconnected environment.</p>
+<p>OK, let&rsquo;s try building an execution environment with ansible-builder in a disconnected environment.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ansible-builder build -t disconnected_ee:1.0
+Running command:
+  podman build -f context/Containerfile -t disconnected_ee:1.0 context
+...showing last <span style="color:#ae81ff">20</span> lines of output...
++++ REDHAT_SUPPORT_PRODUCT_VERSION<span style="color:#f92672">=</span>8.5
+++ echo rhel
++ RELEASE<span style="color:#f92672">=</span>rhel
++ PKGMGR<span style="color:#f92672">=</span>
++ PKGMGR_OPTS<span style="color:#f92672">=</span>
++ <span style="color:#e6db74">&#39;[&#39;</span> -z <span style="color:#e6db74">&#39;]&#39;</span>
++ PKGMGR<span style="color:#f92672">=</span>/usr/bin/dnf
++ <span style="color:#e6db74">&#39;[&#39;</span> -f /usr/bin/microdnf <span style="color:#e6db74">&#39;]&#39;</span>
++ PKGMGR<span style="color:#f92672">=</span>/usr/bin/microdnf
++ <span style="color:#e6db74">&#39;[&#39;</span> -z <span style="color:#e6db74">&#39;]&#39;</span>
++ PKGMGR_OPTS<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;--nodocs --setopt install_weak_deps=0&#39;</span>
++ mkdir -p /output/bindep
++ mkdir -p /output/wheels
++ mkdir -p /tmp/src
++ cd /tmp/src
++ /usr/bin/microdnf update -y
+Downloading metadata...
+error: cannot update repo <span style="color:#e6db74">&#39;ubi-8-baseos&#39;</span>: Cannot download repomd.xml: Cannot download repodata/repomd.xml: All mirrors were tried; Last error: Curl error <span style="color:#f92672">(</span>7<span style="color:#f92672">)</span>: Couldn<span style="color:#960050;background-color:#1e0010">&#39;</span>t connect to server <span style="color:#66d9ef">for</span> https://cdn-ubi.redhat.com/content/public/ubi/dist/ubi8/8/x86_64/baseos/os/repodata/repomd.xml <span style="color:#f92672">[]</span>
+<span style="color:#f92672">[</span>3/3<span style="color:#f92672">]</span> STEP 1/4: FROM automation-hub.demolab.local/ansible-automation-platform-21/ee-supported-rhel8:latest
+Error: error building at STEP <span style="color:#e6db74">&#34;RUN assemble&#34;</span>: error <span style="color:#66d9ef">while</span> running runtime: exit status <span style="color:#ae81ff">1</span>
+</code></pre></div><p>Note how the build fails because the base image is trying to connect to an external yum repository hosted on redhat.com &ldquo;Couldn&rsquo;t connect to server for <strong><a href="https://cdn-ubi.redhat.com">https://cdn-ubi.redhat.com</a></strong>&rdquo;.</p>
+<p>To get around this issue, we are going to modify the Containerfile. Re-running ansible-builder with the <strong>create</strong> argument will generate the Containerfile but not actually build the resulting container image:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ansible-builder create
+Complete! The build context can be found at: /root/disconnected_ee/context
+</code></pre></div><p>Now we can edit the Containerfile and in our case remove the external yum repo that the base image is trying to use:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat context/Containerfile 
+ARG EE_BASE_IMAGE<span style="color:#f92672">=</span>automation-hub.demolab.local/ansible-automation-platform-21/ee-supported-rhel8:latest
+ARG EE_BUILDER_IMAGE<span style="color:#f92672">=</span>automation-hub.demolab.local/ansible-automation-platform-21/ansible-builder-rhel8:latest
+
+FROM $EE_BASE_IMAGE as galaxy
+ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS<span style="color:#f92672">=</span>
+USER root
+
+ADD _build /build
+WORKDIR /build
+
+
+FROM $EE_BUILDER_IMAGE as builder
+ADD _build/requirements.txt requirements.txt
+RUN ansible-builder introspect --sanitize --user-pip<span style="color:#f92672">=</span>requirements.txt --write-bindep<span style="color:#f92672">=</span>/tmp/src/bindep.txt --write-pip<span style="color:#f92672">=</span>/tmp/src/requirements.txt
+<span style="color:#75715e"># Remove ubi repo</span>
+RUN rm -f /etc/yum.repos.d/ubi.repo
+RUN assemble
+
+FROM $EE_BASE_IMAGE
+USER root
+COPY --from<span style="color:#f92672">=</span>builder /output/ /output/
+<span style="color:#75715e"># Remove ubi repo</span>
+RUN rm -f /etc/yum.repos.d/ubi.repo
+RUN /output/install-from-bindep <span style="color:#f92672">&amp;&amp;</span> rm -rf /output/wheels
+</code></pre></div><p><strong>Note</strong> the steps to remove /etc/yum.repos.d/ubi.repo. If you needed to access an internal repository on a system which isn&rsquo;t registered with subscription-manager then you&rsquo;ll need to copy your own yum repo file in at this point.</p>
+<p>We can now try to build the execution environment using our modified Containerfile. We will need to use a podman command to do this now that we have modified the Containerfile.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ podman build -f context/Containerfile -t disconnected_ee:1.0
+
+&lt;output truncated&gt;
+
++ /usr/bin/microdnf update -y
+Downloading metadata...
+Downloading metadata...
+Package                                          Repository                        Size
+Installing:                                                                            
+ openssl-1:1.1.1k-6.el8_5.x86_64                 rhel-8-for-x86_64-baseos-rpms 725.9 kB
+ openssl-pkcs11-0.4.10-2.el8.x86_64              rhel-8-for-x86_64-baseos-rpms  67.5 kB
+Upgrading:                                                                             
+ openssl-libs-1:1.1.1k-6.el8_5.x86_64            rhel-8-for-x86_64-baseos-rpms   1.5 MB
+  replacing openssl-libs-1:1.1.1k-5.el8_5.x86_64                                       
+ tzdata-2022a-1.el8.noarch                       rhel-8-for-x86_64-baseos-rpms 485.3 kB
+   replacing tzdata-2021e-1.el8.noarch                                                 
+
+
+&lt;output truncated&gt;
+
+WARNING: Retrying <span style="color:#f92672">(</span>Retry<span style="color:#f92672">(</span>total<span style="color:#f92672">=</span>4, connect<span style="color:#f92672">=</span>None, read<span style="color:#f92672">=</span>None, redirect<span style="color:#f92672">=</span>None, status<span style="color:#f92672">=</span>None<span style="color:#f92672">))</span> after connection broken by <span style="color:#e6db74">&#39;NewConnectionError(&#39;</span>&lt;pip._vendor.urllib3.connection.HTTPSConnection object at 0x7f11d8278460&gt;: Failed to establish a new connection: <span style="color:#f92672">[</span>Errno 101<span style="color:#f92672">]</span> Network is unreachable<span style="color:#e6db74">&#39;)&#39;</span>: /simple/dnspython/
+</code></pre></div><p>The build gets further now as we are able to complete the yum transaction. Now we hit the next problem - accessing python dependencies.</p>
+<h3 id="problem-2---python-dependencies">Problem #2 - python dependencies</h3>
+<p>As we have just discovered with rpms, if we are going to try to install additional python dependencies we will also need an internal repository. By default the execution enviroment build is going to try to reach pypi.org to satisfy our dnspython dependency. To get around this issue we are going to copy a pip configuration file into the execution environment which will instruct it to use a local mirror. In this example we are using <a href="https://www.sonatype.com/products/repository-oss">Sonatype Nexus</a> and a pypi proxy repository.</p>
+<p>Create a pip.conf which points to the local mirror in the <strong>context</strong> directory adjacent to the <strong>Containerfile</strong>.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat context/pip.conf 
+<span style="color:#f92672">[</span>global<span style="color:#f92672">]</span>
+index-url <span style="color:#f92672">=</span> https://nexus-nexus.apps.celeron.demolab.local/repository/pypi-proxy/simple/
+</code></pre></div><p>Now edit the <strong>context/Containerfile</strong> to copy the <strong>pip.conf</strong> into place:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat context/Containerfile
+<span style="color:#f92672">[</span>root@disconnected context<span style="color:#f92672">]</span><span style="color:#75715e"># cat Containerfile </span>
+ARG EE_BASE_IMAGE<span style="color:#f92672">=</span>automation-hub.demolab.local/ansible-automation-platform-21/ee-supported-rhel8:latest
+ARG EE_BUILDER_IMAGE<span style="color:#f92672">=</span>automation-hub.demolab.local/ansible-automation-platform-21/ansible-builder-rhel8:latest
+
+FROM $EE_BASE_IMAGE as galaxy
+ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS<span style="color:#f92672">=</span>
+USER root
+
+ADD _build /build
+WORKDIR /build
+
+
+FROM $EE_BUILDER_IMAGE as builder
+ADD _build/requirements.txt requirements.txt
+RUN ansible-builder introspect --sanitize --user-pip<span style="color:#f92672">=</span>requirements.txt --write-bindep<span style="color:#f92672">=</span>/tmp/src/bindep.txt --write-pip<span style="color:#f92672">=</span>/tmp/src/requirements.txt
+<span style="color:#75715e"># Remove ubi repo</span>
+RUN rm -f /etc/yum.repos.d/ubi.repo
+<span style="color:#75715e"># Add pip.conf for internal pypi proxy</span>
+ADD pip.conf /etc/pip.conf
+RUN assemble
+
+FROM $EE_BASE_IMAGE
+USER root
+COPY --from<span style="color:#f92672">=</span>builder /output/ /output/
+<span style="color:#75715e"># Remove ubi repo</span>
+RUN rm -f /etc/yum.repos.d/ubi.repo
+<span style="color:#75715e"># Add pip.conf for internal pypi proxy</span>
+ADD pip.conf /etc/pip.conf
+RUN /output/install-from-bindep <span style="color:#f92672">&amp;&amp;</span> rm -rf /output/wheels
+</code></pre></div><p><strong>Note</strong> the new entries to copy pip.conf from the context directory to /etc/pip.conf in the base image and builder image.</p>
+<h3 id="problem-3---optional-internal-certificates">Problem #3 - (Optional) Internal certificates</h3>
+<p>Accessing an internal pypi mirror might require some certificates to be deployed to the execution environments. We are marking this section as optional because there are different scenarios and different ways of getting around problems. For example, an internal repository might be using self-signed certificates or you could bypass certificate checking in pip.conf. In our example, our nexus repository is using an internal certificate authority and we want to configure our execution environment to use this certificate authority. Here is an example of the kind of error we might see from ansible-builder if we can&rsquo;t verify the certificate on our Nexus repository.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ERROR: Could not find a version that satisfies the requirement dnspython<span style="color:#f92672">==</span>1.15.0 <span style="color:#f92672">(</span>from -r /tmp/src/requirements.txt <span style="color:#f92672">(</span>line 1<span style="color:#f92672">))</span> <span style="color:#f92672">(</span>from versions: none<span style="color:#f92672">)</span>
+ERROR: No matching distribution found <span style="color:#66d9ef">for</span> dnspython<span style="color:#f92672">==</span>1.15.0 <span style="color:#f92672">(</span>from -r /tmp/src/requirements.txt <span style="color:#f92672">(</span>line 1<span style="color:#f92672">))</span>
+Could not fetch URL https://nexus-nexus.apps.celeron.demolab.local/repository/pypi-proxy/simple/pip/: There was a problem confirming the ssl certificate: HTTPSConnectionPool<span style="color:#f92672">(</span>host<span style="color:#f92672">=</span><span style="color:#e6db74">&#39;nexus-nexus.apps.celeron.demolab.local&#39;</span>, port<span style="color:#f92672">=</span>443<span style="color:#f92672">)</span>: Max retries exceeded with url: /repository/pypi-proxy/simple/pip/ <span style="color:#f92672">(</span>Caused by SSLError<span style="color:#f92672">(</span>SSLCertVerificationError<span style="color:#f92672">(</span>1, <span style="color:#e6db74">&#39;[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: unable to get local issuer certificate (_ssl.c:1125)&#39;</span><span style="color:#f92672">)))</span> - skipping
+</code></pre></div><p>To fix this, let&rsquo;s copy the relevant CA certificate into the container images as part of the build process. Copy the relevant CA certificate file into the <strong>context</strong> directory adjacent to the <strong>Containerfile</strong>.</p>
+<p>Finally, edit the Containerfile to copy the CA certificate file into place. Here is our final Containerfile:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat Containerfile 
+ARG EE_BASE_IMAGE<span style="color:#f92672">=</span>automation-hub.demolab.local/ansible-automation-platform-21/ee-supported-rhel8:latest
+ARG EE_BUILDER_IMAGE<span style="color:#f92672">=</span>automation-hub.demolab.local/ansible-automation-platform-21/ansible-builder-rhel8:latest
+
+FROM $EE_BASE_IMAGE as galaxy
+ARG ANSIBLE_GALAXY_CLI_COLLECTION_OPTS<span style="color:#f92672">=</span>
+USER root
+
+ADD _build /build
+WORKDIR /build
+
+
+FROM $EE_BUILDER_IMAGE as builder
+ADD _build/requirements.txt requirements.txt
+RUN ansible-builder introspect --sanitize --user-pip<span style="color:#f92672">=</span>requirements.txt --write-bindep<span style="color:#f92672">=</span>/tmp/src/bindep.txt --write-pip<span style="color:#f92672">=</span>/tmp/src/requirements.txt
+<span style="color:#75715e"># Remove ubi repo</span>
+RUN rm -f /etc/yum.repos.d/ubi.repo
+<span style="color:#75715e"># Add pip.conf for internal pypi proxy</span>
+ADD pip.conf /etc/pip.conf
+<span style="color:#75715e"># Add CA certificate and update trust</span>
+ADD demolab-ca.crt /etc/pki/ca-trust/source/anchors/demolab-ca.crt
+RUN update-ca-trust
+RUN assemble
+
+FROM $EE_BASE_IMAGE
+USER root
+COPY --from<span style="color:#f92672">=</span>builder /output/ /output/
+<span style="color:#75715e"># Remove ubi repo</span>
+RUN rm -f /etc/yum.repos.d/ubi.repo
+<span style="color:#75715e"># Add pip.conf for internal pypi proxy</span>
+ADD pip.conf /etc/pip.conf
+<span style="color:#75715e"># Add CA certificate and update trust</span>
+ADD demolab-ca.crt /etc/pki/ca-trust/source/anchors/demolab-ca.crt
+RUN update-ca-trust
+RUN /output/install-from-bindep <span style="color:#f92672">&amp;&amp;</span> rm -rf /output/wheels
+</code></pre></div><p><strong>NOTE</strong> the new entries to copy the CA certificate into place and update trust.</p>
+<h3 id="finally---lets-build">Finally - let&rsquo;s build!</h3>
+<p>We are ready to run our build again!</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ podman build -f context/Containerfile -t disconnected_ee:1.0
+</code></pre></div><p>If the build worked we should see a message like this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">--&gt; 2316db485a1
+Successfully tagged localhost/disconnected_ee:1.0
+2316db485a1c4e7be4a687c682d0fc90335372d7e5564774f1ff6451840ac35f
+</code></pre></div><p>We can quickly check that the dnspython python requirement was added to the execution environment:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ podman run --rm -it localhost/disconnected_ee:1.0 pip3 freeze | grep dnspython
+dnspython<span style="color:#f92672">==</span>1.15.0
+</code></pre></div><h3 id="next-steps">Next Steps</h3>
+<p>As with most things in the world of IT, working in a disconnected environment provides us with additional challenges. Hopefully this post gave some ideas on how to use ansible-builder in a disconnected environment to build custom execution environments.</p>
+<ul>
+<li>Learn more about ansible-builder - <a href="https://ansible-builder.readthedocs.io/en/stable/">https://ansible-builder.readthedocs.io/en/stable/</a></li>
+<li>Learn more about Red Hat Ansible Automation Platform - <a href="https://www.redhat.com/en/technologies/management/ansible">https://www.redhat.com/en/technologies/management/ansible</a></li>
+</ul>
+
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://cloudautomation.pharriso.co.uk/tags/ansible/">ansible</a>&nbsp;
+            
+              <a href="https://cloudautomation.pharriso.co.uk/tags/ansible-builder/">ansible-builder</a>&nbsp;
+            
+              <a href="https://cloudautomation.pharriso.co.uk/tags/execution-environments/">execution environments</a>&nbsp;
+            
+          </div>
+        
+
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">See also</h4>
+                  <ul>
+                
+                
+                    <li><a href="/post/molecule-vm-create/">Using Molecule for VM provisioning roles</a></li>
+                
+                    <li><a href="/post/vmware-molecule/">Testing Ansible roles with Molecule and VMware</a></li>
+                
+                    <li><a href="/post/foreman_filtering/">Filtering hosts with the Satellite inventory plugin for Ansible</a></li>
+                
+                    <li><a href="/post/vmware_filter_tags/">Ansible VMware Dynamic Inventory - Filter on tags</a></li>
+                
+                    <li><a href="/post/install_tower_from_sat6/">Install Ansible Tower from Satellite 6</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://cloudautomation.pharriso.co.uk/post/molecule-vm-create/" data-toggle="tooltip" data-placement="top" title="Using Molecule for VM provisioning roles">&larr; Previous Post</a>
+            </li>
+          
+          
+        </ul>
+      
+
+
+      
+        
+          
+          <div class="disqus-comments">                  
+            <button id="show-comments" class="btn btn-default" type="button">Show <span class="disqus-comment-count" data-disqus-url="https://cloudautomation.pharriso.co.uk/post/ansible-builder-disconnected">comments</span></button>
+            <div id="disqus_thread"></div>
+
+            <script type="text/javascript">
+              var disqus_config = function () {
+              this.page.url = 'https:\/\/cloudautomation.pharriso.co.uk\/post\/ansible-builder-disconnected';
+            };
+
+          </script>
+          </div>
+          
+        
+        
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="https://github.com/pharriso" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://gitlab.com/pharriso" title="GitLab">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fab fa-gitlab fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/patharrison_esq" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/pharriso" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              Pat Harrison
+            
+          
+
+          &nbsp;&bull;&nbsp;&copy;
+          
+            2022
+          
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://cloudautomation.pharriso.co.uk">Cloud and Automation</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="https://gohugo.io">Hugo v0.80.0</a> powered &nbsp;&bull;&nbsp; Theme <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> adapted from <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<script src="https://cloudautomation.pharriso.co.uk/js/main.js"></script>
+<script src="https://cloudautomation.pharriso.co.uk/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script><script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" integrity="sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" integrity="sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q" crossorigin="anonymous"></script><script src="https://cloudautomation.pharriso.co.uk/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(function(){
+  $('#show-comments').on('click', function(){
+    var disqus_shortname = 'cloudautomation';
+      
+    (function() {
+      var disqus = document.createElement('script'); 
+      disqus.type = 'text/javascript'; 
+      disqus.async = true;
+      disqus.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(disqus);
+    })();
+      
+    $(this).hide(); 
+    });
+  });
+      
+</script>
+<script id="dsq-count-scr" src="//cloudautomation.disqus.com/count.js" async></script>
+
+
+
+
+    
+  </body>
+</html>
+

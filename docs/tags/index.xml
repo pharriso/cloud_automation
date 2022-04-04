@@ -5,13 +5,31 @@
     <link>https://cloudautomation.pharriso.co.uk/tags/</link>
     <description>Recent content in Tags on Cloud and Automation</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Fri, 26 Mar 2021 14:24:54 +0000</lastBuildDate><atom:link href="https://cloudautomation.pharriso.co.uk/tags/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 01 Apr 2022 21:07:28 +0100</lastBuildDate><atom:link href="https://cloudautomation.pharriso.co.uk/tags/index.xml" rel="self" type="application/rss+xml" />
     <item>
       <title>ansible</title>
       <link>https://cloudautomation.pharriso.co.uk/tags/ansible/</link>
-      <pubDate>Fri, 26 Mar 2021 14:24:54 +0000</pubDate>
+      <pubDate>Fri, 01 Apr 2022 21:07:28 +0100</pubDate>
       
       <guid>https://cloudautomation.pharriso.co.uk/tags/ansible/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>ansible-builder</title>
+      <link>https://cloudautomation.pharriso.co.uk/tags/ansible-builder/</link>
+      <pubDate>Fri, 01 Apr 2022 21:07:28 +0100</pubDate>
+      
+      <guid>https://cloudautomation.pharriso.co.uk/tags/ansible-builder/</guid>
+      <description></description>
+    </item>
+    
+    <item>
+      <title>execution environments</title>
+      <link>https://cloudautomation.pharriso.co.uk/tags/execution-environments/</link>
+      <pubDate>Fri, 01 Apr 2022 21:07:28 +0100</pubDate>
+      
+      <guid>https://cloudautomation.pharriso.co.uk/tags/execution-environments/</guid>
       <description></description>
     </item>
     

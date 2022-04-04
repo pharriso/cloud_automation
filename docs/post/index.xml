@@ -5,7 +5,17 @@
     <link>https://cloudautomation.pharriso.co.uk/post/</link>
     <description>Recent content in Posts on Cloud and Automation</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Fri, 26 Mar 2021 14:24:54 +0000</lastBuildDate><atom:link href="https://cloudautomation.pharriso.co.uk/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Fri, 01 Apr 2022 21:07:28 +0100</lastBuildDate><atom:link href="https://cloudautomation.pharriso.co.uk/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Ansible Builder in a disconnected environment</title>
+      <link>https://cloudautomation.pharriso.co.uk/post/ansible-builder-disconnected/</link>
+      <pubDate>Fri, 01 Apr 2022 21:07:28 +0100</pubDate>
+      
+      <guid>https://cloudautomation.pharriso.co.uk/post/ansible-builder-disconnected/</guid>
+      <description>Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute an Ansible playbook:
+ A version of ansible-core A version of Python Python modules/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or automation controller.</description>
+    </item>
+    
     <item>
       <title>Using Molecule for VM provisioning roles</title>
       <link>https://cloudautomation.pharriso.co.uk/post/molecule-vm-create/</link>

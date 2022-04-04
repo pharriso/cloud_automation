@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>ansible-builder on Cloud and Automation</title>
+    <link>https://cloudautomation.pharriso.co.uk/tags/ansible-builder/</link>
+    <description>Recent content in ansible-builder on Cloud and Automation</description>
+    <generator>Hugo -- gohugo.io</generator>
+    <lastBuildDate>Fri, 01 Apr 2022 21:07:28 +0100</lastBuildDate><atom:link href="https://cloudautomation.pharriso.co.uk/tags/ansible-builder/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Ansible Builder in a disconnected environment</title>
+      <link>https://cloudautomation.pharriso.co.uk/post/ansible-builder-disconnected/</link>
+      <pubDate>Fri, 01 Apr 2022 21:07:28 +0100</pubDate>
+      
+      <guid>https://cloudautomation.pharriso.co.uk/post/ansible-builder-disconnected/</guid>
+      <description>Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute an Ansible playbook:
+ A version of ansible-core A version of Python Python modules/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or automation controller.</description>
+    </item>
+    
+  </channel>
+</rss>
