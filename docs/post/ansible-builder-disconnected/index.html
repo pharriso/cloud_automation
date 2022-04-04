@@ -7,7 +7,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
 
-  <title>Ansible Builder in a disconnected environment - Cloud and Automation</title>
+  <title>ansible-builder in a disconnected environment - Cloud and Automation</title>
   <meta name="description" content="Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute an Ansible playbook:
  A version of ansible-core A version of Python Python modules/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or automation controller.">
   <meta name="author" content="Pat Harrison"/><script type="application/ld+json">
@@ -57,10 +57,10 @@
   "author": {
     "name" : "Pat Harrison"
   },
-  "headline": "Ansible Builder in a disconnected environment",
+  "headline": "ansible-builder in a disconnected environment",
   "description" : "Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute an Ansible playbook:\n A version of ansible-core A version of Python Python modules\/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or automation controller.",
   "inLanguage" : "en",
-  "wordCount":  1657 ,
+  "wordCount":  1648 ,
   "datePublished" : "2022-04-01T21:07:28",
   "dateModified" : "2022-04-01T21:07:28",
   "image" : "https:\/\/cloudautomation.pharriso.co.uk",
@@ -79,14 +79,14 @@
 }
 </script>
 
-<meta property="og:title" content="Ansible Builder in a disconnected environment" />
+<meta property="og:title" content="ansible-builder in a disconnected environment" />
 <meta property="og:description" content="Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute an Ansible playbook:
  A version of ansible-core A version of Python Python modules/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or automation controller.">
 <meta property="og:url" content="https://cloudautomation.pharriso.co.uk/post/ansible-builder-disconnected/" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Cloud and Automation" />
 
-  <meta name="twitter:title" content="Ansible Builder in a disconnected environment" />
+  <meta name="twitter:title" content="ansible-builder in a disconnected environment" />
   <meta name="twitter:description" content="Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute …">
   <meta name="twitter:card" content="summary" />
   <meta name="twitter:site" content="@patharrison_esq" />
@@ -224,7 +224,7 @@ if (!doNotTrack) {
           <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
             <div class="post-heading">
               
-                <h1>Ansible Builder in a disconnected environment</h1>
+                <h1>ansible-builder in a disconnected environment</h1>
               
               
               
@@ -271,11 +271,11 @@ if (!doNotTrack) {
 <p>The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or <a href="https://docs.ansible.com/automation-controller/latest/html/userguide/overview.html">automation controller</a>.</p>
 <p>Red Hat provide a number of pre-built execution environments to make it easier for users to get started. Often the pre-built images work great and they include a number of sensible python dependencies for typical automation use-cases. However, there will be times when we will need to customise execution environments. This is typically when using additional Ansible modules which have additional python dependencies.</p>
 <p><a href="https://www.ansible.com/blog/introduction-to-ansible-builder">ansible-builder</a> was created to aid with the customisation and creation of execution environments. The idea of ansible-builder is to provide a layer of abstraction between the Ansible user and the build of an execution environment container - removing the need to get our hands too dirty with docker/podman commands.</p>
-<p>In true Ansible fashion, the definition of an execution environment is described simply in YAML. The ansible-builder command line tool then takes that simple definition and creates an execution environment. As with most things, in a connected environment the process works pretty seamlessly. If working in a disconnected environment it does require some additional configuration.</p>
+<p>In true Ansible fashion, the definition of an execution environment is described in YAML. The ansible-builder command line tool then takes that simple definition and creates an execution environment. As with most things, in a connected environment the process works pretty seamlessly. If working in a disconnected environment it does require some additional configuration.</p>
 <p>Let&rsquo;s walk through an example!</p>
 <h3 id="execution-environmnent-definition">Execution environmnent definition</h3>
-<p><strong>NOTE</strong> This post doesn&rsquo;t cover the synchronisation of container images into a disconnected network. In my case I have already synced the necessary images and uploaded them into my private automation hub instance.</p>
-<p>Here is a pretty simplistic execution environment definition which is going to install the dnspython dependency. The contents of execution-environment.yml:</p>
+<p><strong>NOTE</strong> This post doesn&rsquo;t cover the synchronisation of container images into a disconnected network. In our case we have already synced the necessary images and uploaded them into <a href="https://www.ansible.com/blog/whats-new-in-ansible-automation-platform-2-private-automation-hub">private automation hub</a>.</p>
+<p>Here is a really simple execution environment definition which requires the dnspython module. The contents of execution-environment.yml:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># cat execution-environment.yml </span>
 ---
 version: <span style="color:#ae81ff">1</span>
@@ -291,7 +291,7 @@ dnspython<span style="color:#f92672">==</span>1.15.0
 </code></pre></div><h3 id="problem-1---external-yum-repositories">Problem #1 - external yum repositories</h3>
 <p>Before looking at yum dependencies, a quick note on how yum repositores are handled in the context of execution environments. Firstly, Red Hat provide execution environments which are based on a <a href="https://www.redhat.com/en/blog/introducing-red-hat-universal-base-image">RHEL 8 universal base image</a>. The ubi8 (universal base image RHEL8) container is configured to use a special yum repository which allows rpms to be installed without needing to attach subscriptions.</p>
 <p>If you don&rsquo;t have internet access and are building containers on a RHEL system which has been registered to Red Hat&rsquo;s content delivery network or Red Hat Satellite using subscription-manager, then the ubi8 container will inherit the subscription status of the host and get access to the same repositories as the underlying host.</p>
-<p>If you are building containers on a RHEL system which isn&rsquo;t using subscription-manager (e.g. using a local repository or something like Artifactory) then the ubi8 conatiner doesn&rsquo;t inherit the repositories from the underlying host. This is important to understand when considering container builds in a disconnected environment.</p>
+<p>If you are building containers on a RHEL system which isn&rsquo;t using subscription-manager (e.g. using a local repository or something like Artifactory) then the ubi8 container doesn&rsquo;t inherit the repositories from the underlying host. This is important to understand when considering container builds in a disconnected environment.</p>
 <p>OK, let&rsquo;s try building an execution environment with ansible-builder in a disconnected environment.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ansible-builder build -t disconnected_ee:1.0
 Running command:
@@ -321,7 +321,7 @@ Error: error building at STEP <span style="color:#e6db74">&#34;RUN assemble&#34;
 <p>To get around this issue, we are going to modify the Containerfile. Re-running ansible-builder with the <strong>create</strong> argument will generate the Containerfile but not actually build the resulting container image:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ansible-builder create
 Complete! The build context can be found at: /root/disconnected_ee/context
-</code></pre></div><p>Now we can edit the Containerfile and in our case remove the external yum repo that the base image is trying to use:</p>
+</code></pre></div><p>Now we can edit the Containerfile and remove the external yum repo that the base image is trying to use:</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat context/Containerfile 
 ARG EE_BASE_IMAGE<span style="color:#f92672">=</span>automation-hub.demolab.local/ansible-automation-platform-21/ee-supported-rhel8:latest
 ARG EE_BUILDER_IMAGE<span style="color:#f92672">=</span>automation-hub.demolab.local/ansible-automation-platform-21/ansible-builder-rhel8:latest
@@ -347,7 +347,7 @@ COPY --from<span style="color:#f92672">=</span>builder /output/ /output/
 <span style="color:#75715e"># Remove ubi repo</span>
 RUN rm -f /etc/yum.repos.d/ubi.repo
 RUN /output/install-from-bindep <span style="color:#f92672">&amp;&amp;</span> rm -rf /output/wheels
-</code></pre></div><p><strong>Note</strong> the steps to remove /etc/yum.repos.d/ubi.repo. If you needed to access an internal repository on a system which isn&rsquo;t registered with subscription-manager then you&rsquo;ll need to copy your own yum repo file in at this point.</p>
+</code></pre></div><p><strong>Note</strong> the steps to remove /etc/yum.repos.d/ubi.repo. If we needed to access an internal repository on a system which isn&rsquo;t registered with subscription-manager then we&rsquo;d need to copy our own yum repo file in at this point.</p>
 <p>We can now try to build the execution environment using our modified Containerfile. We will need to use a podman command to do this now that we have modified the Containerfile.</p>
 <div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ podman build -f context/Containerfile -t disconnected_ee:1.0
 

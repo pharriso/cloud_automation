@@ -1,5 +1,5 @@
 ---
-title: "Ansible Builder in a disconnected environment"
+title: "ansible-builder in a disconnected environment"
 date: 2022-04-01T21:07:28+01:00
 draft: false
 tags: [ansible, ansible-builder, execution environments]
@@ -18,15 +18,15 @@ Red Hat provide a number of pre-built execution environments to make it easier f
 
 [ansible-builder](https://www.ansible.com/blog/introduction-to-ansible-builder) was created to aid with the customisation and creation of execution environments. The idea of ansible-builder is to provide a layer of abstraction between the Ansible user and the build of an execution environment container - removing the need to get our hands too dirty with docker/podman commands.
 
-In true Ansible fashion, the definition of an execution environment is described simply in YAML. The ansible-builder command line tool then takes that simple definition and creates an execution environment. As with most things, in a connected environment the process works pretty seamlessly. If working in a disconnected environment it does require some additional configuration.
+In true Ansible fashion, the definition of an execution environment is described in YAML. The ansible-builder command line tool then takes that simple definition and creates an execution environment. As with most things, in a connected environment the process works pretty seamlessly. If working in a disconnected environment it does require some additional configuration.
 
 Let's walk through an example!
 
 ### Execution environmnent definition
 
-**NOTE** This post doesn't cover the synchronisation of container images into a disconnected network. In my case I have already synced the necessary images and uploaded them into my private automation hub instance.
+**NOTE** This post doesn't cover the synchronisation of container images into a disconnected network. In our case we have already synced the necessary images and uploaded them into [private automation hub](https://www.ansible.com/blog/whats-new-in-ansible-automation-platform-2-private-automation-hub).
 
-Here is a pretty simplistic execution environment definition which is going to install the dnspython dependency. The contents of execution-environment.yml:
+Here is a really simple execution environment definition which requires the dnspython module. The contents of execution-environment.yml:
 
 ```bash
 # cat execution-environment.yml 
@@ -53,7 +53,7 @@ Before looking at yum dependencies, a quick note on how yum repositores are hand
 
 If you don't have internet access and are building containers on a RHEL system which has been registered to Red Hat's content delivery network or Red Hat Satellite using subscription-manager, then the ubi8 container will inherit the subscription status of the host and get access to the same repositories as the underlying host.
 
-If you are building containers on a RHEL system which isn't using subscription-manager (e.g. using a local repository or something like Artifactory) then the ubi8 conatiner doesn't inherit the repositories from the underlying host. This is important to understand when considering container builds in a disconnected environment.
+If you are building containers on a RHEL system which isn't using subscription-manager (e.g. using a local repository or something like Artifactory) then the ubi8 container doesn't inherit the repositories from the underlying host. This is important to understand when considering container builds in a disconnected environment.
 
 
 OK, let's try building an execution environment with ansible-builder in a disconnected environment.
@@ -95,7 +95,7 @@ $ ansible-builder create
 Complete! The build context can be found at: /root/disconnected_ee/context
 ```
 
-Now we can edit the Containerfile and in our case remove the external yum repo that the base image is trying to use:
+Now we can edit the Containerfile and remove the external yum repo that the base image is trying to use:
 
 ```bash
 $ cat context/Containerfile 
@@ -125,7 +125,7 @@ RUN rm -f /etc/yum.repos.d/ubi.repo
 RUN /output/install-from-bindep && rm -rf /output/wheels
 ```
 
-**Note** the steps to remove /etc/yum.repos.d/ubi.repo. If you needed to access an internal repository on a system which isn't registered with subscription-manager then you'll need to copy your own yum repo file in at this point.
+**Note** the steps to remove /etc/yum.repos.d/ubi.repo. If we needed to access an internal repository on a system which isn't registered with subscription-manager then we'd need to copy our own yum repo file in at this point.
 
 We can now try to build the execution environment using our modified Containerfile. We will need to use a podman command to do this now that we have modified the Containerfile.
 
