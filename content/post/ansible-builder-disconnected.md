@@ -20,7 +20,7 @@ Red Hat provide a number of pre-built execution environments to make it easier f
 
 In true Ansible fashion, the definition of an execution environment is described in YAML. The ansible-builder command line tool then takes that simple definition and creates an execution environment. As with most things, in a connected environment the process works pretty seamlessly. If working in a disconnected environment it does require some additional configuration.
 
-Let's walk through an example!
+Let's stumble through an example rather than just jump straight to the solution. The hope is that this will help with troubleshooting other issues that aren't covered here.
 
 ### Execution environmnent definition
 

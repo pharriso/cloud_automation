@@ -60,7 +60,7 @@
   "headline": "ansible-builder in a disconnected environment",
   "description" : "Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute an Ansible playbook:\n A version of ansible-core A version of Python Python modules\/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherever we run it - a laptop, a RHEL server or automation controller.",
   "inLanguage" : "en",
-  "wordCount":  1648 ,
+  "wordCount":  1671 ,
   "datePublished" : "2022-04-01T21:07:28",
   "dateModified" : "2022-04-01T21:07:28",
   "image" : "https:\/\/cloudautomation.pharriso.co.uk",
@@ -272,7 +272,7 @@ if (!doNotTrack) {
 <p>Red Hat provide a number of pre-built execution environments to make it easier for users to get started. Often the pre-built images work great and they include a number of sensible python dependencies for typical automation use-cases. However, there will be times when we will need to customise execution environments. This is typically when using additional Ansible modules which have additional python dependencies.</p>
 <p><a href="https://www.ansible.com/blog/introduction-to-ansible-builder">ansible-builder</a> was created to aid with the customisation and creation of execution environments. The idea of ansible-builder is to provide a layer of abstraction between the Ansible user and the build of an execution environment container - removing the need to get our hands too dirty with docker/podman commands.</p>
 <p>In true Ansible fashion, the definition of an execution environment is described in YAML. The ansible-builder command line tool then takes that simple definition and creates an execution environment. As with most things, in a connected environment the process works pretty seamlessly. If working in a disconnected environment it does require some additional configuration.</p>
-<p>Let&rsquo;s walk through an example!</p>
+<p>Let&rsquo;s stumble through an example rather than just jump straight to the solution. The hope is that this will help with troubleshooting other issues that aren&rsquo;t covered here.</p>
 <h3 id="execution-environmnent-definition">Execution environmnent definition</h3>
 <p><strong>NOTE</strong> This post doesn&rsquo;t cover the synchronisation of container images into a disconnected network. In our case we have already synced the necessary images and uploaded them into <a href="https://www.ansible.com/blog/whats-new-in-ansible-automation-platform-2-private-automation-hub">private automation hub</a>.</p>
 <p>Here is a really simple execution environment definition which requires the dnspython module. The contents of execution-environment.yml:</p>
