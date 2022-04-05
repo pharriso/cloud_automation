@@ -13,7 +13,7 @@
       
       <guid>https://cloudautomation.pharriso.co.uk/post/ansible-builder-disconnected/</guid>
       <description>Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute an Ansible playbook:
- A version of ansible-core A version of Python Python modules/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or automation controller.</description>
+ A version of ansible-core A version of Python Python modules/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherever we run it - a laptop, a RHEL server or automation controller.</description>
     </item>
     
     <item>

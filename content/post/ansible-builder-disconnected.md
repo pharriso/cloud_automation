@@ -12,7 +12,7 @@ tags: [ansible, ansible-builder, execution environments]
 * Python modules/dependencies
 * Ansible collections (optional)
 
-The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or [automation controller](https://docs.ansible.com/automation-controller/latest/html/userguide/overview.html).
+The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherever we run it - a laptop, a RHEL server or [automation controller](https://docs.ansible.com/automation-controller/latest/html/userguide/overview.html).
 
 Red Hat provide a number of pre-built execution environments to make it easier for users to get started. Often the pre-built images work great and they include a number of sensible python dependencies for typical automation use-cases. However, there will be times when we will need to customise execution environments. This is typically when using additional Ansible modules which have additional python dependencies.
 

@@ -9,7 +9,7 @@
 
   <title>ansible-builder in a disconnected environment - Cloud and Automation</title>
   <meta name="description" content="Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute an Ansible playbook:
- A version of ansible-core A version of Python Python modules/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or automation controller.">
+ A version of ansible-core A version of Python Python modules/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherever we run it - a laptop, a RHEL server or automation controller.">
   <meta name="author" content="Pat Harrison"/><script type="application/ld+json">
 {
     "@context": "http://schema.org",
@@ -58,7 +58,7 @@
     "name" : "Pat Harrison"
   },
   "headline": "ansible-builder in a disconnected environment",
-  "description" : "Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute an Ansible playbook:\n A version of ansible-core A version of Python Python modules\/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or automation controller.",
+  "description" : "Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute an Ansible playbook:\n A version of ansible-core A version of Python Python modules\/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherever we run it - a laptop, a RHEL server or automation controller.",
   "inLanguage" : "en",
   "wordCount":  1648 ,
   "datePublished" : "2022-04-01T21:07:28",
@@ -81,7 +81,7 @@
 
 <meta property="og:title" content="ansible-builder in a disconnected environment" />
 <meta property="og:description" content="Ansible Automation Platform 2 introduced execution environments as a replacement for python virtual environments. Execution environments are container images which contain everything needed to execute an Ansible playbook:
- A version of ansible-core A version of Python Python modules/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or automation controller.">
+ A version of ansible-core A version of Python Python modules/dependencies Ansible collections (optional)  The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherever we run it - a laptop, a RHEL server or automation controller.">
 <meta property="og:url" content="https://cloudautomation.pharriso.co.uk/post/ansible-builder-disconnected/" />
 <meta property="og:type" content="website" />
 <meta property="og:site_name" content="Cloud and Automation" />
@@ -268,7 +268,7 @@ if (!doNotTrack) {
 <li>Python modules/dependencies</li>
 <li>Ansible collections (optional)</li>
 </ul>
-<p>The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherver we run it - a laptop, a RHEL server or <a href="https://docs.ansible.com/automation-controller/latest/html/userguide/overview.html">automation controller</a>.</p>
+<p>The move to containers is really about solving the problem of how we package and distribute everything needed to run a playbook so that it runs consistently wherever we run it - a laptop, a RHEL server or <a href="https://docs.ansible.com/automation-controller/latest/html/userguide/overview.html">automation controller</a>.</p>
 <p>Red Hat provide a number of pre-built execution environments to make it easier for users to get started. Often the pre-built images work great and they include a number of sensible python dependencies for typical automation use-cases. However, there will be times when we will need to customise execution environments. This is typically when using additional Ansible modules which have additional python dependencies.</p>
 <p><a href="https://www.ansible.com/blog/introduction-to-ansible-builder">ansible-builder</a> was created to aid with the customisation and creation of execution environments. The idea of ansible-builder is to provide a layer of abstraction between the Ansible user and the build of an execution environment container - removing the need to get our hands too dirty with docker/podman commands.</p>
 <p>In true Ansible fashion, the definition of an execution environment is described in YAML. The ansible-builder command line tool then takes that simple definition and creates an execution environment. As with most things, in a connected environment the process works pretty seamlessly. If working in a disconnected environment it does require some additional configuration.</p>
