@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>A journey with Ansible 2.12, implicit localhost and python discovery - Cloud and Automation</title>
+  <meta name="description" content="I recently upgraded to Ansible 2.12 and a couple of my playbooks stopped working. This seems to be down to a change in python discovery and if you have made the same mistakes as me, you&rsquo;ll hit a similar issue. I thought I would write up my findings in case it helps anyone else.
+HINT you&rsquo;ve probably got an entry for localhost in your inventory!!
+Everything was working in Ansible 2.">
+  <meta name="author" content="Pat Harrison"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "Cloud and Automation",
+    
+    "url": "https:\/\/cloudautomation.pharriso.co.uk"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/cloudautomation.pharriso.co.uk"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/cloudautomation.pharriso.co.uk",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/cloudautomation.pharriso.co.uk\/post\/implicit_localhost\/",
+          "name": "A journey with ansible 2.12, implicit localhost and python discovery"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "Pat Harrison"
+  },
+  "headline": "A journey with Ansible 2.12, implicit localhost and python discovery",
+  "description" : "I recently upgraded to Ansible 2.12 and a couple of my playbooks stopped working. This seems to be down to a change in python discovery and if you have made the same mistakes as me, you\u0026rsquo;ll hit a similar issue. I thought I would write up my findings in case it helps anyone else.\nHINT you\u0026rsquo;ve probably got an entry for localhost in your inventory!!\nEverything was working in Ansible 2.",
+  "inLanguage" : "en",
+  "wordCount":  1246 ,
+  "datePublished" : "2022-05-16T21:39:03",
+  "dateModified" : "2022-05-16T21:39:03",
+  "image" : "https:\/\/cloudautomation.pharriso.co.uk",
+  "keywords" : [ "ansible" ],
+  "mainEntityOfPage" : "https:\/\/cloudautomation.pharriso.co.uk\/post\/implicit_localhost\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/cloudautomation.pharriso.co.uk",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/cloudautomation.pharriso.co.uk",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="A journey with Ansible 2.12, implicit localhost and python discovery" />
+<meta property="og:description" content="I recently upgraded to Ansible 2.12 and a couple of my playbooks stopped working. This seems to be down to a change in python discovery and if you have made the same mistakes as me, you&rsquo;ll hit a similar issue. I thought I would write up my findings in case it helps anyone else.
+HINT you&rsquo;ve probably got an entry for localhost in your inventory!!
+Everything was working in Ansible 2.">
+<meta property="og:url" content="https://cloudautomation.pharriso.co.uk/post/implicit_localhost/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Cloud and Automation" />
+
+  <meta name="twitter:title" content="A journey with Ansible 2.12, implicit localhost and python discovery" />
+  <meta name="twitter:description" content="I recently upgraded to Ansible 2.12 and a couple of my playbooks stopped working. This seems to be down to a change in python discovery and if you have made the same mistakes as me, you&rsquo;ll hit a …">
+  <meta name="twitter:card" content="summary" />
+  <meta name="twitter:site" content="@patharrison_esq" />
+  <meta name="twitter:creator" content="@patharrison_esq" />
+  <link href='https://cloudautomation.pharriso.co.uk/img/favicon.ico' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.80.0" />
+  <link rel="alternate" href="https://cloudautomation.pharriso.co.uk/index.xml" type="application/rss+xml" title="Cloud and Automation"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"><link rel="stylesheet" href="https://cloudautomation.pharriso.co.uk/css/main.css" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://cloudautomation.pharriso.co.uk/css/highlight.min.css" /><link rel="stylesheet" href="https://cloudautomation.pharriso.co.uk/css/codeblock.css" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-131924821-2', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://cloudautomation.pharriso.co.uk">Cloud and Automation</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a title="Blog" href="/">Blog</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    
+
+  </div>
+</nav>
+
+
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>A journey with Ansible 2.12, implicit localhost and python discovery</h1>
+              
+              
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;Posted on May 16, 2022
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;6&nbsp;minutes
+  
+  
+  
+    
+      &nbsp;|&nbsp;<i class="fas fa-user"></i>&nbsp;Pat Harrison
+    
+  
+  
+</span>
+
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p>I recently upgraded to Ansible 2.12 and a couple of my playbooks stopped working. This seems to be down to a change in python discovery and if you have made the same mistakes as me, you&rsquo;ll hit a similar issue. I thought I would write up my findings in case it helps anyone else.</p>
+<p><strong>HINT</strong> you&rsquo;ve probably got an entry for localhost in your inventory!!</p>
+<h2 id="everything-was-working-in-ansible-211">Everything was working in Ansible 2.11</h2>
+<p>I was using Ansible 2.11 in an <a href="https://docs.ansible.com/automation-controller/latest/html/userguide/execution_environments.html">execution environment</a> and my playbook was happily working. Here is one of the tasks in my playbook which gives us a nice simple example to reproduce the problem.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">---
+
+- hosts: localhost
+  connection: local
+  gather_facts: false
+  tasks:
+  - name: print ansible version
+    debug:
+      var: ansible_version.full
+
+  - name: find vmware datastore name
+    community.vmware.vmware_datastore_info:
+      cluster: rhatnode1
+      hostname: vcenter7.demolab.local
+      username: administrator@vsphere.local
+      password: Redhat123
+      validate_certs: no
+    register: datastore
+</code></pre></div><p>In my case I had an inventory that contained a <strong>localhost</strong> entry. Why did my inventory have a localhost entry? Who knows, but i&rsquo;ve been managing this infrastructure for about 4 years now and at some point it got added in there. For simple testing this is all we need to reproduce the error:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ cat inventory
+localhost
+</code></pre></div><p>If we run the playbook with the Ansible 2.11 execution environment then it should work fine. Note that I am including the inventory file in my command.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ansible-navigator run find_vmware_datastore.yml --eei registry.redhat.io/ansible-automation-platform-20-early-access/ee-supported-rhel8:latest  -m stdout -i inventory
+
+PLAY <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span> ************************************************************************************************************************************************************
+
+TASK <span style="color:#f92672">[</span>print ansible version<span style="color:#f92672">]</span> ************************************************************************************************************************************************
+ok: <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span> <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span>
+    <span style="color:#e6db74">&#34;ansible_version.full&#34;</span>: <span style="color:#e6db74">&#34;2.11.6&#34;</span>
+<span style="color:#f92672">}</span>
+
+TASK <span style="color:#f92672">[</span>find vmware datastore name<span style="color:#f92672">]</span> *******************************************************************************************************************************************
+<span style="color:#f92672">[</span>DEPRECATION WARNING<span style="color:#f92672">]</span>: Distribution rhel 8.5 on host localhost should use /usr/libexec/platform-python, but is using /usr/bin/python <span style="color:#66d9ef">for</span> backward compatibility with prior 
+Ansible releases. A future Ansible release will default to using the discovered platform python <span style="color:#66d9ef">for</span> this host. See https://docs.ansible.com/ansible-
+core/2.11/reference_appendices/interpreter_discovery.html <span style="color:#66d9ef">for</span> more information. This feature will be removed in version 2.12. Deprecation warnings can be disabled by 
+setting deprecation_warnings<span style="color:#f92672">=</span>False in ansible.cfg.
+ok: <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span>
+
+PLAY RECAP ******************************************************************************************************************************************************************
+localhost                  : ok<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>    changed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    unreachable<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    failed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    skipped<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    rescued<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    ignored<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+</code></pre></div><h2 id="something-changed-in-ansible-212">Something changed in Ansible 2.12</h2>
+<p>I know! It was warning me all along - if only I took notice of it. Anyway, I decided to switch up to Ansible 2.12 and started hitting some issues with the same task:</p>
+<p><strong>Note the change of EE container image in the below command. This newer container image contains ansible-core 2.12.</strong></p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-navigator run find_vmware_datastore.yml --eei registry.redhat.io/ansible-automation-platform-21/ee-supported-rhel8:latest -m stdout -i inventory
+
+PLAY <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span> ************************************************************************************************************************************************************
+
+TASK <span style="color:#f92672">[</span>print ansible version<span style="color:#f92672">]</span> ************************************************************************************************************************************************
+ok: <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span> <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span>
+    <span style="color:#e6db74">&#34;ansible_version.full&#34;</span>: <span style="color:#e6db74">&#34;2.12.1&#34;</span>
+<span style="color:#f92672">}</span>
+
+TASK <span style="color:#f92672">[</span>find vmware datastore name<span style="color:#f92672">]</span> *******************************************************************************************************************************************
+An exception occurred during task execution. To see the full traceback, use -vvv. The error was: ModuleNotFoundError: No module named <span style="color:#e6db74">&#39;requests&#39;</span>
+fatal: <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span>: FAILED! <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span><span style="color:#e6db74">&#34;ansible_facts&#34;</span>: <span style="color:#f92672">{</span><span style="color:#e6db74">&#34;discovered_interpreter_python&#34;</span>: <span style="color:#e6db74">&#34;/usr/libexec/platform-python&#34;</span><span style="color:#f92672">}</span>, <span style="color:#e6db74">&#34;changed&#34;</span>: false, <span style="color:#e6db74">&#34;msg&#34;</span>: <span style="color:#e6db74">&#34;Failed to import the required Python library (requests) on 6f19163abcf6&#39;s Python /usr/libexec/platform-python. Please read the module documentation and install it in the appropriate location. If the required library is installed, but Ansible is using the wrong Python interpreter, please consult the documentation on ansible_python_interpreter&#34;</span><span style="color:#f92672">}</span>
+
+PLAY RECAP ******************************************************************************************************************************************************************
+localhost                  : ok<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>    changed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    unreachable<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    failed<span style="color:#f92672">=</span><span style="color:#ae81ff">1</span>    skipped<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    rescued<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    ignored<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+</code></pre></div><p>The playbook stopped working!</p>
+<h2 id="what-changed">What changed?</h2>
+<p>As per the warning in Ansible 2.11 and the <a href="https://docs.ansible.com/ansible/latest/reference_appendices/interpreter_discovery.html">docs</a>, Ansible 2.12 changed the default python discovery to <strong>auto</strong>:</p>
+<p>&ldquo;Detects the target OS platform, distribution, and version, then consults a table listing the correct Python interpreter and path for each platform/distribution/version. If an entry is found, uses the discovered interpreter.&rdquo;</p>
+<p>So something has messed up the way that I am discovering python within my execution environment and this is causing me to locate the wrong python interpreter. In this instance it is finding <strong>/usr/libexec/platform-python</strong> and then fails to import the necessary python libraries to execute the VMware modules - <strong>Failed to import the required Python library (requests) on 6f19163abcf6&rsquo;s Python /usr/libexec/platform-python</strong>.</p>
+<p>The previous discovery method used <strong>auto_legacy</strong> - let&rsquo;s see if that works with Ansible 2.12:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-navigator run find_vmware_datastore.yml --eei registry.redhat.io/ansible-automation-platform-21/ee-supported-rhel8:latest -m stdout -i inventory -e <span style="color:#e6db74">&#34;ansible_python_interpreter=auto_legacy&#34;</span>
+
+PLAY <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span> ************************************************************************************************************************************************************
+
+TASK <span style="color:#f92672">[</span>print ansible version<span style="color:#f92672">]</span> ************************************************************************************************************************************************
+ok: <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span> <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span>
+    <span style="color:#e6db74">&#34;ansible_version.full&#34;</span>: <span style="color:#e6db74">&#34;2.12.1&#34;</span>
+<span style="color:#f92672">}</span>
+
+TASK <span style="color:#f92672">[</span>find vmware datastore name<span style="color:#f92672">]</span> *******************************************************************************************************************************************
+<span style="color:#f92672">[</span>WARNING<span style="color:#f92672">]</span>: Distribution rhel 8.5 on host localhost should use /usr/libexec/platform-python, but is using /usr/bin/python <span style="color:#66d9ef">for</span> backward compatibility with prior Ansible
+releases. See https://docs.ansible.com/ansible-core/2.12/reference_appendices/interpreter_discovery.html <span style="color:#66d9ef">for</span> more information
+ok: <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span>
+
+PLAY RECAP ******************************************************************************************************************************************************************
+localhost                  : ok<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>    changed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    unreachable<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    failed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    skipped<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    rescued<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    ignored<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+</code></pre></div><p>It does. But why do I need to make these changes?</p>
+<h2 id="implicit-localhost">Implicit localhost</h2>
+<p>I next stumbled upon the implicit localhost documentation. I&rsquo;ve been using Ansible for a number of years now and this has completely bypassed me. From the <a href="https://docs.ansible.com/ansible/latest/inventory/implicit_localhost.html">docs</a> -  &ldquo;When you try to reference a localhost and you don’t have it defined in inventory, Ansible will create an implicit one for you&rdquo;.</p>
+<p>Again from the docs, it will create a host entry which is equivalent to this:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">...
+
+hosts:
+  localhost:
+   vars:
+     ansible_connection: local
+     ansible_python_interpreter: <span style="color:#e6db74">&#34;{{ansible_playbook_python}}&#34;</span>
+</code></pre></div><p>Importantly, this is setting the correct ansible_python_interpreter for us.</p>
+<p>Back to they key point for me (again from the docs) -  &ldquo;You can override the built-in implicit version by creating a localhost host entry in your inventory. At that point, all implicit behaviors are ignored&rdquo;.</p>
+<p>Once again, why did I have a localhost entry in my inventory? Absolutely no idea! But, this was what was causing my issues.</p>
+<h2 id="running-the-playbook-without-localhost-in-the-inventory">Running the playbook without localhost in the inventory</h2>
+<p>Now re-running the playbook without specifying the inventory gives the correct behaviour. Ansible is now creating the correct implicit localhost entry and the playbook completes as expected.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-navigator run find_vmware_datastore.yml --eei registry.redhat.io/ansible-automation-platform-21/ee-supported-rhel8:latest -m stdout
+<span style="color:#f92672">[</span>WARNING<span style="color:#f92672">]</span>: provided hosts list is empty, only localhost is available. Note that the implicit localhost does not match <span style="color:#e6db74">&#39;all&#39;</span>
+
+PLAY <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span> ************************************************************************************************************************************************************
+
+TASK <span style="color:#f92672">[</span>print ansible version<span style="color:#f92672">]</span> ************************************************************************************************************************************************
+ok: <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span> <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span>
+    <span style="color:#e6db74">&#34;ansible_version.full&#34;</span>: <span style="color:#e6db74">&#34;2.12.1&#34;</span>
+<span style="color:#f92672">}</span>
+
+TASK <span style="color:#f92672">[</span>find vmware datastore name<span style="color:#f92672">]</span> *******************************************************************************************************************************************
+ok: <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span>
+
+PLAY RECAP ******************************************************************************************************************************************************************
+localhost                  : ok<span style="color:#f92672">=</span><span style="color:#ae81ff">2</span>    changed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    unreachable<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    failed<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    skipped<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    rescued<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>    ignored<span style="color:#f92672">=</span><span style="color:#ae81ff">0</span>
+</code></pre></div><h2 id="one-more-example-to-highlight-the-issue">One more example to highlight the issue</h2>
+<p>Just a final point to try to highlight what was happening here. This playbook will just print the hostvars for my localhost.</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">---
+
+- hosts: localhost
+  gather_facts: false
+  tasks:
+  - name: print ansible version
+    debug:
+      var: ansible_version.full
+     
+  - name: print localhost hostvars
+    debug:
+      msg: <span style="color:#e6db74">&#34;{{ hostvars[&#39;localhost&#39;] }}&#34;</span>
+</code></pre></div><p>With an inventory file containing a <strong>localhost</strong> entry:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-navigator run show_localhost_vars.yml --eei registry.redhat.io/ansible-automation-platform-21/ee-supported-rhel8:latest -m stdout -i inventory
+
+PLAY <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span> ************************************************************************************************************************************************************
+
+TASK <span style="color:#f92672">[</span>print ansible version<span style="color:#f92672">]</span> ************************************************************************************************************************************************
+ok: <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span> <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span>
+    <span style="color:#e6db74">&#34;ansible_version.full&#34;</span>: <span style="color:#e6db74">&#34;2.12.1&#34;</span>
+<span style="color:#f92672">}</span>
+
+TASK <span style="color:#f92672">[</span>print localhost hostvars<span style="color:#f92672">]</span> *********************************************************************************************************************************************
+ok: <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span> <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span>
+    <span style="color:#e6db74">&#34;msg&#34;</span>: <span style="color:#f92672">{</span>
+        <span style="color:#e6db74">&#34;ansible_check_mode&#34;</span>: false,
+        <span style="color:#e6db74">&#34;ansible_config_file&#34;</span>: <span style="color:#e6db74">&#34;/etc/ansible/ansible.cfg&#34;</span>,
+        <span style="color:#e6db74">&#34;ansible_diff_mode&#34;</span>: false,
+        <span style="color:#e6db74">&#34;ansible_facts&#34;</span>: <span style="color:#f92672">{}</span>,
+        <span style="color:#e6db74">&#34;ansible_forks&#34;</span>: 5,
+        <span style="color:#e6db74">&#34;ansible_inventory_sources&#34;</span>: <span style="color:#f92672">[</span>
+            <span style="color:#e6db74">&#34;/tmp/inventory&#34;</span>
+        <span style="color:#f92672">]</span>,
+        <span style="color:#e6db74">&#34;ansible_playbook_python&#34;</span>: <span style="color:#e6db74">&#34;/usr/bin/python3.8&#34;</span>,
+
+   &lt; Output Truncated&gt;
+</code></pre></div><p>Note that we don&rsquo;t have a variable set for <strong>ansible_python_interpreter</strong>.</p>
+<p>Running it again without an inventory containing localhost allows Ansible to create the entry for us:</p>
+<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-navigator run show_localhost_vars.yml --eei registry.redhat.io/ansible-automation-platform-21/ee-supported-rhel8:latest -m stdout 
+
+PLAY <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span> ************************************************************************************************************************************************************
+
+TASK <span style="color:#f92672">[</span>print ansible version<span style="color:#f92672">]</span> ************************************************************************************************************************************************
+ok: <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span> <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span>
+    <span style="color:#e6db74">&#34;ansible_version.full&#34;</span>: <span style="color:#e6db74">&#34;2.12.1&#34;</span>
+<span style="color:#f92672">}</span>
+
+TASK <span style="color:#f92672">[</span>print localhost hostvars<span style="color:#f92672">]</span> *********************************************************************************************************************************************
+ok: <span style="color:#f92672">[</span>localhost<span style="color:#f92672">]</span> <span style="color:#f92672">=</span>&gt; <span style="color:#f92672">{</span>
+    <span style="color:#e6db74">&#34;msg&#34;</span>: <span style="color:#f92672">{</span>
+        <span style="color:#e6db74">&#34;ansible_check_mode&#34;</span>: false,
+        <span style="color:#e6db74">&#34;ansible_config_file&#34;</span>: <span style="color:#e6db74">&#34;/etc/ansible/ansible.cfg&#34;</span>,
+        <span style="color:#e6db74">&#34;ansible_connection&#34;</span>: <span style="color:#e6db74">&#34;local&#34;</span>,
+        <span style="color:#e6db74">&#34;ansible_diff_mode&#34;</span>: false,
+        <span style="color:#e6db74">&#34;ansible_facts&#34;</span>: <span style="color:#f92672">{}</span>,
+        <span style="color:#e6db74">&#34;ansible_forks&#34;</span>: 5,
+        <span style="color:#e6db74">&#34;ansible_inventory_sources&#34;</span>: <span style="color:#f92672">[</span>
+            <span style="color:#e6db74">&#34;/etc/ansible/hosts&#34;</span>
+        <span style="color:#f92672">]</span>,
+        <span style="color:#e6db74">&#34;ansible_playbook_python&#34;</span>: <span style="color:#e6db74">&#34;/usr/bin/python3.8&#34;</span>,
+        <span style="color:#e6db74">&#34;ansible_python_interpreter&#34;</span>: <span style="color:#e6db74">&#34;/usr/bin/python3.8&#34;</span>,
+</code></pre></div><p>Now we have the correct <strong>ansible_python_interpreter</strong> set.</p>
+<h2 id="summary">Summary</h2>
+<p>A combination of things caused a change in behaviour in my ansible playbook:</p>
+<ul>
+<li>Ansible 2.12 now uses auto as the default discovery method for python interpreter.</li>
+<li>I had a localhost entry in my inventory.</li>
+</ul>
+<p>In my case, I just removed localhost from my inventory file. In <a href="https://www.ansible.com/products/controller">Automation Controller</a> I removed it from the inventory there. If for some reason you need a localhost entry in your inventory, be prepared to set some additional variables to mimic the behaviour of implicit localhost.</p>
+
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://cloudautomation.pharriso.co.uk/tags/ansible/">ansible</a>&nbsp;
+            
+          </div>
+        
+
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">See also</h4>
+                  <ul>
+                
+                
+                    <li><a href="/post/ansible-builder-disconnected/">ansible-builder in a disconnected environment</a></li>
+                
+                    <li><a href="/post/molecule-vm-create/">Using Molecule for VM provisioning roles</a></li>
+                
+                    <li><a href="/post/vmware-molecule/">Testing Ansible roles with Molecule and VMware</a></li>
+                
+                    <li><a href="/post/foreman_filtering/">Filtering hosts with the Satellite inventory plugin for Ansible</a></li>
+                
+                    <li><a href="/post/vmware_filter_tags/">Ansible VMware Dynamic Inventory - Filter on tags</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://cloudautomation.pharriso.co.uk/post/ansible-builder-disconnected/" data-toggle="tooltip" data-placement="top" title="ansible-builder in a disconnected environment">&larr; Previous Post</a>
+            </li>
+          
+          
+        </ul>
+      
+
+
+      
+        
+          
+          <div class="disqus-comments">                  
+            <button id="show-comments" class="btn btn-default" type="button">Show <span class="disqus-comment-count" data-disqus-url="https://cloudautomation.pharriso.co.uk/post/implicit_localhost">comments</span></button>
+            <div id="disqus_thread"></div>
+
+            <script type="text/javascript">
+              var disqus_config = function () {
+              this.page.url = 'https:\/\/cloudautomation.pharriso.co.uk\/post\/implicit_localhost';
+            };
+
+          </script>
+          </div>
+          
+        
+        
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="https://github.com/pharriso" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://gitlab.com/pharriso" title="GitLab">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fab fa-gitlab fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://twitter.com/patharrison_esq" title="Twitter">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fab fa-twitter fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/pharriso" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              Pat Harrison
+            
+          
+
+          &nbsp;&bull;&nbsp;&copy;
+          
+            2022
+          
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://cloudautomation.pharriso.co.uk">Cloud and Automation</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="https://gohugo.io">Hugo v0.80.0</a> powered &nbsp;&bull;&nbsp; Theme <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> adapted from <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<script src="https://cloudautomation.pharriso.co.uk/js/main.js"></script>
+<script src="https://cloudautomation.pharriso.co.uk/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script><script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" integrity="sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" integrity="sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q" crossorigin="anonymous"></script><script src="https://cloudautomation.pharriso.co.uk/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(function(){
+  $('#show-comments').on('click', function(){
+    var disqus_shortname = 'cloudautomation';
+      
+    (function() {
+      var disqus = document.createElement('script'); 
+      disqus.type = 'text/javascript'; 
+      disqus.async = true;
+      disqus.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(disqus);
+    })();
+      
+    $(this).hide(); 
+    });
+  });
+      
+</script>
+<script id="dsq-count-scr" src="//cloudautomation.disqus.com/count.js" async></script>
+
+
+
+
+    
+  </body>
+</html>
+

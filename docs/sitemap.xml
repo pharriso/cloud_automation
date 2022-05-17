@@ -3,8 +3,28 @@
   xmlns:xhtml="http://www.w3.org/1999/xhtml">
   
   <url>
+    <loc>https://cloudautomation.pharriso.co.uk/post/implicit_localhost/</loc>
+    <lastmod>2022-05-16T21:39:03+01:00</lastmod>
+  </url>
+  
+  <url>
     <loc>https://cloudautomation.pharriso.co.uk/tags/ansible/</loc>
-    <lastmod>2022-04-01T21:07:28+01:00</lastmod>
+    <lastmod>2022-05-16T21:39:03+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://cloudautomation.pharriso.co.uk/</loc>
+    <lastmod>2022-05-16T21:39:03+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://cloudautomation.pharriso.co.uk/post/</loc>
+    <lastmod>2022-05-16T21:39:03+01:00</lastmod>
+  </url>
+  
+  <url>
+    <loc>https://cloudautomation.pharriso.co.uk/tags/</loc>
+    <lastmod>2022-05-16T21:39:03+01:00</lastmod>
   </url>
   
   <url>
@@ -18,22 +38,7 @@
   </url>
   
   <url>
-    <loc>https://cloudautomation.pharriso.co.uk/</loc>
-    <lastmod>2022-04-01T21:07:28+01:00</lastmod>
-  </url>
-  
-  <url>
     <loc>https://cloudautomation.pharriso.co.uk/tags/execution-environments/</loc>
-    <lastmod>2022-04-01T21:07:28+01:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://cloudautomation.pharriso.co.uk/post/</loc>
-    <lastmod>2022-04-01T21:07:28+01:00</lastmod>
-  </url>
-  
-  <url>
-    <loc>https://cloudautomation.pharriso.co.uk/tags/</loc>
     <lastmod>2022-04-01T21:07:28+01:00</lastmod>
   </url>
   

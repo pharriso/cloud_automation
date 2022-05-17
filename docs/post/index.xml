@@ -5,7 +5,18 @@
     <link>https://cloudautomation.pharriso.co.uk/post/</link>
     <description>Recent content in Posts on Cloud and Automation</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Fri, 01 Apr 2022 21:07:28 +0100</lastBuildDate><atom:link href="https://cloudautomation.pharriso.co.uk/post/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Mon, 16 May 2022 21:39:03 +0100</lastBuildDate><atom:link href="https://cloudautomation.pharriso.co.uk/post/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>A journey with Ansible 2.12, implicit localhost and python discovery</title>
+      <link>https://cloudautomation.pharriso.co.uk/post/implicit_localhost/</link>
+      <pubDate>Mon, 16 May 2022 21:39:03 +0100</pubDate>
+      
+      <guid>https://cloudautomation.pharriso.co.uk/post/implicit_localhost/</guid>
+      <description>I recently upgraded to Ansible 2.12 and a couple of my playbooks stopped working. This seems to be down to a change in python discovery and if you have made the same mistakes as me, you&amp;rsquo;ll hit a similar issue. I thought I would write up my findings in case it helps anyone else.
+HINT you&amp;rsquo;ve probably got an entry for localhost in your inventory!!
+Everything was working in Ansible 2.</description>
+    </item>
+    
     <item>
       <title>ansible-builder in a disconnected environment</title>
       <link>https://cloudautomation.pharriso.co.uk/post/ansible-builder-disconnected/</link>
