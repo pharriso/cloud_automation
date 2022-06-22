@@ -41,7 +41,6 @@ googleAnalytics = "UA-131924821-2"
   github = "pharriso"
   gitlab = "pharriso"
   linkedin = "pharriso"
-  twitter = "patharrison_esq"
 
 [[menu.main]]
     name = "Blog"
