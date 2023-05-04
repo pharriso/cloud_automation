@@ -45,7 +45,7 @@
         "position": 3,
         "item": {
           "@id": "https:\/\/cloudautomation.pharriso.co.uk\/post\/vmware_filter_tags\/",
-          "name": "Ansible v mware dynamic inventory filter on tags"
+          "name": "Ansible vmware dynamic inventory filter on tags"
         }
     }]
 }
@@ -88,7 +88,7 @@
   <meta name="twitter:description" content="I&rsquo;ve written about dynamic inventories before and why they are useful both around constructed inventory plugins and on ansible.com/blog around the servicenow plugin - so I won&rsquo;t repeat it …">
   <meta name="twitter:card" content="summary" />
   <link href='https://cloudautomation.pharriso.co.uk/img/favicon.ico' rel='icon' type='image/x-icon'/>
-  <meta name="generator" content="Hugo 0.80.0" />
+  <meta name="generator" content="Hugo 0.98.0" />
   <link rel="alternate" href="https://cloudautomation.pharriso.co.uk/index.xml" type="application/rss+xml" title="Cloud and Automation"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"><link rel="stylesheet" href="https://cloudautomation.pharriso.co.uk/css/main.css" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
@@ -267,110 +267,110 @@ if (!doNotTrack) {
 <h3 id="setting-up-a-python-virtualenv">Setting up a Python virtualenv</h3>
 <p>Our end goal here is to use this inventory plugin from Ansible Tower. In order to collect information on tags from vCenter we need to install an additional python module. We don&rsquo;t want to start installing 3rd party python modules in our core Ansible Tower python virtualenv, so we are going to do this in a <a href="https://docs.ansible.com/ansible-tower/latest/html/upgrade-migration-guide/virtualenv.html">separate virtual environment</a>.</p>
 <p>To show the steps I took to create the virtualenv:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ sudo python3 -m venv /opt/my-envs/vmware_filter_inventory
-$ sudo /opt/my-envs/vmware_filter_inventory/bin/pip install psutil
-$ sudo /opt/my-envs/vmware_filter_inventory/bin/pip install -U <span style="color:#e6db74">&#34;ansible == 2.9.11&#34;</span>
-$ sudo /opt/my-envs/vmware_filter_inventory/bin/pip install PyVmomi
-$ sudo /opt/my-envs/vmware_filter_inventory/bin/pip install --upgrade setuptools pip
-$ sudo /opt/my-envs/vmware_filter_inventory/bin/pip install --upgrade git+https://github.com/vmware/vsphere-automation-sdk-python.git
-</code></pre></div><h3 id="using-the-inventory-from-the-cli">Using the inventory from the CLI</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ sudo python3 -m venv /opt/my-envs/vmware_filter_inventory
+</span></span><span style="display:flex;"><span>$ sudo /opt/my-envs/vmware_filter_inventory/bin/pip install psutil
+</span></span><span style="display:flex;"><span>$ sudo /opt/my-envs/vmware_filter_inventory/bin/pip install -U <span style="color:#e6db74">&#34;ansible == 2.9.11&#34;</span>
+</span></span><span style="display:flex;"><span>$ sudo /opt/my-envs/vmware_filter_inventory/bin/pip install PyVmomi
+</span></span><span style="display:flex;"><span>$ sudo /opt/my-envs/vmware_filter_inventory/bin/pip install --upgrade setuptools pip
+</span></span><span style="display:flex;"><span>$ sudo /opt/my-envs/vmware_filter_inventory/bin/pip install --upgrade git+https://github.com/vmware/vsphere-automation-sdk-python.git
+</span></span></code></pre></div><h3 id="using-the-inventory-from-the-cli">Using the inventory from the CLI</h3>
 <p>To test the plugin from the command line we can create a file called vmware.yml with the following contents. I know the credentials are in plaintext here - we are going to fix that when we run it from Ansible Tower.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">plugin: community.vmware.vmware_vm_inventory
-strict: False
-hostname: vcenter.demolab.local
-username: administrator@vsphere.local
-password: Password123
-validate_certs: False
-with_tags: true
-properties:
-  - runtime.powerState
-  - config.name
-  - config.guestId
-filters:
-  - <span style="color:#e6db74">&#34;&#39;ansible_managed&#39; in tags&#34;</span>
-hostnames:
-  - config.name
-keyed_groups:
-  - key: config.guestId
-    separator: <span style="color:#e6db74">&#39;&#39;</span>
-  - key: tags
-    separator: <span style="color:#e6db74">&#39;&#39;</span>
-</code></pre></div><p>Note how we are asking for the tags to be returned and then filtering any hosts which only have a tag that matches &ldquo;ansible_managed&rdquo;. To run this from the CLI we first need to source the virtualenv:</p>
-<pre><code>$ source /opt/my-envs/vmware_filter_inventory/bin/activate
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>plugin: community.vmware.vmware_vm_inventory
+</span></span><span style="display:flex;"><span>strict: False
+</span></span><span style="display:flex;"><span>hostname: vcenter.demolab.local
+</span></span><span style="display:flex;"><span>username: administrator@vsphere.local
+</span></span><span style="display:flex;"><span>password: Password123
+</span></span><span style="display:flex;"><span>validate_certs: False
+</span></span><span style="display:flex;"><span>with_tags: true
+</span></span><span style="display:flex;"><span>properties:
+</span></span><span style="display:flex;"><span>  - runtime.powerState
+</span></span><span style="display:flex;"><span>  - config.name
+</span></span><span style="display:flex;"><span>  - config.guestId
+</span></span><span style="display:flex;"><span>filters:
+</span></span><span style="display:flex;"><span>  - <span style="color:#e6db74">&#34;&#39;ansible_managed&#39; in tags&#34;</span>
+</span></span><span style="display:flex;"><span>hostnames:
+</span></span><span style="display:flex;"><span>  - config.name
+</span></span><span style="display:flex;"><span>keyed_groups:
+</span></span><span style="display:flex;"><span>  - key: config.guestId
+</span></span><span style="display:flex;"><span>    separator: <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>  - key: tags
+</span></span><span style="display:flex;"><span>    separator: <span style="color:#e6db74">&#39;&#39;</span>
+</span></span></code></pre></div><p>Note how we are asking for the tags to be returned and then filtering any hosts which only have a tag that matches &ldquo;ansible_managed&rdquo;. To run this from the CLI we first need to source the virtualenv:</p>
+<pre tabindex="0"><code>$ source /opt/my-envs/vmware_filter_inventory/bin/activate
 </code></pre><p>Let&rsquo;s run it and see what we get.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ansible-inventory -i vmware.yml --list
-<span style="color:#f92672">{</span>
-    <span style="color:#e6db74">&#34;_meta&#34;</span>: <span style="color:#f92672">{</span>
-        <span style="color:#e6db74">&#34;hostvars&#34;</span>: <span style="color:#f92672">{</span>
-            <span style="color:#e6db74">&#34;idmv.demolab.local&#34;</span>: <span style="color:#f92672">{</span>
-                <span style="color:#e6db74">&#34;config.guestId&#34;</span>: <span style="color:#e6db74">&#34;rhel8_64Guest&#34;</span>,
-                <span style="color:#e6db74">&#34;config.name&#34;</span>: <span style="color:#e6db74">&#34;idmv.demolab.local&#34;</span>,
-                <span style="color:#e6db74">&#34;runtime.powerState&#34;</span>: <span style="color:#e6db74">&#34;poweredOn&#34;</span>,
-                <span style="color:#e6db74">&#34;tags&#34;</span>: <span style="color:#f92672">[</span>
-                    <span style="color:#e6db74">&#34;ansible_managed&#34;</span>
-                <span style="color:#f92672">]</span>
-            <span style="color:#f92672">}</span>,
-            <span style="color:#e6db74">&#34;prod-web10.demolab.local&#34;</span>: <span style="color:#f92672">{</span>
-                <span style="color:#e6db74">&#34;config.guestId&#34;</span>: <span style="color:#e6db74">&#34;rhel8_64Guest&#34;</span>,
-                <span style="color:#e6db74">&#34;config.name&#34;</span>: <span style="color:#e6db74">&#34;prod-web10.demolab.local&#34;</span>,
-                <span style="color:#e6db74">&#34;runtime.powerState&#34;</span>: <span style="color:#e6db74">&#34;poweredOn&#34;</span>,
-                <span style="color:#e6db74">&#34;tags&#34;</span>: <span style="color:#f92672">[</span>
-                    <span style="color:#e6db74">&#34;ansible_managed&#34;</span>
-                <span style="color:#f92672">]</span>
-            <span style="color:#f92672">}</span>,
-            <span style="color:#e6db74">&#34;rhv-m.demolab.local&#34;</span>: <span style="color:#f92672">{</span>
-                <span style="color:#e6db74">&#34;config.guestId&#34;</span>: <span style="color:#e6db74">&#34;rhel8_64Guest&#34;</span>,
-                <span style="color:#e6db74">&#34;config.name&#34;</span>: <span style="color:#e6db74">&#34;rhv-m.demolab.local&#34;</span>,
-                <span style="color:#e6db74">&#34;runtime.powerState&#34;</span>: <span style="color:#e6db74">&#34;poweredOn&#34;</span>,
-                <span style="color:#e6db74">&#34;tags&#34;</span>: <span style="color:#f92672">[</span>
-                    <span style="color:#e6db74">&#34;ansible_managed&#34;</span>
-                <span style="color:#f92672">]</span>
-            <span style="color:#f92672">}</span>
-        <span style="color:#f92672">}</span>
-    <span style="color:#f92672">}</span>,
-    <span style="color:#e6db74">&#34;all&#34;</span>: <span style="color:#f92672">{</span>
-        <span style="color:#e6db74">&#34;children&#34;</span>: <span style="color:#f92672">[</span>
-            <span style="color:#e6db74">&#34;rhel8_64Guest&#34;</span>,
-            <span style="color:#e6db74">&#34;ungrouped&#34;</span>
-        <span style="color:#f92672">]</span>
-    <span style="color:#f92672">}</span>,
-    <span style="color:#e6db74">&#34;rhel8_64Guest&#34;</span>: <span style="color:#f92672">{</span>
-        <span style="color:#e6db74">&#34;hosts&#34;</span>: <span style="color:#f92672">[</span>
-            <span style="color:#e6db74">&#34;idmv.demolab.local&#34;</span>,
-            <span style="color:#e6db74">&#34;prod-web10.demolab.local&#34;</span>,
-            <span style="color:#e6db74">&#34;rhv-m.demolab.local&#34;</span>
-        <span style="color:#f92672">]</span>
-    <span style="color:#f92672">}</span>
-<span style="color:#f92672">}</span>
-</code></pre></div><p>Great! We only see the hosts which have the <strong>ansible_managed</strong> tag.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ ansible-inventory -i vmware.yml --list
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;_meta&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;hostvars&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;idmv.demolab.local&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;config.guestId&#34;</span>: <span style="color:#e6db74">&#34;rhel8_64Guest&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;config.name&#34;</span>: <span style="color:#e6db74">&#34;idmv.demolab.local&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;runtime.powerState&#34;</span>: <span style="color:#e6db74">&#34;poweredOn&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;tags&#34;</span>: <span style="color:#f92672">[</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#e6db74">&#34;ansible_managed&#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;prod-web10.demolab.local&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;config.guestId&#34;</span>: <span style="color:#e6db74">&#34;rhel8_64Guest&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;config.name&#34;</span>: <span style="color:#e6db74">&#34;prod-web10.demolab.local&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;runtime.powerState&#34;</span>: <span style="color:#e6db74">&#34;poweredOn&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;tags&#34;</span>: <span style="color:#f92672">[</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#e6db74">&#34;ansible_managed&#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;rhv-m.demolab.local&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;config.guestId&#34;</span>: <span style="color:#e6db74">&#34;rhel8_64Guest&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;config.name&#34;</span>: <span style="color:#e6db74">&#34;rhv-m.demolab.local&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;runtime.powerState&#34;</span>: <span style="color:#e6db74">&#34;poweredOn&#34;</span>,
+</span></span><span style="display:flex;"><span>                <span style="color:#e6db74">&#34;tags&#34;</span>: <span style="color:#f92672">[</span>
+</span></span><span style="display:flex;"><span>                    <span style="color:#e6db74">&#34;ansible_managed&#34;</span>
+</span></span><span style="display:flex;"><span>                <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;all&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;children&#34;</span>: <span style="color:#f92672">[</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;rhel8_64Guest&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;ungrouped&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;rhel8_64Guest&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;hosts&#34;</span>: <span style="color:#f92672">[</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;idmv.demolab.local&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;prod-web10.demolab.local&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;rhv-m.demolab.local&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">]</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>Great! We only see the hosts which have the <strong>ansible_managed</strong> tag.</p>
 <h3 id="using-the-inventory-in-tower">Using the inventory in Tower</h3>
 <p>I already wrote a blog post on ansible.com/blog on how you can <a href="https://www.ansible.com/blog/using-an-inventory-plugin-from-a-collection-in-ansible-tower">use inventory plugins from collections in Ansible Tower</a> so I&rsquo;m not going to explain it all again here. All of the steps you need to set this up are below but if you want more details on the process then please read the blog post.</p>
 <p>In our git repo we need to add the vmware.yml inventory plugin configuration and also a collections/requirements.yml file that allows Tower to pull in the inventory plugin from the <strong>community.vmware</strong> collection.</p>
 <p>The <strong>vmware.yml</strong> file - NOTE how the credentials have been removed here. We don&rsquo;t want credentials in plaintext!</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">plugin: community.vmware.vmware_vm_inventory
-strict: False
-validate_certs: False
-with_tags: true
-properties:
-  - runtime.powerState
-  - config.name
-  - config.guestId
-filters:
-  - <span style="color:#e6db74">&#34;&#39;ansible_managed&#39; in tags&#34;</span>
-hostnames:
-  - config.name
-keyed_groups:
-  - key: config.guestId
-    separator: <span style="color:#e6db74">&#39;&#39;</span>
-  - key: tags
-    separator: <span style="color:#e6db74">&#39;&#39;</span>
-</code></pre></div><p>And the <strong>collections/requirements.yml</strong> file - this simply allows Tower to automatically download the collection for us so we can use the inventory plugin:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">---
-collections:
-
-- name: community.vmware
-  source: https://galaxy.ansible.com
-</code></pre></div><p>Now create a project in Tower that maps to this git repo. In my case:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>plugin: community.vmware.vmware_vm_inventory
+</span></span><span style="display:flex;"><span>strict: False
+</span></span><span style="display:flex;"><span>validate_certs: False
+</span></span><span style="display:flex;"><span>with_tags: true
+</span></span><span style="display:flex;"><span>properties:
+</span></span><span style="display:flex;"><span>  - runtime.powerState
+</span></span><span style="display:flex;"><span>  - config.name
+</span></span><span style="display:flex;"><span>  - config.guestId
+</span></span><span style="display:flex;"><span>filters:
+</span></span><span style="display:flex;"><span>  - <span style="color:#e6db74">&#34;&#39;ansible_managed&#39; in tags&#34;</span>
+</span></span><span style="display:flex;"><span>hostnames:
+</span></span><span style="display:flex;"><span>  - config.name
+</span></span><span style="display:flex;"><span>keyed_groups:
+</span></span><span style="display:flex;"><span>  - key: config.guestId
+</span></span><span style="display:flex;"><span>    separator: <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>  - key: tags
+</span></span><span style="display:flex;"><span>    separator: <span style="color:#e6db74">&#39;&#39;</span>
+</span></span></code></pre></div><p>And the <strong>collections/requirements.yml</strong> file - this simply allows Tower to automatically download the collection for us so we can use the inventory plugin:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>---
+</span></span><span style="display:flex;"><span>collections:
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>- name: community.vmware
+</span></span><span style="display:flex;"><span>  source: https://galaxy.ansible.com
+</span></span></code></pre></div><p>Now create a project in Tower that maps to this git repo. In my case:</p>
 <p><img src="/images/vmware_inventory_project.png" alt=""></p>
 <p>Create a VMware credential in Tower. We removed the VMware credentials from the yaml file because we didn&rsquo;t want them in plaintext. Tower will automatically inject the VMware credentials when we sync the inventory as long as we map a valid VMware credential to it. The VMware credential type is shipped with Tower so we just need to fill in the vCenter hostname, username and password:</p>
 <p><img src="/images/vmware_credential.png" alt=""></p>
@@ -412,6 +412,8 @@ collections:
                   <ul>
                 
                 
+                    <li><a href="/post/aap_snow_spoke/">Using the ServiceNow Ansible Spoke</a></li>
+                
                     <li><a href="/post/implicit_localhost/">A journey with Ansible 2.12, implicit localhost and python discovery</a></li>
                 
                     <li><a href="/post/ansible-builder-disconnected/">ansible-builder in a disconnected environment</a></li>
@@ -419,8 +421,6 @@ collections:
                     <li><a href="/post/molecule-vm-create/">Using Molecule for VM provisioning roles</a></li>
                 
                     <li><a href="/post/vmware-molecule/">Testing Ansible roles with Molecule and VMware</a></li>
-                
-                    <li><a href="/post/foreman_filtering/">Filtering hosts with the Satellite inventory plugin for Ansible</a></li>
                 
               </ul>
 
@@ -509,7 +509,7 @@ collections:
 
           &nbsp;&bull;&nbsp;&copy;
           
-            2022
+            2023
           
 
           
@@ -519,7 +519,7 @@ collections:
         </p>
         
         <p class="credits theme-by text-muted">
-          <a href="https://gohugo.io">Hugo v0.80.0</a> powered &nbsp;&bull;&nbsp; Theme <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> adapted from <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          <a href="https://gohugo.io">Hugo v0.98.0</a> powered &nbsp;&bull;&nbsp; Theme <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> adapted from <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
           
         </p>
       </div>

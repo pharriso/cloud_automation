@@ -90,7 +90,7 @@
   <meta name="twitter:description" content="Another post on inventory filtering in Ansible - this time for Red Hat Satellite. I&rsquo;ve written about inventories and filtering in a few places so for some background information you can read …">
   <meta name="twitter:card" content="summary" />
   <link href='https://cloudautomation.pharriso.co.uk/img/favicon.ico' rel='icon' type='image/x-icon'/>
-  <meta name="generator" content="Hugo 0.80.0" />
+  <meta name="generator" content="Hugo 0.98.0" />
   <link rel="alternate" href="https://cloudautomation.pharriso.co.uk/index.xml" type="application/rss+xml" title="Cloud and Automation"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"><link rel="stylesheet" href="https://cloudautomation.pharriso.co.uk/css/main.css" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
@@ -268,149 +268,148 @@ if (!doNotTrack) {
 <p>I was helping a colleague out with how to filter Satellite hosts with the Ansible inventory plugin and he commented that there weren&rsquo;t any real examples out there. It then struck me that I couldn&rsquo;t remember much on the subject myself! So it was worth just writing this up quickly as a reminder for me if for no-one else. <a href="https://www.redhat.com/en/technologies/management/satellite">Red Hat Satellite</a> is a tool that customers use to manage RHEL content and patching of RHEL servers. RHEL servers are registered to Satellite and so it is often a very useful &ldquo;Source of Truth&rdquo;.</p>
 <h3 id="getting-started-with-the-plugin">Getting started with the plugin</h3>
 <p>Let&rsquo;s take a look at the inventory plugin for Red Hat Satellite. We ship the plugin with Ansible 2.9 but it is also a supported plugin from the redhat.satellite collection on <a href="cloud.redhat.com">cloud.redhat.com</a>. So how do we use the inventory plugin and what parameters can we set? <strong>ansible-doc</strong> is our friend here. <strong>Note</strong> that the plugin is called <strong>foreman</strong> because this is the name of one of the upstream projects for Red Hat Satellite. To query the inventory plugin docs run:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-doc -t inventory foreman
-</code></pre></div><p>If you intend to run the plugin from the Red Hat Satellite collection then you need the fully qualified collection name. For the officially supported Red Hat Satellite collection this would be:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-doc -t inventory redhat.satellite.foreman
-</code></pre></div><p>Let&rsquo;s just get the plugin working and verify the information it returns. Create the <strong>foreman.yml</strong> file with the following contents - don&rsquo;t worry about the credentials being in plaintext yet. We can fix that later in Tower. I&rsquo;m going to use the certified and supported Red Hat Satellite foreman plugin here - again note the fully qualified collection name:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cat foreman.yml
-<span style="color:#75715e"># foreman.yml</span>
-plugin: redhat.satellite.foreman
-validate_certs: False
-url: https://sat6.example.com
-user: ansible
-password: Redhat123
-</code></pre></div><p>Now run the plugin. First, let&rsquo;s see the groups that are returned:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-inventory -i foreman.yml --graph
-@all:
-  |--@foreman_dev_web:
-  |  |--dev-web1.example.com
-  |--@foreman_prod_haproxy:
-  |  |--lb.example.com
-  |--@foreman_prod_web:
-  |  |--prod-web1.example.com
-  |  |--prod-web2.example.com
-  |--@ungrouped:
-</code></pre></div><p>Next let&rsquo;s look at the variables that are being returned for one of these servers. In this instance prod-web2.example.com:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-inventory -i foreman.yml --host prod-web2.example.com
-
-<span style="color:#e6db74">&#34;foreman_architecture_name&#34;</span>: <span style="color:#e6db74">&#34;x86_64&#34;</span>,
-    <span style="color:#e6db74">&#34;foreman_build&#34;</span>: false,
-    <span style="color:#e6db74">&#34;foreman_capabilities&#34;</span>: <span style="color:#f92672">[</span>
-        <span style="color:#e6db74">&#34;build&#34;</span>
-    <span style="color:#f92672">]</span>,
-    <span style="color:#e6db74">&#34;foreman_certname&#34;</span>: <span style="color:#e6db74">&#34;prod-web2.example.com&#34;</span>,
-    <span style="color:#e6db74">&#34;foreman_comment&#34;</span>: null,
-    <span style="color:#e6db74">&#34;foreman_compliance_status&#34;</span>: 0,
-    <span style="color:#e6db74">&#34;foreman_compliance_status_label&#34;</span>: <span style="color:#e6db74">&#34;Compliant&#34;</span>,
-    <span style="color:#e6db74">&#34;foreman_compute_profile_id&#34;</span>: null,
-    <span style="color:#e6db74">&#34;foreman_compute_profile_name&#34;</span>: null,
-    <span style="color:#e6db74">&#34;foreman_compute_resource_id&#34;</span>: null,
-    <span style="color:#e6db74">&#34;foreman_compute_resource_name&#34;</span>: null,
-    <span style="color:#e6db74">&#34;foreman_content_facet_attributes&#34;</span>: <span style="color:#f92672">{</span>
-        <span style="color:#e6db74">&#34;applicable_module_stream_count&#34;</span>: 0,
-        <span style="color:#e6db74">&#34;applicable_package_count&#34;</span>: 0,
-        <span style="color:#e6db74">&#34;content_source&#34;</span>: <span style="color:#f92672">{</span>
-            <span style="color:#e6db74">&#34;id&#34;</span>: 1,
-            <span style="color:#e6db74">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;sat6.example.com&#34;</span>,
-            <span style="color:#e6db74">&#34;url&#34;</span>: <span style="color:#e6db74">&#34;https://sat6.example.com:9090&#34;</span>
-        <span style="color:#f92672">}</span>,
-        <span style="color:#e6db74">&#34;content_source_id&#34;</span>: 1,
-        <span style="color:#e6db74">&#34;content_source_name&#34;</span>: <span style="color:#e6db74">&#34;sat6.example.com&#34;</span>,
-        <span style="color:#e6db74">&#34;content_view&#34;</span>: <span style="color:#f92672">{</span>
-            <span style="color:#e6db74">&#34;id&#34;</span>: 7,
-            <span style="color:#e6db74">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;rhel8&#34;</span>
-        <span style="color:#f92672">}</span>,
-        <span style="color:#e6db74">&#34;content_view_id&#34;</span>: 7,
-        <span style="color:#e6db74">&#34;content_view_name&#34;</span>: <span style="color:#e6db74">&#34;rhel8&#34;</span>,
-        <span style="color:#e6db74">&#34;errata_counts&#34;</span>: <span style="color:#f92672">{</span>
-            <span style="color:#e6db74">&#34;bugfix&#34;</span>: 0,
-            <span style="color:#e6db74">&#34;enhancement&#34;</span>: 0,
-            <span style="color:#e6db74">&#34;security&#34;</span>: 0,
-            <span style="color:#e6db74">&#34;total&#34;</span>: <span style="color:#ae81ff">0</span>
-        <span style="color:#f92672">}</span>,
-        <span style="color:#e6db74">&#34;lifecycle_environment_name&#34;</span>: <span style="color:#e6db74">&#34;Prod&#34;</span>
-
-....
-</code></pre></div><p>The above output is truncated, but you can see the type of data that Satellite returns. It is possible to modify the behaviour of the plugin, for example to filter certain hosts that we might not need to automate against. We also might want to create additional groups based on the information that is returned from Satellite. As per the ansible-doc output, we can use the following parameters to do this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">- host_filters
-        This can be used to restrict the list of returned host
-        <span style="color:#f92672">[</span>Default: <span style="color:#f92672">(</span>null<span style="color:#f92672">)]</span>
-        type: string
-
-- keyed_groups
-        Add hosts to group based on the values of a variable.
-        <span style="color:#f92672">[</span>Default: <span style="color:#f92672">[]]</span>
-        type: list
-</code></pre></div><h3 id="adding-groups">Adding Groups</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ansible-doc -t inventory foreman
+</span></span></code></pre></div><p>If you intend to run the plugin from the Red Hat Satellite collection then you need the fully qualified collection name. For the officially supported Red Hat Satellite collection this would be:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ansible-doc -t inventory redhat.satellite.foreman
+</span></span></code></pre></div><p>Let&rsquo;s just get the plugin working and verify the information it returns. Create the <strong>foreman.yml</strong> file with the following contents - don&rsquo;t worry about the credentials being in plaintext yet. We can fix that later in Tower. I&rsquo;m going to use the certified and supported Red Hat Satellite foreman plugin here - again note the fully qualified collection name:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat foreman.yml
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># foreman.yml</span>
+</span></span><span style="display:flex;"><span>plugin: redhat.satellite.foreman
+</span></span><span style="display:flex;"><span>validate_certs: False
+</span></span><span style="display:flex;"><span>url: https://sat6.example.com
+</span></span><span style="display:flex;"><span>user: ansible
+</span></span><span style="display:flex;"><span>password: Redhat123
+</span></span></code></pre></div><p>Now run the plugin. First, let&rsquo;s see the groups that are returned:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ansible-inventory -i foreman.yml --graph
+</span></span><span style="display:flex;"><span>@all:
+</span></span><span style="display:flex;"><span>  |--@foreman_dev_web:
+</span></span><span style="display:flex;"><span>  |  |--dev-web1.example.com
+</span></span><span style="display:flex;"><span>  |--@foreman_prod_haproxy:
+</span></span><span style="display:flex;"><span>  |  |--lb.example.com
+</span></span><span style="display:flex;"><span>  |--@foreman_prod_web:
+</span></span><span style="display:flex;"><span>  |  |--prod-web1.example.com
+</span></span><span style="display:flex;"><span>  |  |--prod-web2.example.com
+</span></span><span style="display:flex;"><span>  |--@ungrouped:
+</span></span></code></pre></div><p>Next let&rsquo;s look at the variables that are being returned for one of these servers. In this instance prod-web2.example.com:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ansible-inventory -i foreman.yml --host prod-web2.example.com
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;foreman_architecture_name&#34;</span>: <span style="color:#e6db74">&#34;x86_64&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;foreman_build&#34;</span>: false,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;foreman_capabilities&#34;</span>: <span style="color:#f92672">[</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;build&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">]</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;foreman_certname&#34;</span>: <span style="color:#e6db74">&#34;prod-web2.example.com&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;foreman_comment&#34;</span>: null,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;foreman_compliance_status&#34;</span>: 0,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;foreman_compliance_status_label&#34;</span>: <span style="color:#e6db74">&#34;Compliant&#34;</span>,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;foreman_compute_profile_id&#34;</span>: null,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;foreman_compute_profile_name&#34;</span>: null,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;foreman_compute_resource_id&#34;</span>: null,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;foreman_compute_resource_name&#34;</span>: null,
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;foreman_content_facet_attributes&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;applicable_module_stream_count&#34;</span>: 0,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;applicable_package_count&#34;</span>: 0,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;content_source&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;id&#34;</span>: 1,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;sat6.example.com&#34;</span>,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;url&#34;</span>: <span style="color:#e6db74">&#34;https://sat6.example.com:9090&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;content_source_id&#34;</span>: 1,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;content_source_name&#34;</span>: <span style="color:#e6db74">&#34;sat6.example.com&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;content_view&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;id&#34;</span>: 7,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;name&#34;</span>: <span style="color:#e6db74">&#34;rhel8&#34;</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;content_view_id&#34;</span>: 7,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;content_view_name&#34;</span>: <span style="color:#e6db74">&#34;rhel8&#34;</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;errata_counts&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;bugfix&#34;</span>: 0,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;enhancement&#34;</span>: 0,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;security&#34;</span>: 0,
+</span></span><span style="display:flex;"><span>            <span style="color:#e6db74">&#34;total&#34;</span>: <span style="color:#ae81ff">0</span>
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">}</span>,
+</span></span><span style="display:flex;"><span>        <span style="color:#e6db74">&#34;lifecycle_environment_name&#34;</span>: <span style="color:#e6db74">&#34;Prod&#34;</span>
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>....
+</span></span></code></pre></div><p>The above output is truncated, but you can see the type of data that Satellite returns. It is possible to modify the behaviour of the plugin, for example to filter certain hosts that we might not need to automate against. We also might want to create additional groups based on the information that is returned from Satellite. As per the ansible-doc output, we can use the following parameters to do this:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>- host_filters
+</span></span><span style="display:flex;"><span>        This can be used to restrict the list of returned host
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">[</span>Default: <span style="color:#f92672">(</span>null<span style="color:#f92672">)]</span>
+</span></span><span style="display:flex;"><span>        type: string
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>- keyed_groups
+</span></span><span style="display:flex;"><span>        Add hosts to group based on the values of a variable.
+</span></span><span style="display:flex;"><span>        <span style="color:#f92672">[</span>Default: <span style="color:#f92672">[]]</span>
+</span></span><span style="display:flex;"><span>        type: list
+</span></span></code></pre></div><h3 id="adding-groups">Adding Groups</h3>
 <p>First, we are going to add some more groups based on data we are receiving from Satellite. We got lots of data back from Satellite so let&rsquo;s use that to construct some additional groups. In this example, we will build groups based on operating system and lifecycle environment. The updated <strong>foreman.yml</strong> file now looks like this:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">cat foreman.yml
-<span style="color:#75715e"># foreman.yml</span>
-plugin: foreman
-validate_certs: False
-url: https://sat6.example.com
-user: ansible
-password: Redhat123
-keyed_groups:
--  key: foreman_operatingsystem_name | lower | regex_replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#39; &#39;</span>, <span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">)</span> | regex_replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;[^A-Za-z0-9_]&#39;</span>, <span style="color:#e6db74">&#39;_&#39;</span><span style="color:#f92672">)</span>
-   separator: <span style="color:#e6db74">&#39;&#39;</span>
-   prefix: <span style="color:#e6db74">&#39;&#39;</span>
--  key: foreman_content_facet_attributes.lifecycle_environment_name | lower
-   prefix: <span style="color:#e6db74">&#39;lifecycle_env_&#39;</span>
-   separator: <span style="color:#e6db74">&#39;&#39;</span>
-
-</code></pre></div><p>Note how we have used some regex to ensure the operating system name is converted into a valid group name by removing spaces and other invalid characters. If we re-run the plugin we should now see some additional groups:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-inventory -i foreman.yml --graph
-@all:
-  |--@foreman_dev_web:
-  |  |--dev-web1.example.com
-  |--@foreman_prod_haproxy:
-  |  |--lb.example.com
-  |--@foreman_prod_web:
-  |  |--prod-web1.example.com
-  |  |--prod-web2.example.com
-  |--@lifecycle_env_dev:
-  |  |--dev-web1.example.com
-  |--@lifecycle_env_prod:
-  |  |--lb.example.com
-  |  |--prod-web1.example.com
-  |  |--prod-web2.example.com
-  |--@redhat8_2:
-  |  |--dev-web1.example.com
-  |  |--lb.example.com
-  |  |--prod-web1.example.com
-  |  |--prod-web2.example.com
-  |--@ungrouped:
-</code></pre></div><h3 id="filtering-hosts">Filtering hosts</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>cat foreman.yml
+</span></span><span style="display:flex;"><span><span style="color:#75715e"># foreman.yml</span>
+</span></span><span style="display:flex;"><span>plugin: foreman
+</span></span><span style="display:flex;"><span>validate_certs: False
+</span></span><span style="display:flex;"><span>url: https://sat6.example.com
+</span></span><span style="display:flex;"><span>user: ansible
+</span></span><span style="display:flex;"><span>password: Redhat123
+</span></span><span style="display:flex;"><span>keyed_groups:
+</span></span><span style="display:flex;"><span>-  key: foreman_operatingsystem_name | lower | regex_replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#39; &#39;</span>, <span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">)</span> | regex_replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;[^A-Za-z0-9_]&#39;</span>, <span style="color:#e6db74">&#39;_&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>   separator: <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>   prefix: <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>-  key: foreman_content_facet_attributes.lifecycle_environment_name | lower
+</span></span><span style="display:flex;"><span>   prefix: <span style="color:#e6db74">&#39;lifecycle_env_&#39;</span>
+</span></span><span style="display:flex;"><span>   separator: <span style="color:#e6db74">&#39;&#39;</span>
+</span></span></code></pre></div><p>Note how we have used some regex to ensure the operating system name is converted into a valid group name by removing spaces and other invalid characters. If we re-run the plugin we should now see some additional groups:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ansible-inventory -i foreman.yml --graph
+</span></span><span style="display:flex;"><span>@all:
+</span></span><span style="display:flex;"><span>  |--@foreman_dev_web:
+</span></span><span style="display:flex;"><span>  |  |--dev-web1.example.com
+</span></span><span style="display:flex;"><span>  |--@foreman_prod_haproxy:
+</span></span><span style="display:flex;"><span>  |  |--lb.example.com
+</span></span><span style="display:flex;"><span>  |--@foreman_prod_web:
+</span></span><span style="display:flex;"><span>  |  |--prod-web1.example.com
+</span></span><span style="display:flex;"><span>  |  |--prod-web2.example.com
+</span></span><span style="display:flex;"><span>  |--@lifecycle_env_dev:
+</span></span><span style="display:flex;"><span>  |  |--dev-web1.example.com
+</span></span><span style="display:flex;"><span>  |--@lifecycle_env_prod:
+</span></span><span style="display:flex;"><span>  |  |--lb.example.com
+</span></span><span style="display:flex;"><span>  |  |--prod-web1.example.com
+</span></span><span style="display:flex;"><span>  |  |--prod-web2.example.com
+</span></span><span style="display:flex;"><span>  |--@redhat8_2:
+</span></span><span style="display:flex;"><span>  |  |--dev-web1.example.com
+</span></span><span style="display:flex;"><span>  |  |--lb.example.com
+</span></span><span style="display:flex;"><span>  |  |--prod-web1.example.com
+</span></span><span style="display:flex;"><span>  |  |--prod-web2.example.com
+</span></span><span style="display:flex;"><span>  |--@ungrouped:
+</span></span></code></pre></div><h3 id="filtering-hosts">Filtering hosts</h3>
 <p>As well as adding groups, we can also filter hosts so that they aren&rsquo;t added into the Ansible inventory. To do this we need to understand what we can filter on. We can&rsquo;t just use the variables that were returned from the inventory plugin because the host_filter performs searches against the Satellite API. To see the fields we can search on we can look at the Satellite API documentation which is hosted on the Satellite server itself. For my Satellite server the apidoc for <strong>hosts</strong> is - <a href="https://sat6.example.com/apidoc/v2/hosts/index.html">https://sat6.example.com/apidoc/v2/hosts/index.html</a>. Here we can see a list of possible searches and this screenshot shows a few examples:</p>
 <p><img src="/images/sat6_filter.png" alt=""></p>
 <p>We want to filter on lifecycle environment so we need to do this either by name or ID as per the API docs for Satellite:</p>
 <p><img src="/images/foreman_filter_lifecycle.png" alt=""></p>
 <p>Here is the updated <strong>foreman.yml</strong> file including a filter so that we only get servers in the &ldquo;Dev&rdquo; lifecycle environment:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash"><span style="color:#75715e"># foreman.yml</span>
-plugin: redhat.satellite.foreman
-validate_certs: False
-url: https://sat6.example.com
-user: ansible
-password: Redhat123
-keyed_groups:
--  key: foreman_operatingsystem_name | lower | regex_replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#39; &#39;</span>, <span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">)</span> | regex_replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;[^A-Za-z0-9_]&#39;</span>, <span style="color:#e6db74">&#39;_&#39;</span><span style="color:#f92672">)</span>
-   separator: <span style="color:#e6db74">&#39;&#39;</span>
-   prefix: <span style="color:#e6db74">&#39;&#39;</span>
--  key: foreman_content_facet_attributes.lifecycle_environment_name | lower
-   prefix: <span style="color:#e6db74">&#39;lifecycle_env_&#39;</span>
-   separator: <span style="color:#e6db74">&#39;&#39;</span>
-host_filters: <span style="color:#e6db74">&#39;lifecycle_environment=&#34;Dev&#34;&#39;</span>
-</code></pre></div><p>Running this now only returns a single host in our Dev lifecycle environment:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-inventory -i foreman.yml --graph
-@all:
-  |--@foreman_dev_web:
-  |  |--dev-web1.demolab.local
-  |--@lifecycle_env_dev:
-  |  |--dev-web1.demolab.local
-  |--@redhat8_2:
-  |  |--dev-web1.demolab.local
-  |--@ungrouped:
-</code></pre></div><h3 id="running-the-inventory-plugin-in-tower">Running the inventory plugin in Tower</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#75715e"># foreman.yml</span>
+</span></span><span style="display:flex;"><span>plugin: redhat.satellite.foreman
+</span></span><span style="display:flex;"><span>validate_certs: False
+</span></span><span style="display:flex;"><span>url: https://sat6.example.com
+</span></span><span style="display:flex;"><span>user: ansible
+</span></span><span style="display:flex;"><span>password: Redhat123
+</span></span><span style="display:flex;"><span>keyed_groups:
+</span></span><span style="display:flex;"><span>-  key: foreman_operatingsystem_name | lower | regex_replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#39; &#39;</span>, <span style="color:#e6db74">&#39;&#39;</span><span style="color:#f92672">)</span> | regex_replace<span style="color:#f92672">(</span><span style="color:#e6db74">&#39;[^A-Za-z0-9_]&#39;</span>, <span style="color:#e6db74">&#39;_&#39;</span><span style="color:#f92672">)</span>
+</span></span><span style="display:flex;"><span>   separator: <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>   prefix: <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>-  key: foreman_content_facet_attributes.lifecycle_environment_name | lower
+</span></span><span style="display:flex;"><span>   prefix: <span style="color:#e6db74">&#39;lifecycle_env_&#39;</span>
+</span></span><span style="display:flex;"><span>   separator: <span style="color:#e6db74">&#39;&#39;</span>
+</span></span><span style="display:flex;"><span>host_filters: <span style="color:#e6db74">&#39;lifecycle_environment=&#34;Dev&#34;&#39;</span>
+</span></span></code></pre></div><p>Running this now only returns a single host in our Dev lifecycle environment:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ansible-inventory -i foreman.yml --graph
+</span></span><span style="display:flex;"><span>@all:
+</span></span><span style="display:flex;"><span>  |--@foreman_dev_web:
+</span></span><span style="display:flex;"><span>  |  |--dev-web1.demolab.local
+</span></span><span style="display:flex;"><span>  |--@lifecycle_env_dev:
+</span></span><span style="display:flex;"><span>  |  |--dev-web1.demolab.local
+</span></span><span style="display:flex;"><span>  |--@redhat8_2:
+</span></span><span style="display:flex;"><span>  |  |--dev-web1.demolab.local
+</span></span><span style="display:flex;"><span>  |--@ungrouped:
+</span></span></code></pre></div><h3 id="running-the-inventory-plugin-in-tower">Running the inventory plugin in Tower</h3>
 <p>I&rsquo;ve been using Ansible Engine and the command line so far. Running the plugin from <a href="https://www.ansible.com/products/tower">Ansible Tower</a> is straightforward and gives us the added bonus of encrypting the credentials that we previously had in plaintext. Tower ships with the foreman inventory plugin ready to run and is configured to correct some common groups out of the box. Let&rsquo;s walk through a basic setup in Tower:</p>
 <ol>
 <li>Create a credential for Red Hat Satellite. As mentioned, Tower can securely store our credential for us so we don&rsquo;t need to worry about it. In the Tower UI create a credential of type &ldquo;Red Hat Satellite 6&rdquo;. Enter the username, password and Satellite URL.</li>
@@ -454,6 +453,8 @@ host_filters: <span style="color:#e6db74">&#39;lifecycle_environment=&#34;Dev&#3
                   <ul>
                 
                 
+                    <li><a href="/post/aap_snow_spoke/">Using the ServiceNow Ansible Spoke</a></li>
+                
                     <li><a href="/post/implicit_localhost/">A journey with Ansible 2.12, implicit localhost and python discovery</a></li>
                 
                     <li><a href="/post/ansible-builder-disconnected/">ansible-builder in a disconnected environment</a></li>
@@ -461,8 +462,6 @@ host_filters: <span style="color:#e6db74">&#39;lifecycle_environment=&#34;Dev&#3
                     <li><a href="/post/molecule-vm-create/">Using Molecule for VM provisioning roles</a></li>
                 
                     <li><a href="/post/vmware-molecule/">Testing Ansible roles with Molecule and VMware</a></li>
-                
-                    <li><a href="/post/vmware_filter_tags/">Ansible VMware Dynamic Inventory - Filter on tags</a></li>
                 
               </ul>
 
@@ -551,7 +550,7 @@ host_filters: <span style="color:#e6db74">&#39;lifecycle_environment=&#34;Dev&#3
 
           &nbsp;&bull;&nbsp;&copy;
           
-            2022
+            2023
           
 
           
@@ -561,7 +560,7 @@ host_filters: <span style="color:#e6db74">&#39;lifecycle_environment=&#34;Dev&#3
         </p>
         
         <p class="credits theme-by text-muted">
-          <a href="https://gohugo.io">Hugo v0.80.0</a> powered &nbsp;&bull;&nbsp; Theme <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> adapted from <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          <a href="https://gohugo.io">Hugo v0.98.0</a> powered &nbsp;&bull;&nbsp; Theme <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> adapted from <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
           
         </p>
       </div>

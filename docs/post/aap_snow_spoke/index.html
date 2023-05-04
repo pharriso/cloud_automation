@@ -1,0 +1,526 @@
+<!DOCTYPE html>
+<html lang="en" itemscope itemtype="http://schema.org/WebPage">
+  <head>
+    
+
+  <meta charset="utf-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+  <title>Using the ServiceNow Ansible Spoke - Cloud and Automation</title>
+  <meta name="description" content="Nearly four years ago, I wrote a post a on how to configure ServiceNow to call the Ansible Automation platform . In that post, I made use of outbound REST API calls in ServiceNow along with worfklows. The ServiceNow Ansible Spoke gives customers another method for integrating ServiceNow with Ansible Automation Platform. The Ansible Spoke provides some out of the box integrations with automation controller (formally Ansible Tower) to streamline the integration process.">
+  <meta name="author" content="Pat Harrison"/><script type="application/ld+json">
+{
+    "@context": "http://schema.org",
+    "@type": "WebSite",
+    "name": "Cloud and Automation",
+    
+    "url": "https:\/\/cloudautomation.pharriso.co.uk"
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Organization",
+  "name": "",
+  "url": "https:\/\/cloudautomation.pharriso.co.uk"
+  
+  
+  
+  
+}
+</script>
+<script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "BreadcrumbList",
+  "itemListElement": [{
+        "@type": "ListItem",
+        "position": 1,
+        "item": {
+          "@id": "https:\/\/cloudautomation.pharriso.co.uk",
+          "name": "home"
+        }
+    },{
+        "@type": "ListItem",
+        "position": 3,
+        "item": {
+          "@id": "https:\/\/cloudautomation.pharriso.co.uk\/post\/aap_snow_spoke\/",
+          "name": "Using the service now ansible spoke"
+        }
+    }]
+}
+</script><script type="application/ld+json">
+{
+  "@context": "http://schema.org",
+  "@type": "Article",
+  "author": {
+    "name" : "Pat Harrison"
+  },
+  "headline": "Using the ServiceNow Ansible Spoke",
+  "description" : "Nearly four years ago, I wrote a post a on how to configure ServiceNow to call the Ansible Automation platform . In that post, I made use of outbound REST API calls in ServiceNow along with worfklows. The ServiceNow Ansible Spoke gives customers another method for integrating ServiceNow with Ansible Automation Platform. The Ansible Spoke provides some out of the box integrations with automation controller (formally Ansible Tower) to streamline the integration process.",
+  "inLanguage" : "en",
+  "wordCount":  1117 ,
+  "datePublished" : "2023-05-03T14:46:42",
+  "dateModified" : "2023-05-03T14:46:42",
+  "image" : "https:\/\/cloudautomation.pharriso.co.uk",
+  "keywords" : [ "ansible, tower, servicenow" ],
+  "mainEntityOfPage" : "https:\/\/cloudautomation.pharriso.co.uk\/post\/aap_snow_spoke\/",
+  "publisher" : {
+    "@type": "Organization",
+    "name" : "https:\/\/cloudautomation.pharriso.co.uk",
+    "logo" : {
+        "@type" : "ImageObject",
+        "url" : "https:\/\/cloudautomation.pharriso.co.uk",
+        "height" :  60 ,
+        "width" :  60
+    }
+  }
+}
+</script>
+
+<meta property="og:title" content="Using the ServiceNow Ansible Spoke" />
+<meta property="og:description" content="Nearly four years ago, I wrote a post a on how to configure ServiceNow to call the Ansible Automation platform . In that post, I made use of outbound REST API calls in ServiceNow along with worfklows. The ServiceNow Ansible Spoke gives customers another method for integrating ServiceNow with Ansible Automation Platform. The Ansible Spoke provides some out of the box integrations with automation controller (formally Ansible Tower) to streamline the integration process.">
+<meta property="og:url" content="https://cloudautomation.pharriso.co.uk/post/aap_snow_spoke/" />
+<meta property="og:type" content="website" />
+<meta property="og:site_name" content="Cloud and Automation" />
+
+  <meta name="twitter:title" content="Using the ServiceNow Ansible Spoke" />
+  <meta name="twitter:description" content="Nearly four years ago, I wrote a post a on how to configure ServiceNow to call the Ansible Automation platform . In that post, I made use of outbound REST API calls in ServiceNow along with worfklows. …">
+  <meta name="twitter:card" content="summary" />
+  <link href='https://cloudautomation.pharriso.co.uk/img/favicon.ico' rel='icon' type='image/x-icon'/>
+  <meta name="generator" content="Hugo 0.98.0" />
+  <link rel="alternate" href="https://cloudautomation.pharriso.co.uk/index.xml" type="application/rss+xml" title="Cloud and Automation"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"><link rel="stylesheet" href="https://cloudautomation.pharriso.co.uk/css/main.css" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,800italic,400,300,600,700,800" />
+  <link rel="stylesheet" href="https://cloudautomation.pharriso.co.uk/css/highlight.min.css" /><link rel="stylesheet" href="https://cloudautomation.pharriso.co.uk/css/codeblock.css" /><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.css" integrity="sha384-h/L2W9KefUClHWaty3SLE5F/qvc4djlyR4qY3NUV5HGQBBW7stbcfff1+I/vmsHh" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/default-skin/default-skin.min.css" integrity="sha384-iD0dNku6PYSIQLyfTOpB06F2KCZJAKLOThS5HRe8b3ibhdEQ6eKsFf/EeFxdOt5R" crossorigin="anonymous">
+
+
+<script type="application/javascript">
+var doNotTrack = false;
+if (!doNotTrack) {
+	window.ga=window.ga||function(){(ga.q=ga.q||[]).push(arguments)};ga.l=+new Date;
+	ga('create', 'UA-131924821-2', 'auto');
+	
+	ga('send', 'pageview');
+}
+</script>
+<script async src='https://www.google-analytics.com/analytics.js'></script>
+
+
+  </head>
+  <body>
+    <nav class="navbar navbar-default navbar-fixed-top navbar-custom">
+  <div class="container-fluid">
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle" data-toggle="collapse" data-target="#main-navbar">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="https://cloudautomation.pharriso.co.uk">Cloud and Automation</a>
+    </div>
+
+    <div class="collapse navbar-collapse" id="main-navbar">
+      <ul class="nav navbar-nav navbar-right">
+        
+          
+            <li>
+              <a title="Blog" href="/">Blog</a>
+            </li>
+          
+        
+          
+            <li>
+              <a title="Tags" href="/tags">Tags</a>
+            </li>
+          
+        
+
+        
+
+        
+      </ul>
+    </div>
+
+    
+
+  </div>
+</nav>
+
+
+
+
+    
+
+
+<div class="pswp" tabindex="-1" role="dialog" aria-hidden="true">
+
+<div class="pswp__bg"></div>
+
+<div class="pswp__scroll-wrap">
+    
+    <div class="pswp__container">
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+      <div class="pswp__item"></div>
+    </div>
+    
+    <div class="pswp__ui pswp__ui--hidden">
+    <div class="pswp__top-bar">
+      
+      <div class="pswp__counter"></div>
+      <button class="pswp__button pswp__button--close" title="Close (Esc)"></button>
+      <button class="pswp__button pswp__button--share" title="Share"></button>
+      <button class="pswp__button pswp__button--fs" title="Toggle fullscreen"></button>
+      <button class="pswp__button pswp__button--zoom" title="Zoom in/out"></button>
+      
+      
+      <div class="pswp__preloader">
+        <div class="pswp__preloader__icn">
+          <div class="pswp__preloader__cut">
+            <div class="pswp__preloader__donut"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="pswp__share-modal pswp__share-modal--hidden pswp__single-tap">
+      <div class="pswp__share-tooltip"></div>
+    </div>
+    <button class="pswp__button pswp__button--arrow--left" title="Previous (arrow left)">
+    </button>
+    <button class="pswp__button pswp__button--arrow--right" title="Next (arrow right)">
+    </button>
+    <div class="pswp__caption">
+      <div class="pswp__caption__center"></div>
+    </div>
+    </div>
+    </div>
+</div>
+
+
+  
+  
+  
+
+
+
+
+
+
+  
+
+  <header class="header-section ">
+    
+    <div class="intro-header no-img">
+      <div class="container">
+        <div class="row">
+          <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+            <div class="post-heading">
+              
+                <h1>Using the ServiceNow Ansible Spoke</h1>
+              
+              
+              
+              
+                <span class="post-meta">
+  
+  
+  <i class="fas fa-calendar"></i>&nbsp;Posted on May 3, 2023
+  
+  
+    &nbsp;|&nbsp;<i class="fas fa-clock"></i>&nbsp;6&nbsp;minutes
+  
+  
+  
+    
+      &nbsp;|&nbsp;<i class="fas fa-user"></i>&nbsp;Pat Harrison
+    
+  
+  
+</span>
+
+
+              
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+
+    
+<div class="container" role="main">
+  <div class="row">
+    <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+      <article role="main" class="blog-post">
+        <p>Nearly four years ago, I wrote a post a on how to configure <a href="https://cloudautomation.pharriso.co.uk/post/snow-call-tower/">ServiceNow to call the Ansible Automation platform </a>. In that post, I made use of outbound REST API calls in ServiceNow along with worfklows. The ServiceNow <a href="https://docs.servicenow.com/bundle/utah-integrate-applications/page/administer/integrationhub-store-spokes/concept/ansible-spoke.html">Ansible Spoke</a> gives customers another method for integrating ServiceNow with Ansible Automation Platform. The Ansible Spoke provides some out of the box integrations with automation controller (formally Ansible Tower) to streamline the integration process. Please note that you&rsquo;ll need access to the Professional or Enterprise integration hub in ServiceNow.</p>
+<p>I was able to test the Ansible Spoke and wanted to do a quick write-up. As with the last post I wrote on ServiceNow integration, I relied a lot on existing content to get me going. I&rsquo;ll call out the examples I used as I go along.</p>
+<p><strong>NOTE</strong> As with my previous post, I am <strong>still</strong> not a ServiceNow expert! This is just an example guide.</p>
+<h2 id="overview-of-the-setup">Overview of the setup</h2>
+<p>We often see customers wanting to automate service requests from the ServiceNow service catalog. This diagram shows the &ldquo;closed loop&rdquo; automation which provides zero-touch fulfillment of services to users while integrating with and maintaing existing ITIL processes - change management, incident management and CMDB.</p>
+<p><img src="/images/ansible_spoke_overview.png" alt=""></p>
+<p>In this example we will use the ServiceNow Service Catalog to provide a service that allows users to install a monitoring agent onto their Linux server. The request will:</p>
+<ul>
+<li>Provide the user with a drop-down box that asks for the target Linux server - this prompt should query the Linux table in the CMDB to give the user a list of valid hosts.</li>
+<li>Provide a drop-down box that queries a custom table to provide the user with a list of available monitoring profiles to assign to their Linux server.</li>
+</ul>
+<p>Once the request is approved, ServiceNow will call the automation controller API using the Ansible Spoke to fulfill the request. Ansible should then go back the other way - updating the request in ServiceNow to confirm that it completed the request.</p>
+<h2 id="installing-and-configuring-the-ansible-spoke">Installing and configuring the Ansible Spoke</h2>
+<p>I&rsquo;m not going to document this process as I&rsquo;ll just be repeating existing information out there. The <a href="https://docs.servicenow.com/bundle/utah-integrate-applications/page/administer/integrationhub-store-spokes/task/setup-ansible.html">Ansible Spoke setup documentation</a> provides a comprehensive guide for configuring both ServiceNow and automation controller. There is also an <a href="https://github.com/RedHatEcosystem/ServiceNow">excellent guide</a> that some Red Hat colleagues wrote - it covers the initial setup in a lot of detail.</p>
+<h2 id="create-the-catalog-item">Create the Catalog Item</h2>
+<p>For the next steps - I re-use a lot of content from a great <a href="https://www.youtube.com/watch?v=DmPXiRHjgRY">recording on youtube by Alex Dworjan</a>. This goes into a lot of detail.</p>
+<p>The first step is to create a catalog item. In ServiceNow, navigate to <strong>maintain items</strong> and create a new catalog item. Enter a name, select the catalog and category for the item. Hit save to continue.</p>
+<p><img src="/images/ansible_spoke_create_catalog_item.png" alt=""></p>
+<p>Next we can create the prompts for the user - this will be a lookup on the CMDB so that the user can select a target Linux server for the monitoring agent. Add a new variable of type <strong>Reference</strong>. Enter the question that the user should be prompted for when.</p>
+<p><img src="/images/ansible_spoke_target_variable.png" alt=""></p>
+<p>For the CMDB lookup we can use the Linux table in the CMDB. This will give a drop-down box to select from available Linux hosts in the CMDB. Here is the <strong>type specification</strong>.</p>
+<p><img src="/images/ansible_spoke_target_lookup.png" alt=""></p>
+<p>Repeating these steps for the monitoring agent profile gives us the two questions we need the user to answer. Now we can move on to the flow design.</p>
+<h2 id="build-flow-using-ansible-spoke">Build Flow using Ansible Spoke</h2>
+<p>In ServiceNow navigate to <strong>flow designer</strong> and add a new flow. Name the flow and press submit.</p>
+<p><img src="/images/ansible_spoke_create_flow.png" alt=""></p>
+<p>Select a trigger for the flow - in this example we want to use the Service Catalog to trigger the flow. Press done to move to the next step.</p>
+<p><img src="/images/ansible_spoke_flow_trigger.png" alt=""></p>
+<p>Next we can look at the actions we want the flow to run. The first step is to gather the inputs from the catalog form so that we can pass the variables to automation controller. Add an action of <strong>Get Catalog Variables</strong>. Set the submitted request to be the requested item by using the data picker or drag and drop the <strong>Request item record</strong> from the right-hand pane.</p>
+<p><img src="/images/ansible_spoke_flow_get_vars.png" alt=""></p>
+<p>You should now see the variables that we added in the previous step when we created the catalog item. Select both variables and add them. Press done to move to the next action.</p>
+<p><img src="/images/ansible_spoke_flow_select_vars.png" alt=""></p>
+<p>Now that we have gathered the variables, we can launch a job in automation controller. This is where we will use the Ansible Spoke. Add another action, select Ansible Spoke from the installed spokes and then scroll down the list on the right and pick <strong>launch job template</strong>. You&rsquo;ll be prompted to fill in some fields.</p>
+<ol>
+<li>
+<p><strong>Job template ID</strong> - you can find this ID number in automation controller. In the automation controller UI, go to <strong>Templates</strong>, select the relevant job template that you want to launch and look at the URL to find the job ID. For example <strong><a href="https://automation-controller.demolab.local/#/templates/job_template/134/details">https://automation-controller.demolab.local/#/templates/job_template/134/details</a></strong> tells me that the job ID is <strong>134</strong>. Enter this ID into the field in ServiceNow.</p>
+</li>
+<li>
+<p><strong>Extra Arguments</strong> - this is where we pass additional data to the automation controller API. In our case we need to pass the target host as the <strong>limit</strong> so that the job only runs against a single host. We also need <strong>extra_vars</strong> to pass along the monitoring profile to use as well as the ServiceNow request ID. The ServiceNow request ID is needed so that Ansible can go back to ServiceNow and update the request. Here is an example of the extra data:</p>
+</li>
+</ol>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;limit&#34;</span>: <span style="color:#e6db74">&#34;&lt;place for target host&gt;&#34;</span>,
+</span></span><span style="display:flex;"><span>  <span style="color:#e6db74">&#34;extra_vars&#34;</span>:
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;sensu_profile&#34;</span>: <span style="color:#e6db74">&#34;&lt;place to put monitoring profile var&gt;&#34;</span>,
+</span></span><span style="display:flex;"><span>      <span style="color:#e6db74">&#34;snow_request&#34;</span>: <span style="color:#e6db74">&#34;&lt;place to put snow request id&gt;&#34;</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#f92672">}</span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">}</span>
+</span></span></code></pre></div><p>We can copy this data into the extra arguments field. Removing the placeholders, we can use the data picker to pick the right variables for the target host and monitoring profile. These came from the <strong>Get Catalog Variables</strong> stage. The ServiceNow request comes from the <strong>Trigger - Service Catalog</strong> step.</p>
+<p><img src="/images/ansible_spoke_flow_extra_vars1.png" alt=""></p>
+<p>Here are the fields:</p>
+<table>
+<thead>
+<tr>
+<th>Name</th>
+<th>Variable lookup</th>
+<th>Notes</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>limit</td>
+<td>Get catalog variables -&gt; target_sensu_host -&gt; Name</td>
+<td>CMDB Lookup</td>
+</tr>
+<tr>
+<td>sensu_profile</td>
+<td>Get catalog variables -&gt; sensu_profile -&gt; monitoring profile</td>
+<td>Custom table</td>
+</tr>
+<tr>
+<td>snow_request</td>
+<td>Trigger Service Catalog -&gt; Requested Item Record -&gt; Number</td>
+<td>Service Request Data</td>
+</tr>
+</tbody>
+</table>
+<p>The completed extra arguments should look as follows.</p>
+<p><img src="/images/ansible_spoke_flow_extra_vars2.png" alt=""></p>
+<p>Press <strong>Save</strong> and then <strong>Activate</strong> to complete the flow design stage.</p>
+<h2 id="add-flow-to-catalog-item">Add flow to catalog item</h2>
+<p>With the flow completed, we can add it to the catalog item. In ServiceNow, go back to <strong>maintain items</strong> and select the relevant catalog item that we created earlier. Select the <strong>Process Engine</strong> and select the new flow that we created.</p>
+<p><img src="/images/ansible_spoke_catalog_engine.png" alt=""></p>
+<h2 id="testing-the-flow---video">Testing the flow - video</h2>
+<p>This short video shows a demo of the integration.</p>
+<p><a href="http://www.youtube.com/watch?v=4z9S8LAndWw"><img src="/images/ansible_spoke_video.png" alt=""></a></p>
+
+
+        
+          <div class="blog-tags">
+            
+              <a href="https://cloudautomation.pharriso.co.uk/tags/ansible/">ansible</a>&nbsp;
+            
+              <a href="https://cloudautomation.pharriso.co.uk/tags/tower/">tower</a>&nbsp;
+            
+              <a href="https://cloudautomation.pharriso.co.uk/tags/servicenow/">servicenow</a>&nbsp;
+            
+          </div>
+        
+
+        
+
+        
+          
+            
+          
+
+          
+                  <h4 class="see-also">See also</h4>
+                  <ul>
+                
+                
+                    <li><a href="/post/implicit_localhost/">A journey with Ansible 2.12, implicit localhost and python discovery</a></li>
+                
+                    <li><a href="/post/ansible-builder-disconnected/">ansible-builder in a disconnected environment</a></li>
+                
+                    <li><a href="/post/molecule-vm-create/">Using Molecule for VM provisioning roles</a></li>
+                
+                    <li><a href="/post/vmware-molecule/">Testing Ansible roles with Molecule and VMware</a></li>
+                
+                    <li><a href="/post/foreman_filtering/">Filtering hosts with the Satellite inventory plugin for Ansible</a></li>
+                
+              </ul>
+
+          
+        
+      </article>
+
+      
+        <ul class="pager blog-pager">
+          
+            <li class="previous">
+              <a href="https://cloudautomation.pharriso.co.uk/post/implicit_localhost/" data-toggle="tooltip" data-placement="top" title="A journey with Ansible 2.12, implicit localhost and python discovery">&larr; Previous Post</a>
+            </li>
+          
+          
+        </ul>
+      
+
+
+      
+        
+          
+          <div class="disqus-comments">                  
+            <button id="show-comments" class="btn btn-default" type="button">Show <span class="disqus-comment-count" data-disqus-url="https://cloudautomation.pharriso.co.uk/post/aap_snow_spoke">comments</span></button>
+            <div id="disqus_thread"></div>
+
+            <script type="text/javascript">
+              var disqus_config = function () {
+              this.page.url = 'https:\/\/cloudautomation.pharriso.co.uk\/post\/aap_snow_spoke';
+            };
+
+          </script>
+          </div>
+          
+        
+        
+      
+
+    </div>
+  </div>
+</div>
+
+      
+<footer>
+  <div class="container">
+    <div class="row">
+      <div class="col-lg-8 col-lg-offset-2 col-md-10 col-md-offset-1">
+        <ul class="list-inline text-center footer-links">
+          
+              <li>
+                <a href="https://github.com/pharriso" title="GitHub">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fab fa-github fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://gitlab.com/pharriso" title="GitLab">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fab fa-gitlab fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+              <li>
+                <a href="https://linkedin.com/in/pharriso" title="LinkedIn">
+                  <span class="fa-stack fa-lg">
+                    <i class="fas fa-circle fa-stack-2x"></i>
+                    <i class="fab fa-linkedin fa-stack-1x fa-inverse"></i>
+                  </span>
+                </a>
+              </li>
+          
+        </ul>
+        <p class="credits copyright text-muted">
+          
+            
+              Pat Harrison
+            
+          
+
+          &nbsp;&bull;&nbsp;&copy;
+          
+            2023
+          
+
+          
+            &nbsp;&bull;&nbsp;
+            <a href="https://cloudautomation.pharriso.co.uk">Cloud and Automation</a>
+          
+        </p>
+        
+        <p class="credits theme-by text-muted">
+          <a href="https://gohugo.io">Hugo v0.98.0</a> powered &nbsp;&bull;&nbsp; Theme <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> adapted from <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          
+        </p>
+      </div>
+    </div>
+  </div>
+</footer><script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.js" integrity="sha384-K3vbOmF2BtaVai+Qk37uypf7VrgBubhQreNQe9aGsz9lB63dIFiQVlJbr92dw2Lx" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/contrib/auto-render.min.js" integrity="sha384-kmZOZB5ObwgQnS/DuDg6TScgOiWWBiVt0plIRkZCmE6rDZGrEOQeHM5PcHi+nyqe" crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-1.12.4.min.js" integrity="sha256-ZosEbRLbNQzLpnKIkEdrPv7lOy9C27hHQ+Xp8a4MxAQ=" crossorigin="anonymous"></script>
+<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js" integrity="sha384-Tc5IQib027qvyjSMfHjOMaLkfuWVxZxUPnCJA7l2mCWNIpG9mGCD8wGNIcPD7Txa" crossorigin="anonymous"></script>
+
+<script src="https://cloudautomation.pharriso.co.uk/js/main.js"></script>
+<script src="https://cloudautomation.pharriso.co.uk/js/highlight.min.js"></script>
+<script> hljs.initHighlightingOnLoad(); </script>
+<script> $(document).ready(function() {$("pre.chroma").css("padding","0");}); </script><script> renderMathInElement(document.body); </script><script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe.min.js" integrity="sha384-QELNnmcmU8IR9ZAykt67vGr9/rZJdHbiWi64V88fCPaOohUlHCqUD/unNN0BXSqy" crossorigin="anonymous"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/photoswipe/4.1.2/photoswipe-ui-default.min.js" integrity="sha384-m67o7SkQ1ALzKZIFh4CiTA8tmadaujiTa9Vu+nqPSwDOqHrDmxLezTdFln8077+q" crossorigin="anonymous"></script><script src="https://cloudautomation.pharriso.co.uk/js/load-photoswipe.js"></script>
+
+
+
+
+
+
+
+
+<script type="text/javascript">
+$(function(){
+  $('#show-comments').on('click', function(){
+    var disqus_shortname = 'cloudautomation';
+      
+    (function() {
+      var disqus = document.createElement('script'); 
+      disqus.type = 'text/javascript'; 
+      disqus.async = true;
+      disqus.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(disqus);
+    })();
+      
+    $(this).hide(); 
+    });
+  });
+      
+</script>
+<script id="dsq-count-scr" src="//cloudautomation.disqus.com/count.js" async></script>
+
+
+
+
+    
+  </body>
+</html>
+

@@ -5,7 +5,16 @@
     <link>https://cloudautomation.pharriso.co.uk/tags/tower/</link>
     <description>Recent content in tower on Cloud and Automation</description>
     <generator>Hugo -- gohugo.io</generator>
-    <lastBuildDate>Fri, 26 Mar 2021 14:24:54 +0000</lastBuildDate><atom:link href="https://cloudautomation.pharriso.co.uk/tags/tower/index.xml" rel="self" type="application/rss+xml" />
+    <lastBuildDate>Wed, 03 May 2023 14:46:42 +0100</lastBuildDate><atom:link href="https://cloudautomation.pharriso.co.uk/tags/tower/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>Using the ServiceNow Ansible Spoke</title>
+      <link>https://cloudautomation.pharriso.co.uk/post/aap_snow_spoke/</link>
+      <pubDate>Wed, 03 May 2023 14:46:42 +0100</pubDate>
+      
+      <guid>https://cloudautomation.pharriso.co.uk/post/aap_snow_spoke/</guid>
+      <description>Nearly four years ago, I wrote a post a on how to configure ServiceNow to call the Ansible Automation platform . In that post, I made use of outbound REST API calls in ServiceNow along with worfklows. The ServiceNow Ansible Spoke gives customers another method for integrating ServiceNow with Ansible Automation Platform. The Ansible Spoke provides some out of the box integrations with automation controller (formally Ansible Tower) to streamline the integration process.</description>
+    </item>
+    
     <item>
       <title>Using Molecule for VM provisioning roles</title>
       <link>https://cloudautomation.pharriso.co.uk/post/molecule-vm-create/</link>

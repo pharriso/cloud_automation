@@ -91,7 +91,7 @@ Ansible is simple automation tool that allows users to achieve common use cases 
 Ansible is simple …">
   <meta name="twitter:card" content="summary" />
   <link href='https://cloudautomation.pharriso.co.uk/img/favicon.ico' rel='icon' type='image/x-icon'/>
-  <meta name="generator" content="Hugo 0.80.0" />
+  <meta name="generator" content="Hugo 0.98.0" />
   <link rel="alternate" href="https://cloudautomation.pharriso.co.uk/index.xml" type="application/rss+xml" title="Cloud and Automation"><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.10.0/katex.min.css" integrity="sha384-9eLZqc9ds8eNjO3TmqPeYcDj8n+Qfa4nuSiGYa6DjLNcv9BtN69ZIulL9+8CqC9Y" crossorigin="anonymous">
   <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.5.0/css/all.css" integrity="sha384-B4dIYHKNBt8Bc12p+WXckhzcICo0wtJAoU8YZTY5qE0Id1GSseTk6S+L3BlXeVIU" crossorigin="anonymous">
   <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous"><link rel="stylesheet" href="https://cloudautomation.pharriso.co.uk/css/main.css" /><link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Lora:400,700,400italic,700italic" />
@@ -272,53 +272,53 @@ if (!doNotTrack) {
 <h3 id="dynamic-inventory-example">Dynamic Inventory Example</h3>
 <p>Let&rsquo;s look at an example of an inventory plugin to see what type of information it returns. I&rsquo;m going to look at the Red Hat Satellite/Foreman plugin. <a href="https://www.redhat.com/en/technologies/management/satellite">Red Hat Satellite</a> is a tool that is often used for managing RHEL content and patching of RHEL servers. The plugin is actually called foreman because foreman is one of the upstream components in Red Hat Satellite.</p>
 <p>Here are the contents of my inventory plugin file. We have a plaintext password here but we&rsquo;ll see how we can avoid that later with Ansible Tower.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">plugin: foreman
-url: https://sat6.demolab.local
-user: sat-tower
-password: Redhat123
-validate_certs: False
-</code></pre></div><p>Below is a list of the groups that are returned by my Satellite server. For example, we can see a group called foreman_hostgroup_prod_web which contains two hosts - prod-web1.demolab.local and prod-web2.demolab.local. This is because I have a hostgroup in Satellite which these two servers are members of.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ansible-inventory -i foreman.yaml --graph
-
-@all:
-  |--@foreman_dev_web:
-  |  |--dev-web1.demolab.local
-  |--@foreman_prod_haproxy:
-  |  |--lb.demolab.local
-  |--@foreman_prod_web:
-  |  |--prod-web1.demolab.local
-  |  |--prod-web2.demolab.local
-</code></pre></div><p>As well as the groupings, we also get a number of facts from Satellite. Again, here are some snippets from one of the hosts:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ansible-inventory -i foreman.yaml --host prod-web1.demolab.local
-
-<span style="color:#e6db74">&#34;foreman_subscription_facet_attributes&#34;</span>: <span style="color:#f92672">{</span>
-    <span style="color:#e6db74">&#34;autoheal&#34;</span>: true, 
-    <span style="color:#e6db74">&#34;id&#34;</span>: 4883, 
-    <span style="color:#e6db74">&#34;last_checkin&#34;</span>: <span style="color:#e6db74">&#34;2020-01-14 02:08:23 UTC&#34;</span>, 
-    <span style="color:#e6db74">&#34;purpose_addons&#34;</span>: <span style="color:#f92672">[]</span>, 
-    <span style="color:#e6db74">&#34;purpose_role&#34;</span>: null, 
-    <span style="color:#e6db74">&#34;purpose_usage&#34;</span>: null, 
-    <span style="color:#e6db74">&#34;registered_at&#34;</span>: <span style="color:#e6db74">&#34;2019-12-10 10:21:03 UTC&#34;</span>, 
-    <span style="color:#e6db74">&#34;registered_through&#34;</span>: <span style="color:#e6db74">&#34;sat6.demolab.local&#34;</span>, 
-    <span style="color:#e6db74">&#34;release_version&#34;</span>: null, 
-    <span style="color:#e6db74">&#34;service_level&#34;</span>: <span style="color:#e6db74">&#34;&#34;</span>, 
-    <span style="color:#e6db74">&#34;user&#34;</span>: null, 
-    <span style="color:#e6db74">&#34;uuid&#34;</span>: <span style="color:#e6db74">&#34;3a9c2c19-57e4-4f98-b675-99d50d2d5b1e&#34;</span>
-    
-   
-    <span style="color:#e6db74">&#34;lifecycle_environment_name&#34;</span>: <span style="color:#e6db74">&#34;Prod&#34;</span>, 
-    <span style="color:#e6db74">&#34;upgradable_module_stream_count&#34;</span>: 0, 
-    <span style="color:#e6db74">&#34;upgradable_package_count&#34;</span>: 0, 
-...
-  
-    <span style="color:#e6db74">&#34;foreman_location_name&#34;</span>: <span style="color:#e6db74">&#34;London&#34;</span>, 
-...
-   
-    <span style="color:#e6db74">&#34;foreman_organization_name&#34;</span>: <span style="color:#e6db74">&#34;Red Hat&#34;</span>, 
-  
-...
-    <span style="color:#e6db74">&#34;foreman_ip&#34;</span>: <span style="color:#e6db74">&#34;10.50.0.31&#34;</span>, 
-</code></pre></div><p>This is just a fraction of the information we get from the inventory source, but we can see lot&rsquo;s of useful information here about the subscription status, available errata and other foreman objects. These facts are actually host_vars which we can use in our automation.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>plugin: foreman
+</span></span><span style="display:flex;"><span>url: https://sat6.demolab.local
+</span></span><span style="display:flex;"><span>user: sat-tower
+</span></span><span style="display:flex;"><span>password: Redhat123
+</span></span><span style="display:flex;"><span>validate_certs: False
+</span></span></code></pre></div><p>Below is a list of the groups that are returned by my Satellite server. For example, we can see a group called foreman_hostgroup_prod_web which contains two hosts - prod-web1.demolab.local and prod-web2.demolab.local. This is because I have a hostgroup in Satellite which these two servers are members of.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ ansible-inventory -i foreman.yaml --graph
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span>@all:
+</span></span><span style="display:flex;"><span>  |--@foreman_dev_web:
+</span></span><span style="display:flex;"><span>  |  |--dev-web1.demolab.local
+</span></span><span style="display:flex;"><span>  |--@foreman_prod_haproxy:
+</span></span><span style="display:flex;"><span>  |  |--lb.demolab.local
+</span></span><span style="display:flex;"><span>  |--@foreman_prod_web:
+</span></span><span style="display:flex;"><span>  |  |--prod-web1.demolab.local
+</span></span><span style="display:flex;"><span>  |  |--prod-web2.demolab.local
+</span></span></code></pre></div><p>As well as the groupings, we also get a number of facts from Satellite. Again, here are some snippets from one of the hosts:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ ansible-inventory -i foreman.yaml --host prod-web1.demolab.local
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#e6db74">&#34;foreman_subscription_facet_attributes&#34;</span>: <span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;autoheal&#34;</span>: true, 
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;id&#34;</span>: 4883, 
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;last_checkin&#34;</span>: <span style="color:#e6db74">&#34;2020-01-14 02:08:23 UTC&#34;</span>, 
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;purpose_addons&#34;</span>: <span style="color:#f92672">[]</span>, 
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;purpose_role&#34;</span>: null, 
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;purpose_usage&#34;</span>: null, 
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;registered_at&#34;</span>: <span style="color:#e6db74">&#34;2019-12-10 10:21:03 UTC&#34;</span>, 
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;registered_through&#34;</span>: <span style="color:#e6db74">&#34;sat6.demolab.local&#34;</span>, 
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;release_version&#34;</span>: null, 
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;service_level&#34;</span>: <span style="color:#e6db74">&#34;&#34;</span>, 
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;user&#34;</span>: null, 
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;uuid&#34;</span>: <span style="color:#e6db74">&#34;3a9c2c19-57e4-4f98-b675-99d50d2d5b1e&#34;</span>
+</span></span><span style="display:flex;"><span>    
+</span></span><span style="display:flex;"><span>   
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;lifecycle_environment_name&#34;</span>: <span style="color:#e6db74">&#34;Prod&#34;</span>, 
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;upgradable_module_stream_count&#34;</span>: 0, 
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;upgradable_package_count&#34;</span>: 0, 
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;foreman_location_name&#34;</span>: <span style="color:#e6db74">&#34;London&#34;</span>, 
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>   
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;foreman_organization_name&#34;</span>: <span style="color:#e6db74">&#34;Red Hat&#34;</span>, 
+</span></span><span style="display:flex;"><span>  
+</span></span><span style="display:flex;"><span>...
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;foreman_ip&#34;</span>: <span style="color:#e6db74">&#34;10.50.0.31&#34;</span>, 
+</span></span></code></pre></div><p>This is just a fraction of the information we get from the inventory source, but we can see lot&rsquo;s of useful information here about the subscription status, available errata and other foreman objects. These facts are actually host_vars which we can use in our automation.</p>
 <h3 id="how-can-we-construct-additional-data">How can we &ldquo;construct&rdquo; additional data?</h3>
 <p>So far we have been talking about pretty standard stuff with regards inventories. We&rsquo;ve seen the type of facts and groups we get back from the foreman inventory plugin. But what if we want to dynamically create more groups based on the facts that we are getting back? Of course, if you have the necessary skills then you can modify the inventory plugin to return the information that you need. But, you may not need to do that. There is a really useful inventory plugin which serves this purpose. The <a href="https://docs.ansible.com/ansible/latest/plugins/inventory/constructed.html">constructed</a> inventory plugin takes information from another inventory source and uses that to construct new groups and variables. I really like this because it allows us to keep Ansible simple and avoid writing code if we don&rsquo;t want to.</p>
 <p>Let&rsquo;s use our foreman example above to construct some new groups. As an example use case, let&rsquo;s say I want to group hosts based on the Satellite node they are registred through. This would potentially allow me to identify which datacenter or network zone they are in which could be useful if I need to use a jump host to allow Ansible to manage them. Looking at the output above, we can see that this information is available as a variable:</p>
@@ -328,103 +328,103 @@ validate_certs: False
 <p><strong>foreman_content_facet_attributes.lifecycle_environment_name</strong></p>
 <h3 id="example-1---generating-new-groups">Example 1 - Generating new groups</h3>
 <p>We need a directory for our foreman inventory plugin to live in so that we can source multiple inventory plugins or scripts.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">inventories/
-├── foreman_constructed.yml
-└── foreman.yml
-</code></pre></div><p><strong>NOTE</strong> the constructed inventory plugin relies on data from another inventory  source so we need the foreman.yml plugin to be invoked before the constructed inventory. When sourcing a directory as an Ansible inventory they are executed alphabetically. More information can be found <a href="https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#using-multiple-inventory-sources">here</a>.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>inventories/
+</span></span><span style="display:flex;"><span>├── foreman_constructed.yml
+</span></span><span style="display:flex;"><span>└── foreman.yml
+</span></span></code></pre></div><p><strong>NOTE</strong> the constructed inventory plugin relies on data from another inventory  source so we need the foreman.yml plugin to be invoked before the constructed inventory. When sourcing a directory as an Ansible inventory they are executed alphabetically. More information can be found <a href="https://docs.ansible.com/ansible/latest/user_guide/intro_inventory.html#using-multiple-inventory-sources">here</a>.</p>
 <p>Here are the contents of my <strong>foreman_constructed.yml</strong> file.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">plugin: constructed
-strict: False
-keyed_groups:
-  -  prefix: <span style="color:#e6db74">&#34;&#34;</span>
-     separator: <span style="color:#e6db74">&#34;&#34;</span>
-     key: foreman_subscription_facet_attributes.registered_through
-  -  prefix: <span style="color:#e6db74">&#34;&#34;</span>
-     separator: <span style="color:#e6db74">&#34;&#34;</span>
-     key: foreman_content_facet_attributes.lifecycle_environment_name
-</code></pre></div><p>Now we can source the directory which will incorporate both inventory sources:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">ansible-inventory -i inventories/ --graph
-@all:
-  |--@Dev:
-  |  |--dev-web1.demolab.local
-  |--@Prod:
-  |  |--lb.demolab.local
-  |  |--prod-web1.demolab.local
-  |  |--prod-web2.demolab.local
-  |--@foreman_dev_web:
-  |  |--dev-web1.demolab.local
-  |--@foreman_prod_haproxy:
-  |  |--lb.demolab.local
-  |--@foreman_prod_web:
-  |  |--prod-web1.demolab.local
-  |  |--prod-web2.demolab.local
-  |--@sat6_demolab_local:
-  |  |--dev-web1.demolab.local
-  |  |--lb.demolab.local
-  |  |--prod-web1.demolab.local
-</code></pre></div><p>Note the new groups we now have available to us. I can now target these new groups or assign variables to them using group_vars.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>plugin: constructed
+</span></span><span style="display:flex;"><span>strict: False
+</span></span><span style="display:flex;"><span>keyed_groups:
+</span></span><span style="display:flex;"><span>  -  prefix: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>     separator: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>     key: foreman_subscription_facet_attributes.registered_through
+</span></span><span style="display:flex;"><span>  -  prefix: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>     separator: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>     key: foreman_content_facet_attributes.lifecycle_environment_name
+</span></span></code></pre></div><p>Now we can source the directory which will incorporate both inventory sources:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>ansible-inventory -i inventories/ --graph
+</span></span><span style="display:flex;"><span>@all:
+</span></span><span style="display:flex;"><span>  |--@Dev:
+</span></span><span style="display:flex;"><span>  |  |--dev-web1.demolab.local
+</span></span><span style="display:flex;"><span>  |--@Prod:
+</span></span><span style="display:flex;"><span>  |  |--lb.demolab.local
+</span></span><span style="display:flex;"><span>  |  |--prod-web1.demolab.local
+</span></span><span style="display:flex;"><span>  |  |--prod-web2.demolab.local
+</span></span><span style="display:flex;"><span>  |--@foreman_dev_web:
+</span></span><span style="display:flex;"><span>  |  |--dev-web1.demolab.local
+</span></span><span style="display:flex;"><span>  |--@foreman_prod_haproxy:
+</span></span><span style="display:flex;"><span>  |  |--lb.demolab.local
+</span></span><span style="display:flex;"><span>  |--@foreman_prod_web:
+</span></span><span style="display:flex;"><span>  |  |--prod-web1.demolab.local
+</span></span><span style="display:flex;"><span>  |  |--prod-web2.demolab.local
+</span></span><span style="display:flex;"><span>  |--@sat6_demolab_local:
+</span></span><span style="display:flex;"><span>  |  |--dev-web1.demolab.local
+</span></span><span style="display:flex;"><span>  |  |--lb.demolab.local
+</span></span><span style="display:flex;"><span>  |  |--prod-web1.demolab.local
+</span></span></code></pre></div><p>Note the new groups we now have available to us. I can now target these new groups or assign variables to them using group_vars.</p>
 <h3 id="example-2---generating-new-variables">Example 2 - Generating new variables</h3>
 <p>As well as generating new groups, the constructed inventory plugin can also be used to &ldquo;compose&rdquo; new variables. For this example, I am going to use the IP address that Satellite provided me with <strong>foreman_ipa</strong> variable to set the <strong>ansible_host</strong> variable.</p>
 <p>The complete <strong>foreman_constructed.yml</strong> file now looks as follows:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">plugin: constructed
-strict: False
-compose:
-  ansible_host: foreman_ip
-keyed_groups:
-  -  prefix: <span style="color:#e6db74">&#34;&#34;</span>
-     separator: <span style="color:#e6db74">&#34;&#34;</span>
-     key: foreman_subscription_facet_attributes.registered_through
-  -  prefix: <span style="color:#e6db74">&#34;&#34;</span>
-     separator: <span style="color:#e6db74">&#34;&#34;</span>
-     key: foreman_content_facet_attributes.lifecycle_environment_name
-</code></pre></div><p>This results in the ansible_host variable being set:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ansible-inventory -i inventories/ --host prod-web1.demolab.local
-
-<span style="color:#f92672">{</span>
-    <span style="color:#e6db74">&#34;ansible_host&#34;</span>: <span style="color:#e6db74">&#34;10.50.0.31&#34;</span>, 
-</code></pre></div><h3 id="using-the-constructed-inventory-in-tower">Using the constructed inventory in Tower</h3>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>plugin: constructed
+</span></span><span style="display:flex;"><span>strict: False
+</span></span><span style="display:flex;"><span>compose:
+</span></span><span style="display:flex;"><span>  ansible_host: foreman_ip
+</span></span><span style="display:flex;"><span>keyed_groups:
+</span></span><span style="display:flex;"><span>  -  prefix: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>     separator: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>     key: foreman_subscription_facet_attributes.registered_through
+</span></span><span style="display:flex;"><span>  -  prefix: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>     separator: <span style="color:#e6db74">&#34;&#34;</span>
+</span></span><span style="display:flex;"><span>     key: foreman_content_facet_attributes.lifecycle_environment_name
+</span></span></code></pre></div><p>This results in the ansible_host variable being set:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ ansible-inventory -i inventories/ --host prod-web1.demolab.local
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">{</span>
+</span></span><span style="display:flex;"><span>    <span style="color:#e6db74">&#34;ansible_host&#34;</span>: <span style="color:#e6db74">&#34;10.50.0.31&#34;</span>, 
+</span></span></code></pre></div><h3 id="using-the-constructed-inventory-in-tower">Using the constructed inventory in Tower</h3>
 <p>I&rsquo;ve been using Ansible Engine and the command line so far. But what happens if I am using Ansible Tower for my Ansible automation. The good news is that using a constructed inventory in Ansible Tower is straight forward. We will source the inventory plugins from a source control repository. This ensures I can use source control branching techniques to maintain control over any changes before they are pushed to production.</p>
 <p>My source control repository has the same structure as before with the exception that I no longer need the foreman.ini file. This is because I will pass my credentials from Tower. The repository is <a href="https://github.com/pharriso/ansible_constructed_inventory">here</a>.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">inventories/
-├── foreman_constructed.yml
-└── foreman.yml
-</code></pre></div><p>Also, note how the foreman.yml file no longer contains a username, password or Satellite server URL.</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">plugin: foreman
-validate_certs: False
-</code></pre></div><p>We will use Ansible Tower&rsquo;s credential management capabilities to pass these details to the inventory plugin. But, first we need to create a project in Tower which will pull in our inventory files from source control.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>inventories/
+</span></span><span style="display:flex;"><span>├── foreman_constructed.yml
+</span></span><span style="display:flex;"><span>└── foreman.yml
+</span></span></code></pre></div><p>Also, note how the foreman.yml file no longer contains a username, password or Satellite server URL.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>plugin: foreman
+</span></span><span style="display:flex;"><span>validate_certs: False
+</span></span></code></pre></div><p>We will use Ansible Tower&rsquo;s credential management capabilities to pass these details to the inventory plugin. But, first we need to create a project in Tower which will pull in our inventory files from source control.</p>
 <p><img src="/images/constructed-tower-project.png" alt=""></p>
 <p>As previously mentioned, we are going to use <a href="https://docs.ansible.com/ansible-tower/latest/html/userguide/credentials.html">Ansible Tower&rsquo;s credential management</a> to store all of the credentials that we need to talk to our Satellite server. We need to define a custom credential type to talk to Satellite for the purpose of our inventory plugin. In the Tower UI, Navigate to <strong>Credential Types</strong> and add a new credential with the following details:</p>
 <p><strong>INPUT CONFIGURATION</strong></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">fields:
-  - id: FOREMAN_USER
-    type: string
-    label: Username
-  - id: FOREMAN_PASSWORD
-    type: string
-    label: Password
-    secret: true
-  - id: FOREMAN_SERVER
-    type: string
-    label: Satellite Server
-required:
-  - FOREMAN_USER
-  - FOREMAN_PASSWORD
-  - FOREMAN_SERVER
-</code></pre></div><p><strong>INJECTOR CONFIGURATION</strong></p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">env:
-  FOREMAN_PASSWORD: <span style="color:#e6db74">&#39;{{ FOREMAN_PASSWORD }}&#39;</span>
-  FOREMAN_SERVER: <span style="color:#e6db74">&#39;{{ FOREMAN_SERVER }}&#39;</span>
-  FOREMAN_USER: <span style="color:#e6db74">&#39;{{ FOREMAN_USER }}&#39;</span>
-</code></pre></div><p>You can look at the docs page for the various inventory plugins to understand what variables they expect. An example with a snippet of output can be seen below for the foreman plugin:</p>
-<div class="highlight"><pre style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4"><code class="language-bash" data-lang="bash">$ ansible-doc -t inventory foreman
-
-<span style="color:#f92672">=</span> user
-        foreman authentication user
- 
-        set_via:
-          env:
-          - name: FOREMAN_USER
-</code></pre></div><p>Now that we have a credential type in Ansible Tower, we can create a credential using this new type.</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>fields:
+</span></span><span style="display:flex;"><span>  - id: FOREMAN_USER
+</span></span><span style="display:flex;"><span>    type: string
+</span></span><span style="display:flex;"><span>    label: Username
+</span></span><span style="display:flex;"><span>  - id: FOREMAN_PASSWORD
+</span></span><span style="display:flex;"><span>    type: string
+</span></span><span style="display:flex;"><span>    label: Password
+</span></span><span style="display:flex;"><span>    secret: true
+</span></span><span style="display:flex;"><span>  - id: FOREMAN_SERVER
+</span></span><span style="display:flex;"><span>    type: string
+</span></span><span style="display:flex;"><span>    label: Satellite Server
+</span></span><span style="display:flex;"><span>required:
+</span></span><span style="display:flex;"><span>  - FOREMAN_USER
+</span></span><span style="display:flex;"><span>  - FOREMAN_PASSWORD
+</span></span><span style="display:flex;"><span>  - FOREMAN_SERVER
+</span></span></code></pre></div><p><strong>INJECTOR CONFIGURATION</strong></p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>env:
+</span></span><span style="display:flex;"><span>  FOREMAN_PASSWORD: <span style="color:#e6db74">&#39;{{ FOREMAN_PASSWORD }}&#39;</span>
+</span></span><span style="display:flex;"><span>  FOREMAN_SERVER: <span style="color:#e6db74">&#39;{{ FOREMAN_SERVER }}&#39;</span>
+</span></span><span style="display:flex;"><span>  FOREMAN_USER: <span style="color:#e6db74">&#39;{{ FOREMAN_USER }}&#39;</span>
+</span></span></code></pre></div><p>You can look at the docs page for the various inventory plugins to understand what variables they expect. An example with a snippet of output can be seen below for the foreman plugin:</p>
+<div class="highlight"><pre tabindex="0" style="color:#f8f8f2;background-color:#272822;-moz-tab-size:4;-o-tab-size:4;tab-size:4;"><code class="language-bash" data-lang="bash"><span style="display:flex;"><span>$ ansible-doc -t inventory foreman
+</span></span><span style="display:flex;"><span>
+</span></span><span style="display:flex;"><span><span style="color:#f92672">=</span> user
+</span></span><span style="display:flex;"><span>        foreman authentication user
+</span></span><span style="display:flex;"><span> 
+</span></span><span style="display:flex;"><span>        set_via:
+</span></span><span style="display:flex;"><span>          env:
+</span></span><span style="display:flex;"><span>          - name: FOREMAN_USER
+</span></span></code></pre></div><p>Now that we have a credential type in Ansible Tower, we can create a credential using this new type.</p>
 <p><img src="/images/constructed-tower-credential.png" alt=""></p>
 <p>Next we need to create an inventory:</p>
 <p><img src="/images/constructed-tower-inventory.png" alt=""></p>
@@ -458,6 +458,8 @@ required:
                   <ul>
                 
                 
+                    <li><a href="/post/aap_snow_spoke/">Using the ServiceNow Ansible Spoke</a></li>
+                
                     <li><a href="/post/implicit_localhost/">A journey with Ansible 2.12, implicit localhost and python discovery</a></li>
                 
                     <li><a href="/post/ansible-builder-disconnected/">ansible-builder in a disconnected environment</a></li>
@@ -465,8 +467,6 @@ required:
                     <li><a href="/post/molecule-vm-create/">Using Molecule for VM provisioning roles</a></li>
                 
                     <li><a href="/post/vmware-molecule/">Testing Ansible roles with Molecule and VMware</a></li>
-                
-                    <li><a href="/post/foreman_filtering/">Filtering hosts with the Satellite inventory plugin for Ansible</a></li>
                 
               </ul>
 
@@ -555,7 +555,7 @@ required:
 
           &nbsp;&bull;&nbsp;&copy;
           
-            2022
+            2023
           
 
           
@@ -565,7 +565,7 @@ required:
         </p>
         
         <p class="credits theme-by text-muted">
-          <a href="https://gohugo.io">Hugo v0.80.0</a> powered &nbsp;&bull;&nbsp; Theme <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> adapted from <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
+          <a href="https://gohugo.io">Hugo v0.98.0</a> powered &nbsp;&bull;&nbsp; Theme <a href="https://github.com/halogenica/beautifulhugo">Beautiful Hugo</a> adapted from <a href="https://deanattali.com/beautiful-jekyll/">Beautiful Jekyll</a>
           
         </p>
       </div>
